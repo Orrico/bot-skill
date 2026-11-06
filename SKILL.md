@@ -1,6 +1,6 @@
 ---
 name: bot
-description: Takes roles of this skill's roles/ folder on a project, with its state in the project's .bot/. Usage — /bot <project> [roles] <request>, read as "in project X, as roles Y, do Z": /bot myapp dev+tester execute TASK-071; /bot myapp review --code src/; /bot myapp review TASK-012; /bot myapp manager learn --merge; /bot myapp status. The project is required (. for the current workspace); roles join with +; no roles means the owner of the request.
+description: "Takes roles of this skill's roles/ folder on a project, with its state in the project's .bot/. Usage — /bot <project> [roles] <request>, read as \"in project X, as roles Y, do Z\": /bot myapp dev+tester execute TASK-071; /bot myapp review --code src/; /bot myapp review TASK-012; /bot myapp manager learn --merge; /bot myapp status. The project is required (. for the current workspace); roles join with +; no roles means the owner of the request."
 argument-hint: "<project> [role+role] <request | status | review [TASK-nnn | --kind subject] | learn [--merge | campaign]>"
 disable-model-invocation: true
 ---
