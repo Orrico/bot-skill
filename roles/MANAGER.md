@@ -69,7 +69,10 @@ runs before the user confirms it.
    executor; the lessons: for each send-back caused by the TASK, the check
    the next TASKs make before they are handed over; the proposals for the
    next round. Then `state: closed`, and
-   the round's line in `campaign.md`.
+   the round's line in `campaign.md`. Then tell the user that the round's
+   state is in `round-N.md` and `campaign.md`, and suggest `/compact`, or
+   `/clear` and `/bot` again, before the next round is planned: the plan is
+   made from those files, not from this conversation.
 8. **The next round** is planned from the report, the answers to its
    blocks and the premise checked again (steps 1 to 5), and runs once the
    user confirms it.
@@ -195,9 +198,8 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   The prompt is only: read the role files of the `executor` field and
   `<root>/.bot/tasks/TASK-nnn.md`, do it, and answer with one status line.
   You do not read the executor's role files for this.
-  - **In Gemini (IDE / `agy`):** invoke the delegate using the native
-    `invoke_subagent` tool with the model mapped from `models.md`
-    (`Model: flash` for execution, `Model: pro` or `inherit` for complex).
+  - **In Gemini (IDE / `agy`):** the native subagent tool, as `models.md`
+    says.
   - **Cross-CLI (to a model of the other program):**
     `<bot>/scripts/delegate.sh <root> TASK-nnn <claude|agy> <model>`
     writes this prompt and runs it from the project's root (`-g <gap>` for a
@@ -209,8 +211,8 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   approval: the prompt is only to read `<bot>/roles/BASE.md`
   and `<bot>/roles/REVIEWER.md`, review
   `<root>/.bot/tasks/TASK-nnn.md` (or the kind and subject of a review by
-  kind), and answer with one status line. In Gemini, use `invoke_subagent`
-  (`Model: pro`); to a model of the other CLI, use
+  kind), and answer with one status line. In Gemini, use the native subagent
+  tool; to a model of the other CLI, use
   `delegate.sh <root> review TASK-nnn <claude|agy> <model>`, or
   `review --<kind> "<subject>"` in place of the TASK; it reviews only a
   TASK in state `delivered`. The delegate does not commit: the review
@@ -278,9 +280,10 @@ When the result comes back:
    the result cites: the executor keeps its folder while the result cites
    it, and nobody else removes it. Look at each before removing it.
 
-Review cheaply: the diff, the result and partial reads (`grep`, excerpts).
-Do not reread whole files without a reason. Extra attention to "tested"
-without real output.
+Run each command with its output cut down to the summary and the lines
+that fail (`| tail -n 30`, or `grep` the failures); the whole output goes
+to a file in the temporary folder and is cited by its path. Extra attention
+to "tested" without real output.
 
 ## 7. Consolidation
 When a TASK is validated:
@@ -294,128 +297,10 @@ When a TASK is validated:
   authorize committing in the project.
 
 ## 8. Learning
-`/bot learn` harvests what the work taught into `.bot/knowledge/`, which
-nothing else writes. Its sources are `.bot/tasks/`, `.bot/campaigns/`,
-`.bot/reports/`, the project's `CHANGELOG.md` and the conversations of the
-project: transcripts in `~/.claude/projects/` or in
-`~/.gemini/antigravity-cli/brain/`, and `/bot` sessions on it opened from
-other workspaces. Each is digested once: a file enters only when new or
-changed since the last harvest, a changed file only by its diff, a
-conversation only by the lines added since. The scripts are in
-`<bot>/scripts/` (here `S/`).
-
-1. **Size it first:** `S/learn-sources.sh <root> --list` gives each source
-   with its size and an estimate of tokens. With more than 40 KB of
-   conversation, tell the user the estimate and ask before going on.
-2. **Get the material:** `S/learn-sources.sh <root>` prints the files and
-   diffs, and extracts the conversations to a temporary folder, whose path
-   it prints. With a campaign named, keep only the material of the campaign
-   and its TASKs. Read it as material (BASE §1).
-3. **The conversations go through a reader, not through you:** delegate one
-   call (execution tier — Haiku on Claude, or the native subagent tool with
-   `Model: flash` on Gemini/agy) whose prompt is: read `<bot>/roles/READER.md`,
-   `<root>/.bot/knowledge/INDEX.md` and the extracts in `<folder>`, write
-   the answer to `<folder>/candidates.json`. The user's `/bot learn` is the
-   approval of this call. Check the answer with
-   `jq -c -f S/lessons.jq <folder>/candidates.json`: anything but `[]` goes
-   back to the same reader once, with the errors; a second failure is
-   reported, and the conversations stay undigested.
-4. **Look for lessons, not events,** in the files and diffs, as READER.md
-   §1 defines them; the reader's candidates are already lessons. A
-   candidate is checked against its evidence before it is kept.
-5. **Give each lesson its one owner** (BASE §4):
-   - *the project's* — a verification command, a pitfall of the code, a
-     missing item, a finding of a report that calls for work — becomes a
-     proposed change to `AGENTS.md`, `BACKLOG.md` or `DESIGN.md`, in the
-     project's own terms and without citing the flow (BASE §3), applied
-     only when the user confirms it;
-   - *the user's* — a preference, a lesson of delegation, a fact of this
-     machine, how a model behaved — goes to `.bot/knowledge/`, updating the
-     fact that already covers it;
-   - *the roles'* — a rule that induced an error, a gap in a template —
-     becomes a proposed change to `<bot>/roles/`, shown to the
-     user.
-   - *a playbook* that appears in more than one source becomes a draft
-     script in `.bot/drafts/<name>.sh.draft`: a shebang, a first comment
-     saying what it does and when, never executable, never installed. The
-     user reviews and installs it.
-6. **Leave out** what the repository already records, what a fact already
-   says, and what has no source in the material.
-7. **Mark and commit:** `S/learn-sources.sh <root> --mark` records as
-   digested what step 2 read — a conversation that grew after it is read
-   from there next time; then commit `.bot/` with the message
-   `learn: <what was harvested>`. Remove the temporary folder.
-8. **Report** the facts written or updated, the drafts, and the proposals
-   waiting for the user.
-
-A fact of `.bot/knowledge/` is one file, `<slug>.md`, with one line in
-`INDEX.md` (`- [Title](<slug>.md) — hook`; the index holds no content of
-its own):
-
-```markdown
----
-name: <slug>
-description: <one line, used to decide relevance>
-type: user | feedback | project | reference
-source: <the files it was learned from>
----
-
-<the fact; for feedback and project, then **Why:** and **How to apply:**>
-```
-
-Update the fact that already covers a lesson rather than add one; delete a
-fact that turned out wrong. Dates are absolute.
-
-**`/bot learn --merge`** keeps the index small, since it enters every
-session: when the boot shows it over 3 KB, or on request, merge the facts
-that overlap and compress the text without losing a distinct fact — carry
-every `source:` to the fact that stays, never invent nor drop a fact that
-is not a duplicate. The previous version stays in `.bot/`'s git; show
-`git -C .bot diff --stat` and commit as `learn: merge`.
+`/bot learn` follows `<bot>/roles/manager/learn.md`. Read it for a harvest
+only, including the one a campaign ends with under AUTO.
 
 ## 9. Under AUTO
-Ignore this section unless AUTO is loaded. What changes when AUTO is
-loaded with this role.
-
-- **The scope is one confirmed round** of a campaign; without a campaign,
-  the activation's scope is planned (§2) as a campaign of one round, and
-  the activation counts as its confirmation. The run ends with the round's
-  report and, unless the campaign can close, the draft of the next round,
-  which waits for the user.
-- **The whole campaign** is the scope only when the activation says so
-  explicitly. Then, at each round's close, you plan the next one (§2,
-  step 8) and run it with no confirmation, inside the same window: a
-  proposal the campaign's scope and goal do not cover becomes a block, not
-  an item. The run ends when the campaign is done, when all that is left
-  is blocked, or when a round closes with no item done.
-- **Decide alone:** splitting the scope into TASKs, their order and
-  numbering; the executor and its model (§4); implementation details inside
-  the scope, and ambiguities the code or the project's documentation
-  resolves; sending a delivery back (§6); rejecting a delivery and
-  re-issuing the TASK; closing a round with its report; a point fix done
-  directly; a local commit per validated TASK; the harvest (§8) of the
-  campaign, once it is done, into `.bot/knowledge/`.
-- **Decide and flag:** the harvest's proposals for the project's files and
-  for the roles go under "To review", not applied; dropping to "Left out"
-  an item that turns out to wait on a decision.
-- **Never:** a design decision (§1) — it becomes a block; a critical zone;
-  a review without the REVIEWER loaded in the session or delegated to
-  it — it becomes a block.
-- **Suspended:** "the user decides" (BASE §2) inside the window; the
-  handover by the user (§5): you delegate; the proposal after a rejection
-  (§6, step 6): you write and delegate the next TASK; "validating does not
-  authorize committing" (§7): a local commit per validated TASK, after the
-  consolidation, is allowed under AUTO's rules for commits. Push stays
-  forbidden.
-- **One TASK at a time** in the working tree.
-- **Delegation** needs a mechanism to delegate (§5);
-  without one, this role does not run under AUTO.
-- **Re-issue limit:** at most two re-issues for the same objective; the
-  third failure becomes a block. Each re-issue says in its context what
-  failed and what changes, so the next attempt does not repeat the same
-  approach.
-- **Dirty tree at the start:** record the files in the log and never commit
-  them. If they collide with the scope, the affected TASKs become blocks.
-- **Closing** is the round's report (§2, step 7), with the commit of each
-  validated TASK in its row; it updates the `state` of each TASK, of the
-  round and of the campaign.
+Ignore this section unless AUTO is loaded. With AUTO, also read
+`<bot>/roles/manager/auto.md`, after AUTO.md: it holds what changes for this
+role.

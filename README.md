@@ -28,6 +28,7 @@ read as "in project X, as roles Y, do Z":
 |---|---|
 | [`SKILL.md`](SKILL.md) | the skill: how `/bot` reads its arguments and boots |
 | [`roles/`](roles/) | one file per role; `BASE.md` is what the coordinating roles share |
+| [`roles/manager/`](roles/manager/) | the parts of the MANAGER read on demand: the harvest (`learn`) and the run under AUTO |
 | [`roles/reviews/`](roles/reviews/) | one file per kind of review (`--code`, `--design`, …) |
 | [`roles/templates/`](roles/templates/) | the forms of a campaign, a round, a TASK and a review |
 | [`scripts/`](scripts/) | boot and status of a project, delegation to another CLI, the harvest's sources |

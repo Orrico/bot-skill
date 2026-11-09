@@ -20,6 +20,10 @@ replace `$ARGUMENTS` with the command's text, which `SKILL.md` allows for.
 - **Executors carry all they need.** DEV, TESTER, WRITER and READER are read
   alone by a delegate, which may be any model in any tool: a rule they need
   stays in them, even when the global rules or BASE say it already.
+- **What a campaign session does not use stays out of `MANAGER.md`.** The
+  harvest and the run under AUTO are in `roles/manager/`, read on demand: a
+  rule the MANAGER needs in every campaign goes in `MANAGER.md`, since
+  every line there is reread on every turn.
 - **Each file has one writer,** and the role that writes it sets its format.
   A new format goes to the role that writes the file, or to
   `roles/templates/` when it is a form.
