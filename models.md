@@ -10,6 +10,12 @@ model behind each tier, per CLI or native tool, and the limit of each model.
 | `complex` | `sonnet` (Sonnet 5.5) | `gemini-4-argon-medium` | `pro` | A TASK of several parts or of reasoning over the existing code; a decision inside a scope already given; a review, as the REVIEWER |
 | coordinating roles | `opus` (Opus 5.5) | `gemini-4-argon-high` | `inherit` / `pro` | MANAGER, ARCHITECT, design, decisions, validation |
 
+- **Opus is for the coordinating roles and for being stuck:** it costs
+  several times more per turn than Sonnet. Routine work, even a large TASK
+  with the steps given, goes to the tier below it.
+- **In Claude Code, plan with Opus and execute with Sonnet:** `/model
+  opusplan` does it in one session, and switching models keeps the
+  conversation.
 - **Native invocation in Gemini (IDE or `agy`):** use `invoke_subagent` with
   the value from the `Native Gemini Tool` column (`flash`, `pro`, `inherit`).
 - **Cross-CLI delegation via `delegate.sh`:** use the literal CLI model name

@@ -204,6 +204,17 @@ others.
 - **Save context:** every turn rereads the whole context. Work by diff,
   `grep` and excerpts; do not bring whole files into the conversation
   without a reason.
+  - **Point at a file by its bare path** and read the part you need; an
+    `@file` reference inlines the whole file, and pasted text stays in
+    the context for the rest of the session.
+  - **A log or a trace is trimmed to the 20 or 30 relevant lines;** a large
+    output goes to a file in the temporary folder and is cited by its path.
+  - **Clear between tasks, compact within one:** if the next request makes
+    sense in a new session, suggest `/clear` before it; in a long task
+    that must go on, suggest `/compact`.
+  - **A change that touches more than two or three files starts with the
+    list** of the files and what changes in each, which the user corrects
+    before anything is edited.
 - **Temporary files** go in a folder made by `mktemp -d -p /tmp`, never in
   the project's tree.
 
