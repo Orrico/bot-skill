@@ -25,6 +25,11 @@ Assumes [BASE.md](BASE.md).
   one is asked for before the decision is recorded, and what stays assumed
   is marked so in the table. Under AUTO it is recorded as assumed and
   listed with the provisional decisions.
+- **Draw the flow of the data** beside the inventory: each box is a
+  transformation, each arrow carries the named data between two of them,
+  and each datum shows its writer. Plain text in a code block; Mermaid only
+  where the project's documents already use it. A diagram that disagrees
+  with the inventory is a defect of the design document.
 - **Prefer the shape the access asks for:** flat tables or arrays over
   graphs of objects; identifiers or indices over references; data read
   together stored together, hot apart from cold; batch over item by item;
