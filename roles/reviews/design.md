@@ -21,8 +21,10 @@ for what it guarantees and how it fails, before or after it is built.
    objects chosen without one? Does each choice name what it gives up?
    Does each fact of the inventory carry its source (given, measured or
    assumed), and does a decision rest on an assumed volume or access
-   pattern? A gap, or a decision resting on an assumption, is a finding,
-   classified as in step 5.
+   pattern? Does a diagram of the flow of the data sit beside the
+   inventory, and does it agree with it — the same data, the same writers?
+   A gap, a disagreement, or a decision resting on an assumption, is a
+   finding, classified as in step 5.
 4. **Against the code,** when there is code: does it do what the design
    says, and does each invariant have a test that fails when it breaks?
    Name the test, or say that none exists.
