@@ -14,14 +14,23 @@ for what it guarantees and how it fails, before or after it is built.
    open (concurrency, partial failure, crash between two writes, bad input,
    growth in data or users), the edge cases, and the alternatives that were
    real, with their trade-off.
-3. **Against the code,** when there is code: does it do what the design
+3. **Check the data:** does the design state what the data is — shape,
+   volume, access pattern, lifetime, owner — and keep an inventory of it
+   with one writer per datum? For each structure, does it follow from a
+   named access pattern, or is it a hierarchy of types or a graph of
+   objects chosen without one? Does each choice name what it gives up?
+   Does each fact of the inventory carry its source (given, measured or
+   assumed), and does a decision rest on an assumed volume or access
+   pattern? A gap, or a decision resting on an assumption, is a finding,
+   classified as in step 5.
+4. **Against the code,** when there is code: does it do what the design
    says, and does each invariant have a test that fails when it breaks?
    Name the test, or say that none exists.
-4. **Classify** each finding: *bug in the design* (a contradiction, an
+5. **Classify** each finding: *bug in the design* (a contradiction, an
    invariant that cannot hold, a requirement left uncovered), *hardening*
    (holds today, fails under a named condition), or *suggestion* (an
    alternative with its trade-off).
-5. **Separate** what is already in the project's `BACKLOG.md`, citing the
+6. **Separate** what is already in the project's `BACKLOG.md`, citing the
    item.
 
 ## Template

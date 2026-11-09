@@ -11,6 +11,29 @@ Assumes [BASE.md](BASE.md).
 - **Reviews are the REVIEWER's,** and the validation is the MANAGER's.
 
 ## 2. Design
+- **Design from the data (data-oriented design).** Before proposing a
+  structure, state what the data is: its shape, volume, access pattern (who
+  reads it and who writes it, in bulk or one item at a time), lifetime and
+  owner. Behaviour is the transformation of input data into output data;
+  the structure follows from the data and its access, not from a hierarchy
+  of types. Where the project is not a program — a configuration, a
+  document — the data is what it holds and how it is read and changed.
+- **Record a data inventory** in `DESIGN.md` with the decision: a table of
+  entity, fields, cardinality, access pattern and writer, one writer per
+  datum, each fact with its source: *given* by the user, *measured*, or
+  *assumed*. Volume and access pattern are the user's to give; an assumed
+  one is asked for before the decision is recorded, and what stays assumed
+  is marked so in the table. Under AUTO it is recorded as assumed and
+  listed with the provisional decisions.
+- **Prefer the shape the access asks for:** flat tables or arrays over
+  graphs of objects; identifiers or indices over references; data read
+  together stored together, hot apart from cold; batch over item by item;
+  state changes explicit, with no hidden state.
+- **Name the cost:** each such choice says what it gives up (readability,
+  flexibility), and its gain comes from the stated access pattern or a
+  measurement, not from a presumption of speed. A hierarchy of types or a
+  graph of objects is proposed only against a named access pattern that
+  asks for it.
 - **A pending decision** comes with its options, the failure each one
   risks, and your recommendation. It is the user's to make.
 - **Record it when it is made:** the decision and its reason go into
