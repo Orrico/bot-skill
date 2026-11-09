@@ -220,50 +220,45 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   review by kind.
 
 ## 6. Validation
-**A review before the validation** — by the REVIEWER, delegated to the
-complex tier (§5) or in a session of the user's — is judged by the
-delivery, not by the TASK's tier. It is due when the delivery touches a
-critical zone, was already sent back once for a gap of the executor, or
-holds a condition you cannot break by mutation (step 4): concurrency, a
-peer's timing, a path no test reaches. Otherwise you validate alone, and
-the validation's notes say why no review was asked. You do not write the
-review, nor take the REVIEWER in this session: who reviews is not who
-wrote the TASK.
+**Every delivered TASK is reviewed before it is validated:** by the
+REVIEWER, delegated to the complex tier (§5) or in a session of the user's.
+The review runs the checks — the diff against the TASK, the acceptance
+criteria, the mutation of each condition the change adds — and you validate
+from it, without running them again. You do not write the review, nor take
+the REVIEWER in this session: who reviews is not who wrote the TASK. With
+no review (the user declines the delegation, or there is no mechanism to
+delegate), run those checks yourself, reading REVIEWER §3, steps 2, 3 and
+6, as material (BASE §1).
 
 When the result comes back:
 
 1. Read `TASK-nnn-result.md` and check that it covers the deliverable. What
    its "Environment" section points out becomes an adjustment: a line in the
    project's `AGENTS.md`, in the next TASK or in these role files, or a tool
-   to provide — never the same gap in the next TASK. If `TASK-nnn-review.md`
-   exists, read it with the result: each claim in it is checked like any
-   reported evidence, and it does not replace the next steps.
-2. Compare the real diff (`git status`, `git diff`) with the TASK's "Files"
-   table and with the result's "Changed files". A file out of the list or an
+   to provide — never the same gap in the next TASK. Then get the review
+   and read `TASK-nnn-review.md`.
+2. The review's "Files" table sets the real diff against the TASK's "Files"
+   table and the result's "Changed files". A file out of the list or an
    undeclared change is a failure.
 3. **With a tester,** the result shows each new test failing before the
    change (or failing under mutation, for `tester` alone), with the real
    output. Without that output, the tests prove nothing: the delivery fails.
-4. Run the acceptance criteria yourself. Reported evidence does not replace
-   execution. For each condition the change adds, critical or not, check
-   that its test fails without it: break it by hand with a pattern found
-   once in the file (`grep -c` it first), confirm that the edit took
-   (`cmp` with the copy must differ: a `grep` for the pattern may match
-   the replacement), run the tests (one must fail), restore by copy
-   (never `git checkout`), confirm with `cmp`, touch the file and run them
-   again, twice (they must pass: a stale build can read a failure once).
-   A mutation that may loop for good, a retry that never stops, runs under
-   `timeout`. A mutation that leaves every test green is a gap: the test goes
-   back to the executor before the verdict. A mutation that may write
-   outside the tree or under the user's home is not run, or is followed
-   by a look at what it left.
+4. Accept the review only if each acceptance criterion carries its command
+   and real output, and each mutation names the test that failed; for what
+   is missing, ask the reviewer again. What the executor reports does not
+   replace the review's output. A mutation that leaves every test green is
+   a gap: the test goes back to the executor before the verdict. A
+   condition that cannot be broken by mutation — concurrency, a peer's
+   timing, a path no test reaches — the review says so, and you judge it
+   from the code.
    **Send back, not reject,** a gap inside the TASK's own scope — a test
    of a condition it adds, a file its objective needs, a criterion not met:
    the same executor gets the TASK again with the gap, adds a section to
-   its result, and the `state` stays `delivered`. At most two send-backs
-   per TASK; a third gap, or one outside the TASK's scope, is a rejection.
-   In a campaign, each send-back is one line in the round's log, with the
-   gap and its cause, the TASK or the executor.
+   its result, the `state` stays `delivered` and the review is redone on
+   the new delivery. At most two send-backs per TASK; a third gap, or one
+   outside the TASK's scope, is a rejection. In a campaign, each send-back
+   is one line in the round's log, with the gap and its cause, the TASK or
+   the executor.
 5. Append to the end of the result:
 
    ```markdown

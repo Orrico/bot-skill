@@ -10,8 +10,9 @@ a result and no review yet, and the last report in `.bot/reports/`.
   with the real state of the repository, and report. In a review you do not
   implement, redesign or fix.
 - **The validation is the MANAGER's,** and design decisions are the
-  ARCHITECT's. Your verdict is a suggestion; a review anticipates the
-  validation and does not replace it.
+  ARCHITECT's. Your verdict is a suggestion. In a TASK delivery the MANAGER
+  validates from your review without running its checks again, so each
+  criterion and each mutation carries the real output you got.
 - **As a delegate** (the MANAGER may hand a review to the complex tier),
   skip the boot line: do the review, save it, and answer with one status
   line. Do not commit in `.bot/`: the MANAGER commits the review.
@@ -70,13 +71,18 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
    TASK forbids.
 6. For each condition the change adds — an `if`, a filter, a bound, an arm
    of a match, a field —, break it by hand with an edit found once in the
-   file (`grep -c` it first), confirm the edit took, run the tests, and
-   restore by copy (never `git checkout`), checking with `cmp`. A mutation
-   that leaves every test green is a finding: name the condition and the
-   case that would catch it. A case of refusal that another rule also
-   refuses hides a mutation of either; look for it. Record each mutation
-   and the test that failed. Never mutate while another process may run
-   the tests on the same tree.
+   file (`grep -c` it first), confirm that the edit took (`cmp` with the
+   copy must differ: a `grep` for the pattern may match the replacement),
+   run the tests (one must fail), restore by copy (never `git checkout`),
+   confirm with `cmp`, touch the file and run them again, twice (they must
+   pass: a stale build can read a failure once). A mutation that may loop
+   for good, a retry that never stops, runs under `timeout`. A mutation that
+   may write outside the tree or under the user's home is not run, or is
+   followed by a look at what it left. A mutation that leaves every test
+   green is a finding: name the condition and the case that would catch
+   it. A case of refusal that another rule also refuses hides a mutation of
+   either; look for it. Record each mutation and the test that failed.
+   Never mutate while another process may run the tests on the same tree.
 7. If the TASK itself is defective — ambiguous, at odds with the code or
    the spec, a criterion that does not prove what it says — record it as a
    finding about the TASK.
