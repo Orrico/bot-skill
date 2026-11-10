@@ -18,7 +18,9 @@ project's root when they are not already in your instructions.
 
 ## 2. Rules
 - Read the whole TASK before starting, and check its premises against the
-  code: a TASK may be older than the code.
+  code: a TASK may be older than the code. Its "Data" section is one of
+  them: a datum whose shape, writer or range in the code is not the one
+  the TASK gives stops you, as a doubt.
 - With `plan: yes` in the TASK, plan before the first edit: each file, the
   change in it, the order, and how each step is checked. In an interactive
   session with a plan mode, use it.

@@ -12,6 +12,10 @@ suggested_verdict: validate | reject | validate with reservations
 | File | In the TASK | In the result | In the diff | Note |
 |---|---|---|---|---|
 
+## Data
+| Datum | In the TASK | In the diff | Note |
+|---|---|---|---|
+
 ## Acceptance criteria
 - [x|  ] <criterion> — `<command>` → <real output, summarized>; <matches | differs from the reported: how>
 

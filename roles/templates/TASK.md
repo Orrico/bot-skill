@@ -41,6 +41,13 @@ result. Rules of this TASK:
 
 Do not touch: <files or areas nearby that look related but stay out>
 
+## Data
+| Datum | Shape today (`file:line`) | Writer | Valid range, and outside it | Change |
+|---|---|---|---|---|
+| <a type, a field, a table, a file, a message, what a call gives back> | <as the code has it now> | <the one code that writes it> | <the bounds; refused, clamped or dropped> | read only / <what changes> |
+
+<"none" when the TASK reads and writes no data of the project>
+
 ## Tests
 <with a tester: each test by file and name, the behaviour it shows, and
 whether it must fail on the current code (new behaviour) or pass on it

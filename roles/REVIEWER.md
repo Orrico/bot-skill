@@ -60,7 +60,9 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
 1. Read the whole `TASK-nnn.md` and `TASK-nnn-result.md`.
 2. Compare the real diff (`git status`, `git diff`) with the TASK's "Files"
    table and with the result's "Changed files". A file out of the list or an
-   undeclared change is a finding.
+   undeclared change is a finding. So is, where the TASK has a "Data"
+   section, a datum the diff reads or writes that the section lacks, or one
+   whose shape, writer or range in the diff is not the one it gives.
 3. Run each acceptance criterion yourself and record the real output. Point
    out where it differs from the one reported.
 4. Check each item of "Constraints" and the rules of the executor's role

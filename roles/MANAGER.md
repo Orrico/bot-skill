@@ -66,10 +66,10 @@ runs before the user confirms it.
    output; why each item not done did not close — a TASK that did not
    execute points to its result, an item that never became a TASK
    (delegation failed, found done, a decision missing) is a line there;
-   the send-backs and re-issues, each with its cause, the TASK or the
-   executor; the lessons: for each send-back caused by the TASK, the check
-   the next TASKs make before they are handed over; the proposals for the
-   next round. Then `state: closed`, and
+   the send-backs and re-issues, each with its cause, one word of the
+   template's set; the lessons: for each send-back caused by the TASK, the
+   check the next TASKs make before they are handed over; the proposals
+   for the next round. Then `state: closed`, and
    the round's line in `campaign.md`. Then tell the user that the round's
    state is in `round-N.md` and `campaign.md`, and suggest `/compact`, or
    `/clear` and `/bot` again, before the next round is planned: the plan is
@@ -140,13 +140,22 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   out: a step never tried is a guess the executor stops on.
   With the TASK written,
   `<bot>/scripts/task-preflight.sh <root> TASK-nnn <name>…` checks it
-  against the tree: each path of "Files" there or absent, each criterion's
-  command run with its status, and each name the TASK changes or removes —
+  against the tree: each path of "Files" there or absent, each `file:line`
+  it cites there and that long, each criterion's command run with its
+  status, and each name the TASK changes or removes —
   a field, a message, an error code — searched in its snake, camel and
   kebab forms, the files the TASK does not cite marked. A path at odds
   with its action, a criterion that fails for a reason other than the
   missing change, or a file not cited, is settled before the TASK goes
   out.
+- **The data read from the code:** the "Data" section gives each datum the
+  TASK reads or writes — a type, a field, a table, a file, a message, what
+  a call its tests assert on gives back — as the code has it now, copied
+  from its `file:line` and not from memory or from a type's name: its
+  shape, the one writer, the valid range with what happens outside it, and
+  what the TASK changes in it. Where the project's design keeps a data
+  inventory, each row agrees with it; a difference is a design change
+  (§1), settled before the TASK.
 - **Context by reference:** paths, `file:line`, commits. Short excerpts only
   when indispensable; never whole files.
 - **Acceptance criteria verifiable by command:** "it works" is not a
@@ -273,8 +282,8 @@ When the result comes back:
    its result, the `state` stays `delivered` and the review is redone on
    the new delivery. At most two send-backs per TASK; a third gap, or one
    outside the TASK's scope, is a rejection. In a campaign, each send-back
-   is one line in the round's log, with the gap and its cause, the TASK or
-   the executor.
+   is one line in the round's log, with the gap and its cause, one word of
+   the round template's set.
 5. Append to the end of the result:
 
    ```markdown
@@ -301,7 +310,9 @@ When a TASK is validated:
 
 - Update the project's standard files: take the item out of `BACKLOG.md`,
   record it in `CHANGELOG.md`, and reflect in `DESIGN.md` (or the project's
-  equivalent) what the delivery made true. A decision is recorded by the
+  equivalent) what the delivery made true — where it keeps a data
+  inventory, the rows of each datum the TASK's "Data" section says it
+  changed. A decision is recorded by the
   ARCHITECT when it is made; you record what the code now does.
 - `.bot/knowledge/` is not touched: lessons wait for the harvest (§8).
 - Commit the validated TASK in the project: locally, on the current

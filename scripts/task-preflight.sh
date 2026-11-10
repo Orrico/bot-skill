@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # usage: task-preflight.sh <root> TASK-nnn [--no-run] [<name>...] — checks a written TASK
 # against the current tree, before it is handed over:
-#   files     each backticked path in the first cell of a table row: there or absent
+#   files     each backticked path in the first cell of a table row whose second cell has no
+#             backtick (the "Files" table, not "Data"): there or absent
+#   refs      each backticked `path:line`: the file there and that long
 #   criteria  each `- [ ] `command`` line: the command run from <root>, its status and last line
 #   names     each <name> the TASK changes or removes (a field, a message, an error code), in its
 #             snake_case, camelCase, PascalCase and kebab-case forms: the files that hold it,
@@ -21,10 +23,22 @@ for a in "$@"; do case "$a" in --no-run) run=0;; *) names+=("$a");; esac; done
 cd "$root" || exit 2
 
 echo "files:"
-sed -n -E 's/^\| *`([^`<>]+)` *\| *([^|]*[^| ]) *\|.*/\1\t\2/p' "$task" | while IFS=$'\t' read -r path action; do
+sed -n -E 's/^\| *`([^`<>]+)` *\| *([^|`]*[^|` ]) *\|.*/\1\t\2/p' "$task" | while IFS=$'\t' read -r path action; do
   if [ -e "$path" ]; then there=there; else there=absent; fi
   printf '  %-7s %s (%s)\n' "$there" "$path" "$action"
 done
+
+echo "refs:"
+checked=0 bad=0
+while IFS=: read -r path line; do
+  checked=$((checked + 1))
+  if [ ! -f "$path" ]; then
+    echo "  absent  $path:$line"; bad=$((bad + 1))
+  elif [ "$(wc -l < "$path")" -lt "$line" ]; then
+    echo "  short   $path:$line ($(wc -l < "$path") lines)"; bad=$((bad + 1))
+  fi
+done < <(grep -oE '`[^` :]+:[0-9]+' "$task" | tr -d '`' | sort -u)
+echo "  $checked checked, $bad wrong"
 
 echo "criteria:"
 tmp=$(mktemp -d -p /tmp preflight.XXXXXX)
