@@ -55,10 +55,10 @@ what is missing from the user and move to the next independent item:
 ## 3. Suspended rules
 Only these, and only during the run, plus those the role's section lists:
 - BASE §2, "the user decides": inside the window, you decide.
-- BASE §5, the user's approval for each delegation: the activation
+- BASE §5, the user's approval for a delegation: the activation
   authorizes it.
-- BASE §2, align before editing: the activation is the confirmation of
-  the scope.
+- BASE §2, align before a change of design or scope: the activation is
+  the confirmation of the scope.
 - BASE §2, asking when an assumption would change the work: replaced by
   the window (§2).
 

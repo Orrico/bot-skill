@@ -70,19 +70,20 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
    writes and of `fsync`, the error handling, the exception path, what the
    TASK forbids.
 6. For each condition the change adds — an `if`, a filter, a bound, an arm
-   of a match, a field —, break it by hand with an edit found once in the
-   file (`grep -c` it first), confirm that the edit took (`cmp` with the
-   copy must differ: a `grep` for the pattern may match the replacement),
-   run the tests (one must fail), restore by copy (never `git checkout`),
-   confirm with `cmp`, touch the file and run them again, twice (they must
-   pass: a stale build can read a failure once). A mutation that may loop
-   for good, a retry that never stops, runs under `timeout`. A mutation that
-   may write outside the tree or under the user's home is not run, or is
-   followed by a look at what it left. A mutation that leaves every test
-   green is a finding: name the condition and the case that would catch
-   it. A case of refusal that another rule also refuses hides a mutation of
-   either; look for it. Record each mutation and the test that failed.
-   Never mutate while another process may run the tests on the same tree.
+   of a match, a field —, break it once with
+   `<bot>/scripts/mutate.sh <root> <file> <old> <new> -- <test command>`:
+   it makes the edit, which must be found once in the file, runs the tests
+   (one must fail), restores the file by copy and runs them twice more
+   (they must pass: a stale build can read a failure once). A mutation
+   that may loop for good, a retry that never stops, runs with a short
+   `MUTATE_TIMEOUT`. A mutation that may write outside the tree or under
+   the user's home is not run, or is followed by a look at what it left. A
+   mutation that survives is a finding: name the condition and the case
+   that would catch it. A case of refusal that another rule also refuses
+   hides a mutation of either; look for it. Record each mutation and the
+   test that failed. The result's own "Mutations" table does not replace
+   yours. Never mutate while another process may run the tests on the same
+   tree.
 7. If the TASK itself is defective — ambiguous, at odds with the code or
    the spec, a criterion that does not prove what it says — record it as a
    finding about the TASK.

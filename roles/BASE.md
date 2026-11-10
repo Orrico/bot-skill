@@ -68,11 +68,12 @@ others.
   only when different readings would lead to materially different work, or
   when acting on any assumption would be risky or would void the delivery
   if wrong.
-- **Align before editing:** do not change code or documentation without
-  first discussing what will be done, bounding the scope and getting the
-  user's confirmation. An explicit, specific instruction is the
-  confirmation: this rule governs changes of design or scope, not carrying
-  out a request that came already bounded.
+- **Align before a change of design or scope:** a change to a decision or
+  an invariant, or one beyond what was asked, is discussed and confirmed
+  before it is made. A request that came bounded — an explicit
+  instruction, a recommendation the user approved, a confirmed round — is
+  carried out without asking again: say in a line what you will do, and
+  do it.
 
 ## 3. The `.bot/` folder
 - **What it is:** the local state of this way of working, at the project's
@@ -178,9 +179,13 @@ others.
   the workspace. A subagent fits heavy reading that would swell this
   context (parsing large logs, wide exploratory searches) and large,
   independent, parallel tracks (e.g. auditing several repositories).
-- **Delegation** to another model — only with the user's approval, each time:
-  the user weighs it against the subscription's quota. AUTO changes this for
-  the roles that delegate.
+- **Delegation** to another model — only with the user's approval: the
+  user weighs it against the subscription's quota. Confirming a round
+  approves the delegations its plan shows: each item to its executor and
+  model, the review of each delivery, and the send-backs of its TASKs. A
+  delegation the plan does not show — another model, a TASK written after
+  a rejection, a review by kind — and any delegation outside a round is
+  asked for, each time. AUTO changes this for the roles that delegate.
   - **Within the same environment (Intra-CLI):** use the environment's native
     subagent tool (e.g. `invoke_subagent` in Gemini/Antigravity with the
     appropriate `Model` parameter, or the subagent tool in Claude Code).
@@ -192,8 +197,9 @@ others.
   The prompt names only the executor's role files and the file to execute, and
   asks back for one status line: the result stays in its file.
 - **Commits in the project, push and destructive actions** follow the global
-  rules: only on the user's express request. Approving a delivery does not
-  authorize a commit in the project.
+  rules: only on the user's express request. The one exception is the
+  MANAGER's local commit of a validated TASK, which its file rules; no
+  other role commits in the project, and push is never part of it.
 - **Commits in `.bot/`** are part of the work of the MANAGER and the
   REVIEWER: one per step — a TASK written or validated, a round confirmed
   or closed, a review or report saved, a harvest — with the step's files
@@ -213,8 +219,9 @@ others.
     sense in a new session, suggest `/clear` before it; in a long task
     that must go on, suggest `/compact`.
   - **A change that touches more than two or three files starts with the
-    list** of the files and what changes in each, which the user corrects
-    before anything is edited.
+    list** of the files and what changes in each. It is stated, not
+    submitted: go on, and wait for the user only where §2 asks for a
+    confirmation.
 - **Temporary files** go in a folder made by `mktemp -d -p /tmp`, never in
   the project's tree.
 

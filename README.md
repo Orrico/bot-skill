@@ -31,7 +31,7 @@ read as "in project X, as roles Y, do Z":
 | [`roles/manager/`](roles/manager/) | the parts of the MANAGER read on demand: the harvest (`learn`) and the run under AUTO |
 | [`roles/reviews/`](roles/reviews/) | one file per kind of review (`--code`, `--design`, …) |
 | [`roles/templates/`](roles/templates/) | the forms of a campaign, a round, a TASK and a review |
-| [`scripts/`](scripts/) | boot and status of a project, delegation to another CLI, the harvest's sources |
+| [`scripts/`](scripts/) | boot and status of a project, delegation to another CLI, the harvest's sources, a TASK's check against the tree, the mutation of a condition |
 | [`models.md`](models.md) | which model takes which work, in each CLI |
 
 The roles name the skill's own folder as `<bot>`; the scripts find it from

@@ -31,13 +31,29 @@ instructions.
    — an assertion about the missing behaviour. A failure to compile counts
    only when the TASK adds the API the test calls; say so.
 3. Record that output, then make the change; the test must pass after it.
+4. Break each condition the change added — an `if`, a filter, a bound, an
+   arm of a match, a field —, one at a time, with the mutation below: a
+   test must fail. For one that survives, write the test that fails under
+   it, in a test file the TASK lists, run the mutation again, and record
+   that test under "Pending and deviations" as added beyond the TASK. If
+   no listed file can hold it, record the survivor and set
+   `status: partial`.
 
 **Behaviour that exists** (tester alone):
 1. Write each test the TASK names; it must pass on the current code.
-2. Prove it can fail: copy the file of the rule aside, break the rule by
-   hand, confirm that the edit took (`grep` the line: a formatter may have
-   rewrapped it), run the test (it must fail), restore by copy — never
-   `git checkout` —, confirm with `cmp`, run it again (it must pass).
+2. Prove it can fail: break the rule with the mutation below; the test
+   must fail.
+
+**The mutation:**
+`<bot>/scripts/mutate.sh <root> <file> <old> <new> -- <test command>`,
+where `<bot>` is the folder that holds this file's `roles/`. It replaces
+`<old>`, which must be found once in `<file>`, by `<new>`, runs the
+command from the project's root, restores the file by copy and runs the
+command twice more; it prints `killed` or `SURVIVED`, and `INVALID` when
+the tests fail on the restored file. A mutation that may loop for good
+runs with a short `MUTATE_TIMEOUT` (seconds). One that may write outside
+the tree or under the user's home is not run, and is recorded as not run.
+Never run it while another process may run the tests on the same tree.
 
 For logic that is not trivial, a minimal reference implementation in a
 temporary folder (`mktemp -d -p /tmp`), never in the tree, shows the test
@@ -83,6 +99,11 @@ The section, in both cases:
     |---|---|---|---|
     | | | fails: <assertion> / passes | passes / fails under mutation: <rule broken> |
     <the real output of each run, summarized>
+
+    ## Mutations
+    | Condition (`file:line`) | Edit | Test that failed |
+    |---|---|---|
+    | <the condition> | <old> → <new> | <test name; "survived"; "not run": why> |
 
 **A TASK sent back** comes to you again with one gap: fix only that gap,
 under the same rules, and add to the end of the result a section

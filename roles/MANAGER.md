@@ -53,7 +53,8 @@ runs before the user confirms it.
 5. **Save it with `state: draft`** — the first round together with
    `campaign.md` — and show the user the plan and what was left out. The
    user may edit the files before confirming. On their confirmation,
-   `state: confirmed`, and the campaign's too.
+   `state: confirmed`, and the campaign's too; it approves the delegations
+   the plan shows (BASE §5).
 6. **Inside a round:** re-issuing a rejected TASK, sending one back (§6),
    splitting an item into several TASKs of the same objective, or changing
    the order, goes into the plan with one line in the round's log. An item
@@ -104,7 +105,9 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
 - **The executor is one delegate, with one or two role files** (`executor`):
   - `dev` — the change, with no new tests, or with tests the TASK gives;
   - `dev+tester` — the change and its new tests, in one call: the delegate
-    writes the tests first and proves they fail before the change;
+    writes the tests first, proves they fail before the change, and after
+    it breaks each condition the change added, adding the test a surviving
+    one lacks;
   - `tester` — tests only, for behaviour that already exists: they pass on
     the current code and fail when the rule is broken.
 
@@ -135,6 +138,15 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   Every command the TASK hands the executor — a git call, its flags, an
   output the code parses — is run on the real tool before the TASK goes
   out: a step never tried is a guess the executor stops on.
+  With the TASK written,
+  `<bot>/scripts/task-preflight.sh <root> TASK-nnn <name>…` checks it
+  against the tree: each path of "Files" there or absent, each criterion's
+  command run with its status, and each name the TASK changes or removes —
+  a field, a message, an error code — searched in its snake, camel and
+  kebab forms, the files the TASK does not cite marked. A path at odds
+  with its action, a criterion that fails for a reason other than the
+  missing change, or a file not cited, is settled before the TASK goes
+  out.
 - **Context by reference:** paths, `file:line`, commits. Short excerpts only
   when indispensable; never whole files.
 - **Acceptance criteria verifiable by command:** "it works" is not a
@@ -192,9 +204,13 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   in its context, what was missing.
 
 ## 5. Handing over
+Before either way, `git status --short`: it tells, at the commit (§7),
+which files of the TASK already held changes.
+
 - **By the user:** they take the TASK to the executor's session and bring
   the result back. Until the result file exists, nothing was executed.
-- **By delegation** (BASE §5, with the user's approval): one call per TASK.
+- **By delegation** (BASE §5, with the user's approval, which a confirmed
+  round gives for its items): one call per TASK.
   The prompt is only: read the role files of the `executor` field and
   `<root>/.bot/tasks/TASK-nnn.md`, do it, and answer with one status line.
   You do not read the executor's role files for this.
@@ -288,8 +304,19 @@ When a TASK is validated:
   equivalent) what the delivery made true. A decision is recorded by the
   ARCHITECT when it is made; you record what the code now does.
 - `.bot/knowledge/` is not touched: lessons wait for the harvest (§8).
-- Commit the step's files in `.bot/` (BASE §5). Validating does not
-  authorize committing in the project.
+- Commit the validated TASK in the project: locally, on the current
+  branch, one commit per TASK, after the standard files are updated.
+  `git status` first, then `git add` by path — the TASK's files and the
+  standard files you updated —, never `-A` nor `.`; a file changed outside
+  the TASK stays out. A file of the TASK that already had uncommitted
+  changes before the handover makes the commit the user's: say so and
+  leave it. The message follows Conventional Commits, in the project's
+  language, without citing `TASK-nnn` or `CAMPAIGN-nnn` and without AI
+  trailers. A failing commit hook is fixed inside the TASK's scope or told
+  to the user; never `--no-verify`. The hash goes in the TASK's row of the
+  round. Push, `amend`, `rebase` and `reset` stay on the user's express
+  request, and so does the commit of a direct fix.
+- Commit the step's files in `.bot/` (BASE §5).
 
 ## 8. Learning
 `/bot learn` follows `<bot>/roles/manager/learn.md`. Read it for a harvest

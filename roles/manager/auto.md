@@ -32,10 +32,9 @@ AUTO is loaded with this role. A `MANAGER §n` is a section of MANAGER.md.
   delegated to it — it becomes a block.
 - **Suspended:** "the user decides" (BASE §2) inside the window; the
   handover by the user (MANAGER §5): you delegate; the proposal after a
-  rejection (MANAGER §6, step 6): you write and delegate the next TASK;
-  "validating does not authorize committing" (MANAGER §7): a local commit
-  per validated TASK, after the consolidation, is allowed under AUTO's
-  rules for commits. Push stays forbidden. The suggestion to clear the
+  rejection (MANAGER §6, step 6): you write and delegate the next TASK.
+  The commit of a validated TASK (MANAGER §7) follows AUTO's rules for
+  commits as well. Push stays forbidden. The suggestion to clear the
   context at a round's close (MANAGER §2, step 7) is not made: the run goes
   on.
 - **One TASK at a time** in the working tree.
