@@ -7,7 +7,8 @@ model behind each tier, per CLI or native tool, and the limit of each model.
 | Role or tier | `claude` CLI (`--model`) | `agy` CLI (`--model`) | Native Gemini Tool (`Model`) | Limit and use |
 |---|---|---|---|---|
 | `execution`, the cheapest | `haiku` (Haiku 5.5) | `gemini-3.8-flash-high` | `flash` | Gemini 3.8 / Flash: a closed TASK of one module and its tests, about 300 lines, up to 4 files; with `plan: yes`, one of several closed steps. The cheapest: tests of the flow itself run on it. Haiku 5.5: a closed, mechanical TASK larger than the 3.8's limit, or a critical zone with exact steps |
-| `complex` | `sonnet` (Sonnet 5.5) | `gemini-4-argon-medium` | `pro` | A TASK of several parts or of reasoning over the existing code; a decision inside a scope already given; a review, as the REVIEWER |
+| `complex` | `sonnet` (Sonnet 5.5) | `gemini-4-argon-medium` | `pro` | A TASK of several parts or of reasoning over the existing code; a decision inside a scope already given |
+| `review` | `sonnet` (Sonnet 5.5) | `gemini-3.8-flash-high` | `flash` | A review by delegation, as the REVIEWER: checks criteria and mutations on delivered TASKs |
 | coordinating roles | `opus` (Opus 5.5) | `gemini-4-argon-high` | `inherit` / `pro` | MANAGER, ARCHITECT, design, decisions, validation |
 
 - **Opus is for the coordinating roles and for being stuck:** it costs

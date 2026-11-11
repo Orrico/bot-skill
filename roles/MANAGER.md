@@ -69,8 +69,10 @@ runs before the user confirms it.
    the send-backs and re-issues, each with its cause, one word of the
    template's set; the lessons: for each send-back caused by the TASK, the
    check the next TASKs make before they are handed over; the proposals
-   for the next round. Then `state: closed`, and
-   the round's line in `campaign.md`. Then tell the user that the round's
+   for the next round. Look for processes and agents of the round still
+   running (a server, an executor, a review) and stop or wait for each.
+   Then `state: closed`, and the round's line in `campaign.md`. Then tell
+   the user that the round's
    state is in `round-N.md` and `campaign.md`, and suggest `/compact`, or
    `/clear` and `/bot` again, before the next round is planned: the plan is
    made from those files, not from this conversation.
@@ -163,6 +165,10 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   exactly as it runs, from the project's root. A criterion that searches
   or lists the files the TASK creates reaches untracked files (`git grep
   --untracked`), or it reads nothing of them.
+- **Every command in the foreground:** the TASK tells its executor to run
+  each command, tests and builds included, in the foreground and to wait
+  for it. An executor that starts work in the background waits for it and
+  ends its turn with no result.
 - **Tests named in the TASK:** with a tester, the "Tests" section gives each
   test by file and name, the behaviour it shows, and whether it must fail or
   pass on the current code.
