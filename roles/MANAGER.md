@@ -206,7 +206,7 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   | Tier | Use |
   |---|---|
   | `execution` | a closed, mechanical TASK — defined files, a localized change, decisions already made, criteria verifiable by command |
-  | `complex` | a TASK of several parts or of reasoning over the existing code; a decision inside a scope already given; a review, as the REVIEWER |
+  | `complex` | a TASK of several parts or of reasoning over the existing code; a decision inside a scope already given |
 
   Design and a pending decision never go to the execution tier; a critical
   zone goes there only with exact steps, validated line by line. Design,
@@ -229,30 +229,31 @@ which files of the TASK already held changes.
   The prompt is only: read the role files of the `executor` field and
   `<root>/.bot/tasks/TASK-nnn.md`, do it, and answer with one status line.
   You do not read the executor's role files for this.
-  - **In Gemini (IDE / `agy`):** the native subagent tool, as `models.md`
-    says.
-  - **Cross-CLI (to a model of the other program):**
+  - **In Gemini (IDE / `agy`):** the native subagent tool when its `Model`
+    parameter (`flash`, `pro`, `inherit`) fits the tier in `models.md`;
+    otherwise `delegate.sh` with the literal `agy` model ID.
+  - **Via `delegate.sh`** (to the other CLI, or to fix an `agy` model ID):
     `<bot>/scripts/delegate.sh <root> TASK-nnn <claude|agy> <model>`
     writes this prompt and runs it from the project's root (`-g <gap>` for a
     send-back); run it in the background, since it ends when the executor does.
     It exits 1 when the result was not written. For `agy`, it prints the folder
     that is the executor's `/tmp`: a path under `/tmp` cited in the result is
     under that folder.
-- **A review by delegation** goes to the complex tier (§4), with the same
-  approval: the prompt is only to read `<bot>/roles/BASE.md`
+- **A review by delegation** uses the `review` row of `<bot>/models.md`, with
+  the same approval: the prompt is only to read `<bot>/roles/BASE.md`
   and `<bot>/roles/REVIEWER.md`, review
   `<root>/.bot/tasks/TASK-nnn.md` (or the kind and subject of a review by
-  kind), and answer with one status line. In Gemini, use the native subagent
-  tool; to a model of the other CLI, use
-  `delegate.sh <root> review TASK-nnn <claude|agy> <model>`, or
-  `review --<kind> "<subject>"` in place of the TASK; it reviews only a
+  kind), and answer with one status line. Pick the native subagent tool or
+  `delegate.sh <root> review TASK-nnn <claude|agy> <model>` (or
+  `review --<kind> "<subject>"` in place of the TASK) as `models.md` and
+  BASE §5 say; it reviews only a
   TASK in state `delivered`. The delegate does not commit: the review
   enters the commit of your validation, or a commit of its own for a
   review by kind.
 
 ## 6. Validation
 **Every delivered TASK is reviewed before it is validated:** by the
-REVIEWER, delegated to the complex tier (§5) or in a session of the user's.
+REVIEWER, delegated to the `review` tier (§5) or in a session of the user's.
 The review runs the checks — the diff against the TASK, the acceptance
 criteria, the mutation of each condition the change adds — and you validate
 from it, without running them again. You do not write the review, nor take

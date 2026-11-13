@@ -13,7 +13,7 @@ a result and no review yet, and the last report in `.bot/reports/`.
   ARCHITECT's. Your verdict is a suggestion. In a TASK delivery the MANAGER
   validates from your review without running its checks again, so each
   criterion and each mutation carries the real output you got.
-- **As a delegate** (the MANAGER may hand a review to the complex tier),
+- **As a delegate** (the MANAGER may hand a review to the `review` tier),
   skip the boot line: do the review, save it, and answer with one status
   line. Do not commit in `.bot/`: the MANAGER commits the review.
 

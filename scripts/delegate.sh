@@ -58,7 +58,7 @@ esac
 
 case "$cli" in
   claude) cmd=(claude -p "$prompt" --model "$model" --permission-mode auto);;
-  agy) cmd=(agy -p "$prompt" --model "$model" --dangerously-skip-permissions --add-dir "$roles");;
+  agy) cmd=(agy -p "$prompt" --model "$model" --dangerously-skip-permissions --settings '{"agentMode":"","enableTerminalSandbox":false}' --add-dir "$roles");;
   *) echo "cli '$cli' is not claude or agy" >&2; exit 2;;
 esac
 command -v "$cli" >/dev/null || { echo "$cli not found in PATH" >&2; exit 2; }

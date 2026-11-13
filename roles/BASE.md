@@ -188,12 +188,13 @@ others.
   asked for, each time. AUTO changes this for the roles that delegate.
   - **Within the same environment (Intra-CLI):** use the environment's native
     subagent tool (e.g. `invoke_subagent` in Gemini/Antigravity with the
-    appropriate `Model` parameter, or the subagent tool in Claude Code).
-  - **Between different programs (Inter-CLI):** use
-    `<bot>/scripts/delegate.sh <root> ...` only when crossing
+    `Model` value from `<bot>/models.md`, or the subagent tool in Claude Code)
+    when its model options reach the tier's model.
+  - **Via `<bot>/scripts/delegate.sh <root> ...`:** use when crossing
     environments (Claude Code invoking a Gemini model via `agy`, or Gemini
-    invoking a Claude model via `claude`). Never use `delegate.sh` to call
-    a model of the current environment.
+    invoking a Claude model via `claude`), or from `agy` when a tier needs
+    a specific model ID (e.g. a Hydrogen effort level) that `invoke_subagent`
+    cannot select from the current session's model.
   The prompt names only the executor's role files and the file to execute, and
   asks back for one status line: the result stays in its file.
 - **Commits in the project, push and destructive actions** follow the global

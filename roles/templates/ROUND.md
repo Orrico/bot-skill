@@ -17,7 +17,7 @@ state: draft
 ## Plan
 | # | Item | Kind | Executor | Model | After | TASK | State |
 |---|---|---|---|---|---|---|---|
-| 1 | <one sentence, verifiable outcome> | task / direct / review | dev / tester / dev+tester / — | haiku / sonnet / — | — | TASK-nnn → <commit> / report | todo / running / done / blocked / dropped |
+| 1 | <one sentence, verifiable outcome> | task / direct / review | dev / tester / dev+tester / — | <model> / — | — | TASK-nnn → <commit> / report | todo / running / done / blocked / dropped |
 
 ## Log
 <one line per change the plan does not show: a split, a new order, a send-back or a re-issue with its gap and cause, an item found done; under AUTO, in the form it gives>
