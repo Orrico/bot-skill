@@ -247,11 +247,9 @@ which files of the TASK already held changes.
   round gives for its items): one call per TASK.
   The prompt is only: read the role files of the `executor` field and
   `<root>/.bot/tasks/TASK-nnn.md`, do it, and answer with one status line.
-  You do not read the executor's role files for this.
-  - **In Gemini (IDE / `agy`):** the native subagent tool when its `Model`
-    parameter (`flash`, `pro`, `inherit`) fits the tier in `models.md`;
-    otherwise `delegate.sh` with the literal `agy` model ID.
-  - **Via `delegate.sh`** (to the other CLI, or to fix an `agy` model ID):
+  You do not read the executor's role files for this. The mechanism — a
+  CLI's own subagent tool or `delegate.sh` — is picked by `<bot>/models.md`.
+  - **Via `delegate.sh`:**
     `<bot>/scripts/delegate.sh <root> TASK-nnn <claude|agy> <model>`
     writes this prompt and runs it from the project's root (`-g <gap>` for a
     send-back); run it in the background, since it ends when the executor does.

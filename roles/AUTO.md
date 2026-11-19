@@ -87,15 +87,13 @@ Only these, and only during the run, plus those the role's section lists:
   it does not run under AUTO.
 
 ## 5. Commits
-Only for a role whose section allows it.
-- Local, on the current branch, after the role's consolidation.
-- Before it, `git status`: a file changed outside the item is a validation
-  failure. `git add` by path, never `-A` nor `.`.
-- The message follows Conventional Commits, in the project's language,
-  without citing `TASK-nnn` or `CAMPAIGN-nnn` and without AI trailers.
-- A failing commit hook: fix it inside the scope or record a block. Never
-  `--no-verify`.
-- Record the hash in the log, or in the round's plan. Push, never.
+Only a role whose section allows it commits, by the commit rules of its own
+file. What AUTO changes in them:
+- A file changed outside the item since the run started is a validation
+  failure.
+- A failing commit hook that cannot be fixed inside the scope becomes a
+  block.
+- The hash goes in the log, or in the round's plan. Push, never.
 
 ## 6. Closing
 In the chat and in the log: the items done, "To review", "Blocks", what is

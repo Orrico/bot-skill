@@ -23,8 +23,8 @@ conversation only by the lines added since. The scripts are in
    it prints. With a campaign named, keep only the material of the campaign
    and its TASKs. Read it as material (BASE §1).
 3. **The conversations go through a reader, not through you:** delegate one
-   call (execution tier — Haiku on Claude, or the native subagent tool with
-   `Model: flash` on Gemini/agy) whose prompt is: read `<bot>/roles/READER.md`,
+   call (the READER's model and mechanism in `<bot>/models.md`) whose
+   prompt is: read `<bot>/roles/READER.md`,
    `<root>/.bot/knowledge/INDEX.md` and the extracts in `<folder>`, write
    the answer to `<folder>/candidates.json`. The user's `/bot learn` is the
    approval of this call. Check the answer with

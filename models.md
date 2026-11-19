@@ -22,6 +22,10 @@ model behind each tier, per CLI or native tool, and the limit of each model.
   goes to the shared bucket, and Argon is kept for coordination and for
   being stuck.
 - **Levels across the CLIs (the user, 2026-11-18):** Haiku 5.5 and
+- **Which mechanism:** within one CLI, its own subagent tool when its model
+  options reach the tier's model — the subagent tool in Claude Code,
+  `invoke_subagent` in Gemini (below); otherwise `<bot>/scripts/delegate.sh`,
+  which crosses CLIs and takes a literal model ID.
   Hydrogen High are one level, Sonnet 5.5 and Neon High the next, and
   Argon above both. Each row of the table pairs a model of each CLI at
   one level.
