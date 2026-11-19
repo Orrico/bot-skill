@@ -53,17 +53,51 @@ where they lie, so the skill works from wherever it is cloned.
 
 ## Install
 
-Clone it, then link it where each CLI looks for skills:
+### By your agent
+
+Paste this into Claude Code or Gemini. Change the folder in step 1 if you
+keep your code somewhere else.
+
+```text
+Install the /bot skill from https://github.com/Orrico/bot-skill for me.
+
+1. Clone it to ~/Code/bot-skill. If that folder already exists, show me
+   what is in it and stop.
+2. Link the clone as a skill of each agent CLI I have: ~/.claude/skills/bot
+   for Claude Code, ~/.gemini/config/skills/bot for Gemini / Antigravity.
+   Create the parent folder if needed. If something already exists at
+   that path, show me what it is and ask before replacing it.
+3. Keep `.bot/` out of every git repository: add the line `.bot/` to my
+   global git excludes file (the one `git config --global
+   core.excludesFile` names, or ~/.config/git/ignore if it names none),
+   unless the line is already there.
+4. Check which of these commands are in my PATH: bash, git, jq, perl,
+   flock, timeout (required); sqlite3 (to read Antigravity's
+   conversations in `/bot learn`); claude and agy (to delegate work to
+   another CLI); bwrap and xdg-dbus-proxy (to delegate to agy). Install
+   nothing: list what is missing and how my system would install it.
+5. Run this and show me its output:
+   for s in ~/Code/bot-skill/scripts/*.sh; do bash -n "$s" && test -x "$s" && echo "ok $s"; done
+6. Tell me what you did, what is missing, and how to start: the skill runs
+   only when I type /bot, e.g. `/bot . status` in a new session.
+```
+
+### By hand
+
+Clone it, link it where each CLI looks for skills, and keep `.bot/` out of
+git in every repository:
 
 ```
-git clone git@github.com:Orrico/bot-skill.git ~/Code/bot-skill
+git clone https://github.com/Orrico/bot-skill.git ~/Code/bot-skill
 ln -s ~/Code/bot-skill ~/.claude/skills/bot          # Claude Code
 ln -s ~/Code/bot-skill ~/.gemini/config/skills/bot   # Gemini / Antigravity
+mkdir -p ~/.config/git && echo '.bot/' >> ~/.config/git/ignore   # if core.excludesFile is not set
 ```
 
-The scripts need `bash`, `git` and `jq`; the harvest reads Antigravity's
-conversations with `sqlite3`; delegating to Antigravity runs it under
-`bwrap` with `xdg-dbus-proxy`.
+The scripts need `bash`, `git`, `jq`, `perl`, and `flock` and `timeout` as
+Linux ships them. The harvest reads Antigravity's conversations with
+`sqlite3`. Delegating to another CLI needs `claude` or `agy`, and
+delegating to `agy` runs it under `bwrap` with `xdg-dbus-proxy`.
 
 ## The project's `.bot/`
 
@@ -73,7 +107,8 @@ conversations with `sqlite3`; delegating to Antigravity runs it under
 ├── tasks/       TASK-nnn.md, its result and its review
 ├── reports/     reviews by kind
 ├── knowledge/   lessons digested by /bot learn
-└── drafts/      scripts proposed by a harvest, never executable
+├── drafts/      scripts proposed by a harvest, never executable
+└── archive/     records of earlier ways of working, read only
 ```
 
 It has a git of its own, without a remote, and a global excludes file keeps it
