@@ -5,7 +5,8 @@
 # once its result holds a `## Send-back 5`). With
 # `review`: reviews the delivery of a TASK in state delivered, or reviews by a kind of
 # roles/reviews/ on a subject. Prints the delegate's status line, what it wrote and the log's
-# path; exits 1 when it wrote nothing
+# path, and for claude the session's tokens and cost; exits 1 when it wrote nothing. claude
+# runs with the tools of a role's work alone (no web, MCP, skills or background tasks)
 set -eu
 usage="usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model> [-g <gap>] [-t <minutes>]"
 root=$(cd "${1:?$usage}" && pwd); shift
@@ -62,7 +63,8 @@ case "$mode" in
 esac
 
 case "$cli" in
-  claude) cmd=(claude -p "$prompt" --model "$model" --permission-mode auto);;
+  claude) cmd=(claude -p "$prompt" --model "$model" --permission-mode auto --output-format json
+    --tools "Read,Edit,Write,Bash,Grep,Glob" --strict-mcp-config --disable-slash-commands);;
   agy) cmd=(agy -p "$prompt" --model "$model" --dangerously-skip-permissions --settings '{"agentMode":"","enableTerminalSandbox":false}' --add-dir "$roles");;
   *) echo "cli '$cli' is not claude or agy" >&2; exit 2;;
 esac
@@ -105,12 +107,27 @@ fi
 touch "$base/start"
 before=$(stat -c %Y "$result" 2>/dev/null || echo none)
 start=$(date +%s) rc=0
-(cd "$root" && timeout "${minutes}m" "${cmd[@]}" </dev/null >"$log" 2>&1) || rc=$?
+out="$base/delegate.json"
+if [ "$cli" = claude ]; then
+  (cd "$root" && timeout "${minutes}m" "${cmd[@]}" </dev/null >"$out" 2>"$log") || rc=$?
+else
+  (cd "$root" && timeout "${minutes}m" "${cmd[@]}" </dev/null >"$log" 2>&1) || rc=$?
+fi
 after=$(stat -c %Y "$result" 2>/dev/null || echo none)
 
 echo "delegate: $cli $model, exit $rc, $(( $(date +%s) - start )) s"
-echo "status line: $(grep -v '^[[:space:]]*$' "$log" | tail -1)"
-echo "log: $log"
+if [ "$cli" = claude ] && jq -e .modelUsage "$out" >/dev/null 2>&1; then
+  echo "status line: $(jq -r '.result // ""' "$out" | grep -v '^[[:space:]]*$' | tail -1)"
+  jq -r '[.modelUsage[]] as $m
+    | ($m | map(.inputTokens + .cacheCreationInputTokens + .cacheReadInputTokens) | add) as $in
+    | ($m | map(.cacheReadInputTokens) | add) as $cached | ($m | map(.outputTokens) | add) as $o
+    | (.total_cost_usd * 1000 | round / 1000) as $usd
+    | "usage: \($in) tokens in, \($cached) from cache; \($o) out; \(.num_turns) turns; ~$\($usd) at API prices"' "$out"
+  echo "log: $log, $out"
+else
+  echo "status line: $(grep -v '^[[:space:]]*$' "$log" | tail -1)"
+  echo "log: $log"
+fi
 if [ -n "$kind" ]; then
   reports=$(find "$root/.bot/reports" -mindepth 1 -maxdepth 1 -newer "$base/start" 2>/dev/null | sed "s|^$root/||")
   [ -n "$reports" ] || { echo "result: no new report"; exit 1; }
