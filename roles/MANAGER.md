@@ -164,7 +164,10 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   criterion; "`cargo test -p x --test y z` passes" is. Give each command
   exactly as it runs, from the project's root. A criterion that searches
   or lists the files the TASK creates reaches untracked files (`git grep
-  --untracked`), or it reads nothing of them.
+  --untracked`), or it reads nothing of them. For UI or template changes
+  with `Tests: none`, include assertions on the compiled output
+  (subsections, item counts, modifier classes) so boundary and default
+  mutations fail review.
 - **Every command in the foreground:** the TASK tells its executor to run
   each command, tests and builds included, in the foreground and to wait
   for it. An executor that starts work in the background waits for it and
