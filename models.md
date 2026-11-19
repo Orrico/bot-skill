@@ -14,21 +14,18 @@ model behind each tier, per CLI or native tool, and the limit of each model.
 - **Opus and Argon are for coordinating roles and for being stuck:** they cost
   more per turn and have tighter quota than Sonnet or Hydrogen. Routine
   work, even a large TASK with the steps given, goes to the tier below them.
-- **In Claude Code, plan with Opus and execute with Sonnet/Haiku:** `/model
-  opusplan` does it in one session, and switching models keeps the
-  conversation.
 - **Quota in `agy`:** Neon, Hydrogen and 3.8 Flash share one bucket;
   Argon has one of its own, and low. Work below the coordinating roles
   goes to the shared bucket, and Argon is kept for coordination and for
   being stuck.
 - **Levels across the CLIs (the user, 2026-11-18):** Haiku 5.5 and
+  Hydrogen High are one level, Sonnet 5.5 and Neon High the next, and
+  Argon above both. Each row of the table pairs a model of each CLI at
+  one level.
 - **Which mechanism:** within one CLI, its own subagent tool when its model
   options reach the tier's model — the subagent tool in Claude Code,
   `invoke_subagent` in Gemini (below); otherwise `<bot>/scripts/delegate.sh`,
   which crosses CLIs and takes a literal model ID.
-  Hydrogen High are one level, Sonnet 5.5 and Neon High the next, and
-  Argon above both. Each row of the table pairs a model of each CLI at
-  one level.
 - **Native invocation in Gemini (IDE or `agy`):** `invoke_subagent` only
   accepts `inherit`, `flash_lite`, `flash`, or `pro`. Use `inherit` when
   the parent session already runs on the tier's model, and `delegate.sh`

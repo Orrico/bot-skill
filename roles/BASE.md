@@ -113,12 +113,8 @@ others.
 - **States,** in the `state:` field of the frontmatter, updated only by the
   MANAGER. TASK: `open` → `delivered` (result saved) → `validated` or
   `rejected`. CAMPAIGN: `draft` → `confirmed` → `done` or `stopped`. Round:
-  `draft` → `confirmed` → `closed`. Older files carry `estado:` with
-  Portuguese values (`aberta`, `entregue`, `validada`, `rejeitada`,
-  `abandonada`) and names ending in `-resultado.md`, `-revisao.md`; read
-  them as the same. An older campaign is one file,
-  `campaigns/CAMPAIGN-nnn.md`, with its plan and log; read it as a campaign
-  of one round.
+  `draft` → `confirmed` → `closed`. Older TASKs keep their result and
+  review in `-resultado.md` and `-revisao.md`; read them as the same.
 - **Language:** a file in `.bot/` is written in the project's language,
   headings included. Frontmatter keys and state values stay as the templates
   have them.

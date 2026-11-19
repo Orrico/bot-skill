@@ -46,13 +46,13 @@ instructions.
 
 **The mutation:**
 `<bot>/scripts/mutate.sh <root> <file> <old> <new> -- <test command>`,
-where `<bot>` is the folder that holds this file's `roles/`. It replaces
-`<old>`, which must be found once in `<file>`, by `<new>`, runs the
-command from the project's root, restores the file by copy and runs the
-command twice more; it prints `killed` or `SURVIVED`, and `INVALID` when
-the tests fail on the restored file. A mutation that may loop for good
-runs with a short `MUTATE_TIMEOUT` (seconds). One that may write outside
-the tree or under the user's home is not run, and is recorded as not run.
+where `<bot>` is the folder that holds this file's `roles/`. `<old>` must
+be found once in `<file>`; the script restores the file itself, and prints
+`killed` when a test fails under the mutation, `SURVIVED` when none does,
+and `INVALID` when the tests fail on the restored file. A mutation that
+may loop for good runs with a short `MUTATE_TIMEOUT` (seconds). One that
+may write outside the tree or under the user's home is not run, and is
+recorded as not run.
 Never run it while another process may run the tests on the same tree.
 
 For logic that is not trivial, a minimal reference implementation in a

@@ -86,12 +86,13 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
 6. For each condition the change adds — an `if`, a filter, a bound, an arm
    of a match, a field —, break it once with
    `<bot>/scripts/mutate.sh <root> <file> <old> <new> -- <test command>`:
-   it makes the edit, which must be found once in the file, runs the tests
-   (one must fail), restores the file by copy and runs them twice more
-   (they must pass: a stale build can read a failure once). A mutation
-   that may loop for good, a retry that never stops, runs with a short
-   `MUTATE_TIMEOUT`. A mutation that may write outside the tree or under
-   the user's home is not run, or is followed by a look at what it left. A
+   `<old>` must be found once in `<file>`; the script restores the file
+   itself, and prints `killed` when a test fails under the mutation,
+   `SURVIVED` when none does, and `INVALID` when the tests fail on the
+   restored file. A mutation that may loop for good, a retry that never
+   stops, runs with a short `MUTATE_TIMEOUT`. A mutation that may write
+   outside the tree or under the user's home is not run, or is followed by
+   a look at what it left. A
    mutation that survives is a finding: name the condition and the case
    that would catch it. A case of refusal that another rule also refuses
    hides a mutation of either; look for it. Record each mutation and the

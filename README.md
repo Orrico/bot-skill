@@ -23,6 +23,11 @@ read as "in project X, as roles Y, do Z":
 /bot myapp status
 ```
 
+The coordinating roles want the strongest model, the executors a cheaper one
+([`models.md`](models.md)). In Claude Code, `/model opusplan` plans with Opus
+and executes with Sonnet in one session, and switching models keeps the
+conversation.
+
 ## The data
 
 Everything the work knows is a file. Each file has one writer; the others
