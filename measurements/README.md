@@ -6,6 +6,7 @@ numbers and can run the same method again. Nothing here is read by `/bot`.
 | Record | Holds |
 |---|---|
 | [`2026-11-19-baseline.md`](2026-11-19-baseline.md) | closed rounds against `round-close.sh`; the causes of send-backs; the fixed context of a delegate and what the lean flags save; a lean delegate on a real TASK; the placeholder check; the prose a model reads |
+| [`2026-11-19-manager-checks.md`](2026-11-19-manager-checks.md) | MANAGER §4 as 21 numbered checks: the prose before and after, and the send-back causes to compare |
 
 ## Tools
 

@@ -107,9 +107,10 @@ confirms it.
 ## 4. Writing a TASK
 Create it with `<bot>/scripts/new.sh <root> task <executor>
 [CAMPAIGN-nnn#N] [-r TASK-nnn]`: it takes the next number and fills the
-front matter and the "Role" section from `<bot>/roles/templates/TASK.md`.
-Fill each `<…>` it leaves, and keep one value where the front matter gives
-a choice (`no | yes`).
+frontmatter and the "Role" section from `<bot>/roles/templates/TASK.md`.
+Fill each `<…>` it leaves, and keep one value where the frontmatter gives
+a choice (`no | yes`). Before it goes out, it passes the checks at the end
+of this section.
 
 - **Self-contained for its executor,** who has no access to this
   conversation. The rules of conduct are in the executor's role files; the
@@ -129,39 +130,7 @@ a choice (`no | yes`).
   documentation, recent commits. The executor does not cross sources; if the
   TASK starts from an old premise, it is executed as is.
 - **Decisions resolved in the TASK:** the executor decides nothing. Exact
-  files, what not to touch, verification commands. Before closing the
-  "Files" table, `<bot>/scripts/co-edit.sh <root> <file>…`
-  lists the files that usually change with those: each one goes in "Files"
-  or in "Do not touch", so the executor does not stop on a file nobody
-  named. They are candidates to inspect, not files to edit. Then search
-  the project (`git grep -n`) for each text the TASK removes or changes —
-  a message, an error code, a type, a field: each file that writes it and
-  each test that pins it goes in "Files", with what changes there. The
-  history does not show these; a test that pins the old behaviour stops
-  the executor, or fails after the change. A TASK that changes what a
-  call returns greps every assertion on it — the rows or the vector the
-  call gives back as well as the store's reads — and lists each one that
-  changes.
-  Search the same way for each text a test or a mutation of the TASK
-  asserts — an output line, a message, a pattern to replace — in the code
-  that prints it and in the test helpers that already read it: a literal
-  taken from a type's form rather than from what the code writes makes a
-  check that can never fail.
-  Every command the TASK hands the executor — a git call, its flags, an
-  output the code parses — is run on the real tool before the TASK goes
-  out: a step never tried is a guess the executor stops on.
-  With the TASK written,
-  `<bot>/scripts/task-preflight.sh <root> TASK-nnn <name>…` checks it
-  against the form and the tree: each `<…>` or choice of the form left
-  unfilled, each path of "Files" there or absent, each `file:line`
-  it cites there and that long, each criterion's command run with its
-  status, and each name the TASK changes or removes —
-  a field, a message, an error code — searched in its snake, camel and
-  kebab forms, the files the TASK does not cite marked. A placeholder left
-  that is not the TASK's own text (a `<name>` the code takes), a path at
-  odds with its action, a criterion that fails for a reason other than the
-  missing change, or a file not cited, is settled before the TASK goes
-  out.
+  files, what not to touch, verification commands.
 - **The data read from the code:** the "Data" section gives each datum the
   TASK reads or writes — a type, a field, a table, a file, a message, what
   a call its tests assert on gives back — as the code has it now, copied
@@ -173,13 +142,7 @@ a choice (`no | yes`).
 - **Context by reference:** paths, `file:line`, commits. Short excerpts only
   when indispensable; never whole files.
 - **Acceptance criteria verifiable by command:** "it works" is not a
-  criterion; "`cargo test -p x --test y z` passes" is. Give each command
-  exactly as it runs, from the project's root. A criterion that searches
-  or lists the files the TASK creates reaches untracked files (`git grep
-  --untracked`), or it reads nothing of them. For UI or template changes
-  with `Tests: none`, include assertions on the compiled output
-  (subsections, item counts, modifier classes) so boundary and default
-  mutations fail review.
+  criterion; "`cargo test -p x --test y z` passes" is.
 - **Every command in the foreground:** the TASK tells its executor to run
   each command, tests and builds included, in the foreground and to wait
   for it. An executor that starts work in the background waits for it and
@@ -187,32 +150,6 @@ a choice (`no | yes`).
 - **Tests named in the TASK:** with a tester, the "Tests" section gives each
   test by file and name, the behaviour it shows, and whether it must fail or
   pass on the current code.
-- **A test for each condition:** every `if`, filter and field the change
-  adds has, in "Tests", the test that fails without it; a derived list is
-  tested with two parents, or its filter goes unseen. Every bound is
-  tested at its value and one past — each bound of the TASK, and after a
-  conversion that can grow the input. An arm that forwards another
-  function's error is a condition too; a rule that limits what an action
-  touches ("only", "alone") is tested with something beside it that must
-  stay untouched; a rule over every X is tested with an X the test's
-  setup does not already reach, since a setup that triggers the behaviour
-  hides the mutation that removes it; a filter of two conditions is
-  tested with an entry that passes one and fails the other, for each; a
-  value the code passes through is tested with one other than the common
-  one; and a fake in the tests honours every argument it is given, the
-  TASK saying what it checks.
-  Each mutation the TASK lists for its validation is writable against the
-  signatures the TASK itself gives: one its types forbid stops the executor.
-  It is checked for equivalence too, against the code the TASK dictates: a
-  guard another rule already covers, a bound whose two sides give the same
-  value at it, or a fallback that reproduces the fixture's value turns no
-  test red.
-- **A count in a criterion comes from running:** the number of tests a
-  binary holds is read from `-- --list` or a run, never from a search of
-  its attributes, which misses the ones that take arguments.
-- **A bound the TASK sets is met by its own spec:** a TASK that adds to a
-  function under a length bound counts the function's lines and names the
-  helper that keeps it under, a formatter growing what it adds.
 - **Tier fitted to the work,** by the TASK's `tier`; the model is picked
   when the TASK is handed over, from the tier's row in
   `<bot>/models.md` (read as material, BASE §1). From
@@ -232,6 +169,73 @@ a choice (`no | yes`).
   `state` field. A send-back (§6) does not change it either; a rejection
   does not reopen it: write the next TASK with `reference: TASK-nnn` and,
   in its context, what was missing.
+
+**Checks before the TASK goes out.** Each check whose trigger the TASK
+meets is done; the others are skipped. A send-back caused by the TASK
+names the check that would have caught it, or proposes a new one.
+
+Files
+1. Each file of "Files" → `<bot>/scripts/co-edit.sh <root> <file>…`; each
+   file it lists goes in "Files" or in "Do not touch". They are candidates
+   to inspect, not to edit: a file nobody named stops the executor.
+2. The TASK removes or changes a text — a message, an error code, a type,
+   a field → `git grep -n` it; each file that writes it and each test that
+   pins it goes in "Files", with what changes there. The history does not
+   show these, and a test pinning the old behaviour stops the executor.
+3. The TASK changes what a call returns → grep each assertion on it — the
+   rows or the vector it gives back, the store's reads; each one that
+   changes goes in "Files".
+4. The TASK hands the executor a command — a git call, its flags, an
+   output the code parses → run it on the real tool first: a step never
+   tried is a guess the executor stops on.
+
+Tests, each in "Tests" by file and name
+5. Each `if`, filter and field the change adds → the test that fails
+   without it.
+6. A derived list → tested with two parents; with one, its filter goes
+   unseen.
+7. Each bound → tested at its value and one past, also after a conversion
+   that can grow the input.
+8. An arm that forwards another function's error → its own test.
+9. A rule that limits what an action touches ("only", "alone") → a test
+   with something beside it that must stay untouched.
+10. A rule over every X → a test with an X the setup does not already
+    reach: a setup that triggers the behaviour hides the mutation that
+    removes it.
+11. A filter of two conditions → for each, an entry that passes it and
+    fails the other.
+12. A value the code passes through → a test with a value other than the
+    common one.
+13. A fake in the tests → it honours every argument it is given, and the
+    TASK says what it checks.
+14. A test or a mutation asserts a text — an output line, a message, a
+    pattern → the literal as the code writes it, found with `git grep` in
+    the code and in the test helpers that read it; one taken from a type's
+    form makes a check that can never fail.
+15. Each mutation the TASK lists → writable against the signatures the
+    TASK gives (one its types forbid stops the executor), and not
+    equivalent under the code it dictates: a guard another rule covers, a
+    bound whose two sides give the same value, a fallback that reproduces
+    the fixture's value turns no test red.
+
+Criteria
+16. Each criterion → its command exactly as it runs from the project's
+    root.
+17. A criterion that searches or lists files the TASK creates →
+    `git grep --untracked`, or it reads nothing of them.
+18. A UI or template change with `Tests: none` → assertions on the
+    compiled output: subsections, item counts, modifier classes.
+19. A count in a criterion → read from `-- --list` or a run, never from a
+    search of attributes, which misses the ones that take arguments.
+20. The TASK adds to a function under a length bound → count its lines
+    and name the helper that keeps it under.
+
+Last
+21. `<bot>/scripts/task-preflight.sh <root> TASK-nnn <name>…`, with each
+    name the TASK changes or removes → settle each placeholder left that
+    is not the TASK's own text, each path at odds with its action, each
+    criterion that fails for a reason other than the missing change, and
+    each file not cited.
 
 ## 5. Handing over
 Before either way, `git status --short`: it tells, at the commit (§7),

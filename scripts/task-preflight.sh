@@ -2,7 +2,7 @@
 # usage: task-preflight.sh <root> TASK-nnn [--no-run] [<name>...] — checks a written TASK
 # against the current tree, before it is handed over:
 #   unfilled  each <…> of the form in roles/templates/TASK.md still in the TASK, and each line of
-#             its front matter left with its choices (`no | yes`)
+#             its frontmatter left with its choices (`no | yes`)
 #   files     each backticked path in the first cell of a table row whose second cell has no
 #             backtick (the "Files" table, not "Data"): there or absent
 #   refs      each backticked `path:line`: the file there and that long
