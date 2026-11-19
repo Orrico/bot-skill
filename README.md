@@ -1,10 +1,11 @@
 # /bot
 
 A skill for coding agents — Claude Code and Gemini (Antigravity) — that takes
-roles on a project: a manager that plans campaigns and writes TASKs, an
-architect that designs with the user, a reviewer, and executors that carry a
-TASK out. The work's state lives in the project's `.bot/` folder, outside the
-project's git, so the project keeps no trace of it.
+roles on a project. Each role is a transformation of files: a manager turns a
+request into a plan and TASKs, an executor turns a TASK into code and a
+result, a reviewer turns a delivery into a review. The files live in the
+project's `.bot/` folder, outside the project's git, so the project keeps no
+trace of them.
 
 ```
 /bot <project> [role+role] <request>
@@ -22,34 +23,110 @@ read as "in project X, as roles Y, do Z":
 /bot myapp status
 ```
 
-## Layout
+## The data
 
-| Path | What it holds |
-|---|---|
-| [`SKILL.md`](SKILL.md) | the skill: how `/bot` reads its arguments and boots |
-| [`roles/`](roles/) | one file per role; `BASE.md` is what the coordinating roles share |
-| [`roles/manager/`](roles/manager/) | the parts of the MANAGER read on demand: the harvest (`learn`) and the run under AUTO |
-| [`roles/reviews/`](roles/reviews/) | one file per kind of review (`--code`, `--design`, …) |
-| [`roles/templates/`](roles/templates/) | the forms of a campaign, a round, a TASK and a review |
-| [`scripts/`](scripts/) | boot and status of a project, delegation to another CLI, the harvest's sources, a TASK's check against the tree, the mutation of a condition, a round's check before it closes, a new campaign, round, TASK or review from its template |
-| [`models.md`](models.md) | which model takes which work, in each CLI |
+Everything the work knows is a file. Each file has one writer; the others
+read it.
 
-The roles name the skill's own folder as `<bot>`; the scripts find it from
-where they lie, so the skill works from wherever it is cloned.
+```
+.bot/                 its own git, no remote; ignored by the project's git
+├── campaigns/        CAMPAIGN-nnn/campaign.md and round-N.md
+├── tasks/            TASK-nnn.md, TASK-nnn-result.md, TASK-nnn-review.md
+├── reports/          YYYY-MM-DD-<kind>-<subject>.md
+├── knowledge/        INDEX.md and one <slug>.md per lesson
+├── drafts/           <name>.sh.draft, never executable
+└── archive/          records of earlier ways of working
+```
+
+| Datum | Shape | States | Writer | Read by |
+|---|---|---|---|---|
+| campaign | scope, goal, completion commands, a row per round | `draft` → `confirmed` → `done` \| `stopped` | MANAGER | MANAGER, AUTO |
+| round | a plan (one row per item: kind, executor, model, TASK → commit), a log, a report | `draft` → `confirmed` → `closed`; each row `todo` → `done` \| `blocked` \| `dropped` | MANAGER; the log under AUTO | the next round's plan, `round-close.sh` |
+| TASK | the order: files, data, tests, acceptance commands; frozen once handed over, but for `state` | `open` → `delivered` → `validated` \| `rejected` | MANAGER | the executor, REVIEWER, `task-preflight.sh` |
+| result | changed files, each command with its real output, what was missing in the environment | `done` \| `partial` \| `blocked`; up to 5 send-backs | the executor; the MANAGER appends the validation | MANAGER, REVIEWER |
+| review | the real diff against the TASK, each criterion run, each condition mutated, findings | a suggested verdict | REVIEWER | MANAGER |
+| report | a review by kind (`--code`, `--design`, …) | rounds of the same subject | REVIEWER | MANAGER, `/bot learn` |
+| knowledge | one lesson per file, an index line each | — | `/bot learn` only | every boot reads `INDEX.md` alone |
+| standard files | the project's `README`, `AGENTS`, `DESIGN`, `BACKLOG`, `CHANGELOG` | — | MANAGER (what a TASK made true), ARCHITECT (decisions) | everyone |
+| the code | the project's tree, and one local commit per validated TASK | — | the executor; the MANAGER commits | REVIEWER, read only |
+
+## The flow
+
+Each box is a transformation, with the role that runs it; each arrow carries
+the data named on it.
+
+```
+ a request, BACKLOG.md
+       │
+       ▼
+ PLAN (MANAGER) ── campaign.md, round-N.md (draft) ──► the user confirms the round
+       │
+       ▼
+ SPECIFY (MANAGER) ── new.sh → TASK-nnn.md; task-preflight.sh checks it against the tree
+       │
+       ▼
+ EXECUTE (DEV, TESTER, WRITER — delegate.sh, or by hand) ── the code, TASK-nnn-result.md
+       │                                         ▲
+       ▼                                         │ a gap inside the TASK: the MANAGER sends it back
+ REVIEW (REVIEWER — delegate.sh) ── TASK-nnn-review.md, mutate.sh on each condition
+       │
+       ▼
+ VALIDATE (MANAGER) ── the result's "Validation"; BACKLOG, CHANGELOG, DESIGN; one commit
+       │
+       ▼
+ CLOSE (MANAGER) ── round-close.sh, the round's report ──► the next round's PLAN
+       │
+       ▼
+ LEARN (/bot learn: MANAGER, READER) ── tasks, rounds, reports, transcripts ──► knowledge/
+```
+
+The ARCHITECT works beside the flow: a decision an item waits on is made with
+the user and recorded in `DESIGN.md` before the item is planned. AUTO is a
+layer over the MANAGER or the REVIEWER: it runs a confirmed scope without
+asking, inside a window of authorization, and logs each decision.
 
 ## Roles
 
-| Role | Does |
+| Role | Reads | Writes |
+|---|---|---|
+| MANAGER | the BACKLOG, the round before, results, reviews | campaigns, rounds, TASKs, the validation, the standard files, the commit |
+| ARCHITECT | the request, the code, `DESIGN.md` | decisions, a data inventory and its flow, in `DESIGN.md` |
+| REVIEWER | a TASK and its result, the real diff, the tree | a review, or a report by kind |
+| DEV | one TASK, the code | the files the TASK lists, the result |
+| TESTER | one TASK, the code | tests that fail when the rule breaks, its part of the result |
+| WRITER | one editorial TASK | the article, the result |
+| READER | conversations, extracted for a harvest | lesson candidates, as JSON |
+| AUTO | the activation's scope | the log of the run: in the round, or `campaigns/AUTO-YYYY-MM-DD.md` |
+| WORKER | a request outside the flow | the files it touches, never `.bot/` |
+
+## Scripts
+
+| Script | Reads | Writes or prints |
+|---|---|---|
+| `boot.sh`, `status.sh` | `.bot/`, git | the open campaigns and TASKs, the next free numbers |
+| `new.sh` | a form of `roles/templates/` | a campaign, round, TASK or review at the next number, with what is known filled |
+| `task-preflight.sh` | a TASK, the tree | what is left unfilled; each path, `file:line` and criterion checked; each name the TASK changes, found |
+| `co-edit.sh` | git history | the files that usually change with the given ones |
+| `delegate.sh` | a TASK | the executor or the reviewer run in `claude` or `agy`; its status, tokens and cost |
+| `mutate.sh` | a file, a test command | whether the tests see one condition broken; the file restored |
+| `round-close.sh` | a round, its TASKs, git | each row not closed, TASK not validated, commit missing or cause outside the set |
+| `learn-sources.sh` | `.bot/`, the CHANGELOG, transcripts | what the next harvest reads, new or changed since the last |
+| `lessons.jq` | a reader's `candidates.json` | its errors; `[]` when valid |
+
+## The skill's folder
+
+| Path | Holds |
 |---|---|
-| MANAGER | plans campaigns in rounds, writes TASKs, delegates, validates, consolidates, harvests lessons |
-| ARCHITECT | designs with the user and records the decisions |
-| REVIEWER | reviews a TASK's delivery, or a subject by one kind of review |
-| DEV | executes one TASK |
-| TESTER | writes tests that can fail, alone or with DEV |
-| WRITER | executes one editorial TASK |
-| READER | reads conversations for the harvest |
-| AUTO | a layer that runs a scope without asking, inside a window of authorization |
-| WORKER | work outside the flow |
+| [`SKILL.md`](SKILL.md) | how `/bot` reads its arguments and boots |
+| [`roles/`](roles/) | one file per role; `BASE.md` is what the coordinating roles share |
+| [`roles/manager/`](roles/manager/) | the MANAGER's parts read on demand: the harvest, the run under AUTO |
+| [`roles/reviews/`](roles/reviews/) | one file per kind of review |
+| [`roles/templates/`](roles/templates/) | the forms `new.sh` fills |
+| [`scripts/`](scripts/) | the scripts above |
+| [`models.md`](models.md) | the model behind each tier, in each CLI |
+
+The roles name this folder `<bot>`; the scripts find it from where they lie,
+so the skill works from wherever it is cloned.
 
 ## Install
 
@@ -98,21 +175,6 @@ The scripts need `bash`, `git`, `jq`, `perl`, and `flock` and `timeout` as
 Linux ships them. The harvest reads Antigravity's conversations with
 `sqlite3`. Delegating to another CLI needs `claude` or `agy`, and
 delegating to `agy` runs it under `bwrap` with `xdg-dbus-proxy`.
-
-## The project's `.bot/`
-
-```
-.bot/
-├── campaigns/   CAMPAIGN-nnn/campaign.md and round-N.md
-├── tasks/       TASK-nnn.md, its result and its review
-├── reports/     reviews by kind
-├── knowledge/   lessons digested by /bot learn
-├── drafts/      scripts proposed by a harvest, never executable
-└── archive/     records of earlier ways of working, read only
-```
-
-It has a git of its own, without a remote, and a global excludes file keeps it
-out of the project's git (`.bot/` in `~/.config/git/ignore`).
 
 ## License
 
