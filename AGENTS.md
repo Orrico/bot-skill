@@ -60,9 +60,11 @@ scripts/boot.sh <project>
 scripts/status.sh <project>
 scripts/learn-sources.sh <project> --list
 echo '[]' | jq -c -f scripts/lessons.jq
+scripts/round-close.sh <project> CAMPAIGN-nnn#N
 ```
 
-The third line ends in `total: …`; the last prints `[]`.
+The third line ends in `total: …`; the fourth prints `[]`; the last, on a
+round closed since the causes became a set, ends in `ok: …`.
 
 For a change to `roles/`, no prose line of `roles/` past 80 columns and no
 citation of a section that does not exist:

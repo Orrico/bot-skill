@@ -71,9 +71,13 @@ runs before the user confirms it.
    check the next TASKs make before they are handed over; the proposals
    for the next round. Look for processes and agents of the round still
    running (a server, an executor, a review) and stop or wait for each.
-   Then `state: closed`, and the round's line in `campaign.md`. Then tell
-   the user that the round's
-   state is in `round-N.md` and `campaign.md`, and suggest `/compact`, or
+   Then `<bot>/scripts/round-close.sh <root> CAMPAIGN-nnn#N` checks the
+   file: each row closed, each `done` row's TASK validated and its commit
+   in git, each send-back with a line and a cause of the set. Settle each
+   `problem:` it prints before the round closes; a `note:` is said in the
+   report. Then `state: closed`, and the round's line in `campaign.md`.
+   Then tell the user that the round's state is in `round-N.md` and
+   `campaign.md`, and suggest `/compact`, or
    `/clear` and `/bot` again, before the next round is planned: the plan is
    made from those files, not from this conversation.
 8. **The next round** is planned from the report, the answers to its
@@ -291,7 +295,9 @@ When the result comes back:
    the same executor gets the TASK again with the gap, adds a section to
    its result, the `state` stays `delivered` and the review is redone on
    the new delivery. At most two send-backs per TASK; a third gap, or one
-   outside the TASK's scope, is a rejection. In a campaign, each send-back
+   outside the TASK's scope, is a rejection. Only the user's word allows a
+   third, up to the fifth, and never under AUTO; `delegate.sh` refuses the
+   sixth. In a campaign, each send-back
    is one line in the round's log, with the gap and its cause, one word of
    the round template's set.
 5. Append to the end of the result:

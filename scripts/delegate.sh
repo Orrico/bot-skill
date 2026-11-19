@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model> [-g <gap>]
 # [-t <minutes>] — runs a TASK's executor, or a REVIEWER, in another CLI, headless, from the
-# project's root. Without `review`: executes the TASK (-g sends it back with that gap). With
+# project's root. Without `review`: executes the TASK (-g sends it back with that gap, refused
+# once its result holds a `## Send-back 5`). With
 # `review`: reviews the delivery of a TASK in state delivered, or reviews by a kind of
 # roles/reviews/ on a subject. Prints the delegate's status line, what it wrote and the log's
 # path; exits 1 when it wrote nothing
@@ -43,7 +44,11 @@ case "$mode" in
     esac
     result="$root/.bot/tasks/$id-result.md"
     prompt="Read $files, then $task, and execute it. Answer with one status line."
-    [ -z "$gap" ] || prompt="$prompt The TASK is sent back to you with this gap: $gap";;
+    if [ -n "$gap" ]; then
+      sent=$(grep -oE '^## Send-back [0-9]+' "$result" 2>/dev/null | grep -oE '[0-9]+$' | sort -n | tail -1)
+      [ "${sent:-0}" -lt 5 ] || { echo "$id has had $sent send-backs, the limit: reject it" >&2; exit 2; }
+      prompt="$prompt The TASK is sent back to you with this gap: $gap"
+    fi;;
   review)
     if [ -n "$id" ]; then
       case "$state" in delivered|entregue) ;; *) echo "$id is $state, not delivered" >&2; exit 2;; esac
