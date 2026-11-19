@@ -73,7 +73,8 @@ if [ "$cli" = agy ]; then
   # state and $base/tmp as /tmp; of ~/Code, only the project and the skill's folder; secret
   # folders hidden; agy's summaries of past conversations replaced by empty files of this
   # run; the session bus only through a proxy that lets through the keyring, where agy keeps
-  # its login
+  # its login; XDG_CACHE_HOME under /tmp, since ~/.cache is read-only there and nix writes its
+  # caches in it
   for t in bwrap xdg-dbus-proxy; do command -v $t >/dev/null || { echo "$t not found in PATH" >&2; exit 2; }; done
   for v in XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS; do [ -n "${!v:-}" ] || { echo "$v not set" >&2; exit 2; }; done
   mkdir "$base/tmp"
@@ -84,7 +85,8 @@ if [ "$cli" = agy ]; then
   jail=(bwrap --ro-bind / / --dev /dev --proc /proc --bind "$base/tmp" /tmp
     --tmpfs ~/Code --ro-bind "$bot" "$bot" --bind "$root" "$root"
     --bind "$agy_state" "$agy_state"
-    --tmpfs "$XDG_RUNTIME_DIR" --ro-bind "$base/bus" "$XDG_RUNTIME_DIR/bus")
+    --tmpfs "$XDG_RUNTIME_DIR" --ro-bind "$base/bus" "$XDG_RUNTIME_DIR/bus"
+    --setenv XDG_CACHE_HOME /tmp/cache)
   for f in conversation_summaries.db jetbox_summaries_proto.pb; do
     [ -e "$agy_state/$f" ] && : >"$base/$f" && jail+=(--bind "$base/$f" "$agy_state/$f")
   done
