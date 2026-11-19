@@ -33,6 +33,13 @@ replace `$ARGUMENTS` with the command's text, which `SKILL.md` allows for.
 - **Renumbering a section breaks citations.** Look for who cites it first,
   with the second command of "Verification".
 
+## Measurements
+
+A change meant to make the skill cheaper or more reliable starts from
+`measurements/`: the last record gives the numbers to beat and the tool that
+measured each. After it, a new record with the same method; how to write one
+is in `measurements/README.md`.
+
 ## Conventions
 
 - **Everything is written in English.**

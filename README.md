@@ -124,6 +124,7 @@ asking, inside a window of authorization, and logs each decision.
 | [`roles/templates/`](roles/templates/) | the forms `new.sh` fills |
 | [`scripts/`](scripts/) | the scripts above |
 | [`models.md`](models.md) | the model behind each tier, in each CLI |
+| [`measurements/`](measurements/) | what was measured about the skill, and the tools to measure it again |
 
 The roles name this folder `<bot>`; the scripts find it from where they lie,
 so the skill works from wherever it is cloned.
