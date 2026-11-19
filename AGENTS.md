@@ -1,6 +1,8 @@
 # Working in this repository
 
-What the skill is and how it is laid out: [README](README.md). This file
+What the skill is and how it is laid out: [README](README.md). Its data, its
+flow and the decisions in force: [DESIGN](DESIGN.md); what is left:
+[BACKLOG](BACKLOG.md); what changed: [CHANGELOG](CHANGELOG.md). This file
 lists what is easy to get wrong.
 
 ## Live by symlink

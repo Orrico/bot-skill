@@ -28,10 +28,13 @@ The coordinating roles want the strongest model, the executors a cheaper one
 and executes with Sonnet in one session, and switching models keeps the
 conversation.
 
-## The data
+## How it works
 
-Everything the work knows is a file. Each file has one writer; the others
-read it.
+Each role reads and writes files in the project's `.bot/`, one writer per
+file: the MANAGER plans and writes TASKs, an executor carries each out, the
+REVIEWER checks each delivery, and the MANAGER validates and commits it.
+What each file holds, and how the work flows between the roles, is in
+[DESIGN.md](DESIGN.md), with the decisions in force.
 
 ```
 .bot/                 its own git, no remote; ignored by the project's git
@@ -42,53 +45,6 @@ read it.
 ├── drafts/           <name>.sh.draft, never executable
 └── archive/          records of earlier ways of working
 ```
-
-| Datum | Shape | States | Writer | Read by |
-|---|---|---|---|---|
-| campaign | scope, goal, completion commands, a row per round | `draft` → `confirmed` → `done` \| `stopped` | MANAGER | MANAGER, AUTO |
-| round | a plan (one row per item: kind, executor, model, TASK → commit), a log, a report | `draft` → `confirmed` → `closed`; each row `todo` → `done` \| `blocked` \| `dropped` | MANAGER; the log under AUTO | the next round's plan, `round-close.sh` |
-| TASK | the order: files, data, tests, acceptance commands; frozen once handed over, but for `state` | `open` → `delivered` → `validated` \| `rejected` | MANAGER | the executor, REVIEWER, `task-preflight.sh` |
-| result | changed files, each command with its real output, what was missing in the environment | `done` \| `partial` \| `blocked`; up to 5 send-backs | the executor; the MANAGER appends the validation | MANAGER, REVIEWER |
-| review | the real diff against the TASK, each criterion run, each condition mutated, findings | a suggested verdict | REVIEWER | MANAGER |
-| report | a review by kind (`--code`, `--design`, …) | rounds of the same subject | REVIEWER | MANAGER, `/bot learn` |
-| knowledge | one lesson per file, an index line each | — | `/bot learn` only | every boot reads `INDEX.md` alone |
-| standard files | the project's `README`, `AGENTS`, `DESIGN`, `BACKLOG`, `CHANGELOG` | — | MANAGER (what a TASK made true), ARCHITECT (decisions) | everyone |
-| the code | the project's tree, and one local commit per validated TASK | — | the executor; the MANAGER commits | REVIEWER, read only |
-
-## The flow
-
-Each box is a transformation, with the role that runs it; each arrow carries
-the data named on it.
-
-```
- a request, BACKLOG.md
-       │
-       ▼
- PLAN (MANAGER) ── campaign.md, round-N.md (draft) ──► the user confirms the round
-       │
-       ▼
- SPECIFY (MANAGER) ── new.sh → TASK-nnn.md; task-preflight.sh checks it against the tree
-       │
-       ▼
- EXECUTE (DEV, TESTER, WRITER — delegate.sh, or by hand) ── the code, TASK-nnn-result.md
-       │                                         ▲
-       ▼                                         │ a gap inside the TASK: the MANAGER sends it back
- REVIEW (REVIEWER — delegate.sh) ── TASK-nnn-review.md, mutate.sh on each condition
-       │
-       ▼
- VALIDATE (MANAGER) ── the result's "Validation"; BACKLOG, CHANGELOG, DESIGN; one commit
-       │
-       ▼
- CLOSE (MANAGER) ── round-close.sh, the round's report ──► the next round's PLAN
-       │
-       ▼
- LEARN (/bot learn: MANAGER, READER) ── tasks, rounds, reports, transcripts ──► knowledge/
-```
-
-The ARCHITECT works beside the flow: a decision an item waits on is made with
-the user and recorded in `DESIGN.md` before the item is planned. AUTO is a
-layer over the MANAGER or the REVIEWER: it runs a confirmed scope without
-asking, inside a window of authorization, and logs each decision.
 
 ## Roles
 
@@ -123,6 +79,7 @@ asking, inside a window of authorization, and logs each decision.
 | Path | Holds |
 |---|---|
 | [`SKILL.md`](SKILL.md) | how `/bot` reads its arguments and boots |
+| [`DESIGN.md`](DESIGN.md), [`BACKLOG.md`](BACKLOG.md), [`CHANGELOG.md`](CHANGELOG.md) | the data, the flow and the decisions in force; what is left; what changed |
 | [`roles/`](roles/) | one file per role; `BASE.md` is what the coordinating roles share |
 | [`roles/manager/`](roles/manager/), [`reviewer/`](roles/reviewer/), [`architect/`](roles/architect/) | a role's parts read on demand: the harvest, the run under AUTO |
 | [`roles/reviews/`](roles/reviews/) | one file per kind of review |
