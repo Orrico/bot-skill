@@ -51,14 +51,6 @@ Assumes [BASE.md](BASE.md).
   running its verification commands is allowed.
 
 ## 3. Under AUTO
-Ignore this section unless AUTO is loaded. What changes when AUTO is
-loaded with this role.
-
-- **Decide and flag:** a design choice with real alternatives that affects
-  later TASKs or `DESIGN.md` — take the one easiest to revert, record the
-  reason and the discarded alternatives under "To review", and write it in
-  `DESIGN.md` as provisional.
-- **Never:** change an invariant or a critical zone — it becomes a block;
-  change a TASK's `state`, or commit in the project.
-- **Closing** lists the decisions written as provisional, each with where
-  it is in `DESIGN.md`.
+Ignore this section unless AUTO is loaded. With AUTO, also read
+`<bot>/roles/architect/auto.md`, after AUTO.md: it holds what changes for this
+role.

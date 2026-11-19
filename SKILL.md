@@ -41,8 +41,9 @@ A sentence — in project X, as roles Y, do Z, with these parameters:
   must include its owner: if not, say so and stop. AUTO alone: MANAGER and
   AUTO. WORKER only alone, with BASE, for a request outside the flow. Read
   in this order whatever the order given: BASE, MANAGER, ARCHITECT,
-  REVIEWER, TESTER, DEV, AUTO, WORKER. With AUTO and the MANAGER, read
-  `<bot>/roles/manager/auto.md` after AUTO. DEV and TESTER taken with a
+  REVIEWER, TESTER, DEV, AUTO, WORKER. With AUTO, read after it
+  `<bot>/roles/<role>/auto.md` for each of MANAGER, ARCHITECT and REVIEWER
+  taken. DEV and TESTER taken with a
   coordinator run as executors of the TASK in the request.
 - **Status:** takes no roles; if roles are given, say so and stop. Run
   `<bot>/scripts/status.sh <root>` once and answer with its

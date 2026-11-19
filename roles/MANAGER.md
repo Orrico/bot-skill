@@ -257,14 +257,13 @@ which files of the TASK already held changes.
     that is the executor's `/tmp`: a path under `/tmp` cited in the result is
     under that folder.
 - **A review by delegation** uses the `review` row of `<bot>/models.md`, with
-  the same approval: the prompt is only to read `<bot>/roles/BASE.md`
-  and `<bot>/roles/REVIEWER.md`, review
-  `<root>/.bot/tasks/TASK-nnn.md` (or the kind and subject of a review by
-  kind), and answer with one status line. Pick the native subagent tool or
-  `delegate.sh <root> review TASK-nnn <claude|agy> <model>` (or
-  `review --<kind> "<subject>"` in place of the TASK) as `models.md` and
-  BASE §5 say; it reviews only a
-  TASK in state `delivered`. The delegate does not commit: the review
+  the same approval. The prompt is only: read `<bot>/roles/REVIEWER.md`,
+  review `<root>/.bot/tasks/TASK-nnn.md`, and answer with one status line;
+  for a review by kind, read `<bot>/roles/BASE.md` too, with the kind and
+  the subject in place of the TASK. The mechanism is picked by
+  `models.md`; with `delegate.sh`: `delegate.sh <root> review TASK-nnn
+  <claude|agy> <model>`, or `review --<kind> "<subject>"`. It reviews only
+  a TASK in state `delivered`. The delegate does not commit: the review
   enters the commit of your validation, or a commit of its own for a
   review by kind.
 

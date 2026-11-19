@@ -119,7 +119,7 @@ asking, inside a window of authorization, and logs each decision.
 |---|---|
 | [`SKILL.md`](SKILL.md) | how `/bot` reads its arguments and boots |
 | [`roles/`](roles/) | one file per role; `BASE.md` is what the coordinating roles share |
-| [`roles/manager/`](roles/manager/) | the MANAGER's parts read on demand: the harvest, the run under AUTO |
+| [`roles/manager/`](roles/manager/), [`reviewer/`](roles/reviewer/), [`architect/`](roles/architect/) | a role's parts read on demand: the harvest, the run under AUTO |
 | [`roles/reviews/`](roles/reviews/) | one file per kind of review |
 | [`roles/templates/`](roles/templates/) | the forms `new.sh` fills |
 | [`scripts/`](scripts/) | the scripts above |

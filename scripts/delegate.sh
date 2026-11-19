@@ -54,7 +54,7 @@ case "$mode" in
     if [ -n "$id" ]; then
       case "$state" in delivered|entregue) ;; *) echo "$id is $state, not delivered" >&2; exit 2;; esac
       result="$root/.bot/tasks/$id-review.md"
-      prompt="Read $reviewer, then, as a delegate, review the delivery of $task in the project $root. Answer with one status line."
+      prompt="Read $roles/REVIEWER.md, then, as a delegate, review the delivery of $task in the project $root. Answer with one status line."
     else
       [ -f "$roles/reviews/$kind.md" ] || { echo "no kind '$kind' in $roles/reviews/" >&2; exit 2; }
       result=""

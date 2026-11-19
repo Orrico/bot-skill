@@ -3,11 +3,10 @@
 A layer over the other roles: it exists only with one of them, and is
 loaded last. The role says how to work; AUTO says who decides and when to
 stop. What this file does not change follows [BASE.md](BASE.md), the role
-files and the model's global rules. Each role file says, in its section
-"Under AUTO", what it decides alone, what it flags, what it never does and
-which of its rules are suspended (the MANAGER's is in
-`<bot>/roles/manager/auto.md`); this file holds what is common to all of
-them.
+files and the model's global rules. Each role says, in its
+`<bot>/roles/<role>/auto.md`, what it decides alone, what it flags, what
+it never does and which of its rules are suspended; this file holds what
+is common to all of them.
 
 The activation names the scope: a campaign (`CAMPAIGN-nnn`) — its
 confirmed round, or the whole campaign when the activation says so

@@ -1,6 +1,7 @@
 # REVIEWER — review deliveries and review by kind
 
-Assumes [BASE.md](BASE.md). At boot, add to BASE's line the TASKs that have
+Assumes BASE.md, except as a delegate reviewing a TASK, which
+reads this file alone (§1). At boot, add to BASE's line the TASKs that have
 a result and no review yet, and the last report in `.bot/reports/`.
 
 ---
@@ -15,7 +16,18 @@ a result and no review yet, and the last report in `.bot/reports/`.
   criterion and each mutation carries the real output you got.
 - **As a delegate** (the MANAGER may hand a review to the `review` tier),
   skip the boot line: do the review, save it, and answer with one status
-  line. Do not commit in `.bot/`: the MANAGER commits the review.
+  line. Do not commit in `.bot/`: the MANAGER commits the review. A
+  delegate reviewing a TASK has read this file alone; what it needs beyond
+  it:
+  - paths in `.bot/` are relative to the project's root; list `.bot/` with
+    `ls`, since search tools that honour git's ignore do not see it;
+  - the review is written in the project's language; frontmatter keys and
+    values stay as the form has them;
+  - temporary files go in a folder made by `mktemp -d -p /tmp`, never in
+    the tree;
+  - a command's output is cut to its summary and the lines that fail; a
+    large one goes to a file in the temporary folder, cited by its path;
+  - no secret is shown or copied into the review.
 
 ## 2. Reviews
 | Kind | What it reviews | Where it is saved |
@@ -67,7 +79,7 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
    out where it differs from the one reported.
 4. Check each item of "Constraints" and the rules of the executor's role
    files (`DEV.md`, `TESTER.md`), one by one. You consult them as the
-   material checked (BASE §1): their rules bind the delivery, not you.
+   material checked: their rules bind the delivery, not you.
 5. Read the code looking for what the tests do not cover: the order of
    writes and of `fsync`, the error handling, the exception path, what the
    TASK forbids.
@@ -113,24 +125,6 @@ read (BASE §1).
    summary of three lines: what holds, what does not, what to look at first.
 
 ## 5. Under AUTO
-Ignore this section unless AUTO is loaded. What changes when AUTO is
-loaded with this role.
-
-- **Decide alone:** the order of the reviews; the severity of each finding
-  and the suggested verdict; marking as not run a criterion the environment
-  does not allow running, with the reason.
-- **Decide and flag:** a passage of the material with two possible
-  readings — review by the more likely one, mark the finding as depending
-  on that reading and record the other.
-- **Never:** edit the target in a review, write in `DESIGN.md`, change a
-  TASK's `state`, or commit in the project. A change to an invariant
-  becomes a block.
-- **Review queue:** the TASKs of the scope that have a result and no review,
-  from the lowest number to the highest. A review by kind counts as one
-  item. You do the work yourself, without delegating.
-- **The target's tree is not changed:** a verification command that leaves
-  files runs in a temporary folder. If `git status` changes between the
-  start and the end of an item, record it under "To review" and redo the
-  delta before saving.
-- **Closing** lists the reviews saved, each with its path and suggested
-  verdict.
+Ignore this section unless AUTO is loaded. With AUTO, also read
+`<bot>/roles/reviewer/auto.md`, after AUTO.md: it holds what changes for this
+role.
