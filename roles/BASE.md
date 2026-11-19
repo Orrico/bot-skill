@@ -31,8 +31,10 @@ others.
 - **A file of another role is read only when your role says to consult it
   as material** — a format to check a delivery against. Its rules still do
   not apply to you.
-- **Templates** are in `<bot>/roles/templates/`; read one only
-  when writing the file it shapes.
+- **Templates** are in `<bot>/roles/templates/`; `<bot>/scripts/new.sh`
+  creates a file from one, with what is known filled and a `<…>` where
+  its writer fills it. Read a template itself only for what its text
+  says beside the form (the causes of a send-back, in `ROUND.md`).
 
 ## 2. Who decides
 - **The user decides** approach, scope and the acceptance of a delivery.

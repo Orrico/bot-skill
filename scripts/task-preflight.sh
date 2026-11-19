@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # usage: task-preflight.sh <root> TASK-nnn [--no-run] [<name>...] — checks a written TASK
 # against the current tree, before it is handed over:
+#   unfilled  each <…> of the form in roles/templates/TASK.md still in the TASK, and each line of
+#             its front matter left with its choices (`no | yes`)
 #   files     each backticked path in the first cell of a table row whose second cell has no
 #             backtick (the "Files" table, not "Data"): there or absent
 #   refs      each backticked `path:line`: the file there and that long
@@ -20,7 +22,22 @@ task="$root/.bot/tasks/$id.md"
 limit=${PREFLIGHT_TIMEOUT:-300}
 run=1 names=()
 for a in "$@"; do case "$a" in --no-run) run=0;; *) names+=("$a");; esac; done
+form_file="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)/roles/templates/TASK.md"
+[ -f "$form_file" ] || { echo "no $form_file" >&2; exit 2; }
 cd "$root" || exit 2
+
+echo "unfilled:"
+form=$(awk '/^````markdown$/ {on = 1; next} /^````$/ {on = 0} on' "$form_file")
+prose=$(perl -0pe 's/`([^`]*)`/my $s = $1; $s =~ m{^<[^<>\n]+>$} ? $s : ($s =~ s{[^\n]}{}gr)/ge' "$task")
+left=$( {
+  grep -oE '<[^<>]+>' <<<"$form" | sort -u | while IFS= read -r p; do
+    grep -nF -- "$p" <<<"$prose" | cut -d: -f1 | sed "s|$| $p|"
+  done
+  awk '/^---$/ {n++; next} n == 1 && / \| /' <<<"$form" | while IFS= read -r l; do
+    grep -nxF -- "$l" "$task" | sed -E 's/^([0-9]+):(.*)/\1 \2/'
+  done
+} | sort -n | uniq)
+if [ -n "$left" ]; then sed 's/^/  line /' <<<"$left"; else echo "  none"; fi
 
 echo "files:"
 sed -n -E 's/^\| *`([^`<>]+)` *\| *([^|`]*[^|` ]) *\|.*/\1\t\2/p' "$task" | while IFS=$'\t' read -r path action; do

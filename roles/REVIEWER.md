@@ -89,7 +89,8 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
 7. If the TASK itself is defective — ambiguous, at odds with the code or
    the spec, a criterion that does not prove what it says — record it as a
    finding about the TASK.
-8. Save it in the form of `<bot>/roles/templates/TASK-REVIEW.md`.
+8. Create it with `<bot>/scripts/new.sh <root> review TASK-nnn`, in the
+   form of `<bot>/roles/templates/TASK-REVIEW.md`, and fill each `<…>`.
 
 ## 4. Review by kind
 A review by kind is a review, evaluation or analysis the user asks for,

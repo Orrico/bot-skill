@@ -21,8 +21,10 @@ request of theirs. It runs in rounds: each round is a plan of items, run
 and then closed with a report, and the next round is planned from that
 report. A campaign is a folder, `.bot/campaigns/CAMPAIGN-nnn/`, with
 `campaign.md` and one `round-N.md` per round, in the forms of
-`<bot>/roles/templates/CAMPAIGN.md` and `ROUND.md`. No round
-runs before the user confirms it.
+`<bot>/roles/templates/CAMPAIGN.md` and `ROUND.md`: `<bot>/scripts/new.sh
+<root> campaign` creates the campaign with its first round, and `new.sh
+<root> round CAMPAIGN-nnn` each next one. No round runs before the user
+confirms it.
 
 1. **Read what bears on the scope:** the BACKLOG items, and the facts of
    `.bot/knowledge/` whose description in the index touches them — an open
@@ -103,7 +105,11 @@ runs before the user confirms it.
   risk does not pay for delegating, tell the user.
 
 ## 4. Writing a TASK
-Write it in the form of `<bot>/roles/templates/TASK.md`.
+Create it with `<bot>/scripts/new.sh <root> task <executor>
+[CAMPAIGN-nnn#N] [-r TASK-nnn]`: it takes the next number and fills the
+front matter and the "Role" section from `<bot>/roles/templates/TASK.md`.
+Fill each `<…>` it leaves, and keep one value where the front matter gives
+a choice (`no | yes`).
 
 - **Self-contained for its executor,** who has no access to this
   conversation. The rules of conduct are in the executor's role files; the
@@ -146,12 +152,14 @@ Write it in the form of `<bot>/roles/templates/TASK.md`.
   out: a step never tried is a guess the executor stops on.
   With the TASK written,
   `<bot>/scripts/task-preflight.sh <root> TASK-nnn <name>…` checks it
-  against the tree: each path of "Files" there or absent, each `file:line`
+  against the form and the tree: each `<…>` or choice of the form left
+  unfilled, each path of "Files" there or absent, each `file:line`
   it cites there and that long, each criterion's command run with its
   status, and each name the TASK changes or removes —
   a field, a message, an error code — searched in its snake, camel and
-  kebab forms, the files the TASK does not cite marked. A path at odds
-  with its action, a criterion that fails for a reason other than the
+  kebab forms, the files the TASK does not cite marked. A placeholder left
+  that is not the TASK's own text (a `<name>` the code takes), a path at
+  odds with its action, a criterion that fails for a reason other than the
   missing change, or a file not cited, is settled before the TASK goes
   out.
 - **The data read from the code:** the "Data" section gives each datum the

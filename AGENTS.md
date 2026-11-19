@@ -66,6 +66,18 @@ scripts/round-close.sh <project> CAMPAIGN-nnn#N
 The third line ends in `total: …`; the fourth prints `[]`; the last, on a
 round closed since the causes became a set, ends in `ok: …`.
 
+For a change to `new.sh` or to a form of `roles/templates/`, in a
+throwaway project, never one with a real `.bot/`:
+
+```
+p=$(mktemp -d -p /tmp)/demo && mkdir -p "$p/.bot"
+scripts/new.sh "$p" campaign && scripts/new.sh "$p" task dev+tester 1#1
+scripts/new.sh "$p" review TASK-001 && scripts/task-preflight.sh "$p" TASK-001 --no-run
+```
+
+The preflight lists under `unfilled:` each `<…>` left, with no `<bot>` and
+no `TASK-nnn` among them.
+
 For a change to `roles/`, no prose line of `roles/` past 80 columns and no
 citation of a section that does not exist:
 
