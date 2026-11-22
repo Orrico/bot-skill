@@ -4,6 +4,11 @@ What changed in the skill, by date, and why. The commits hold the diffs.
 
 ## 2026-11-19
 
+- **`delegate.sh -w <dir>`,** a directory outside the project that a
+  TASK writes in or a review reads, given to the delegate with
+  `--add-dir`, and bound into agy's jail with its `.git` read-only. The
+  jail hid all of `~/Code` but the project and the skill, so a TASK on a
+  theme kept in a repository of its own could not reach its files.
 - **The standard files.** `DESIGN.md` holds the data inventory and the flow,
   moved from the README, with the count of each datum and the decisions in
   force; `BACKLOG.md` what is left; this file what changed. The README

@@ -252,10 +252,11 @@ which files of the TASK already held changes.
   - **Via `delegate.sh`:**
     `<bot>/scripts/delegate.sh <root> TASK-nnn <claude|agy> <model>`
     writes this prompt and runs it from the project's root (`-g <gap>` for a
-    send-back); run it in the background, since it ends when the executor does.
-    It exits 1 when the result was not written. For `agy`, it prints the folder
-    that is the executor's `/tmp`: a path under `/tmp` cited in the result is
-    under that folder.
+    send-back, `-w <dir>` for each directory outside the project the TASK
+    writes in or its review reads); run it in the background, since it ends
+    when the executor does. It exits 1 when the result was not written. For
+    `agy`, it prints the folder that is the executor's `/tmp`: a path under
+    `/tmp` cited in the result is under that folder.
 - **A review by delegation** uses the `review` row of `<bot>/models.md`, with
   the same approval. The prompt is only: read `<bot>/roles/REVIEWER.md`,
   review `<root>/.bot/tasks/TASK-nnn.md`, and answer with one status line;

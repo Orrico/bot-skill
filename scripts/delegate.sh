@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model> [-g <gap>]
-# [-t <minutes>] — runs a TASK's executor, or a REVIEWER, in another CLI, headless, from the
+# [-t <minutes>] [-w <dir>]... — runs a TASK's executor, or a REVIEWER, in another CLI, headless, from the
 # project's root. Without `review`: executes the TASK (-g sends it back with that gap, refused
 # once its result holds a `## Send-back 5`). With
 # `review`: reviews the delivery of a TASK in state delivered, or reviews by a kind of
 # roles/reviews/ on a subject. Prints the delegate's status line, what it wrote and the log's
 # path, and for claude the session's tokens and cost; exits 1 when it wrote nothing. claude
-# runs with the tools of a role's work alone (no web, MCP, skills or background tasks)
+# runs with the tools of a role's work alone (no web, MCP, skills or background tasks). -w gives
+# the delegate a directory outside the project to work in, its .git read-only under agy
 set -eu
-usage="usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model> [-g <gap>] [-t <minutes>]"
+usage="usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model> [-g <gap>] [-t <minutes>] [-w <dir>]..."
 root=$(cd "${1:?$usage}" && pwd); shift
 bot=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 roles="$bot/roles"
@@ -19,9 +20,17 @@ case "${1:?$usage}" in
   *) id=$1; shift;;
 esac
 cli=${1:?$usage} model=${2:?$usage}; shift 2
-gap="" minutes=60
+gap="" minutes=60 dirs=()
 while [ $# -gt 0 ]; do
-  case "$1" in -g) gap=$2; shift 2;; -t) minutes=$2; shift 2;; *) echo "$usage" >&2; exit 2;; esac
+  case "$1" in
+    -g) gap=$2; shift 2;;
+    -t) minutes=$2; shift 2;;
+    -w) [ -d "${2:-}" ] || { echo "-w: no directory ${2:-}" >&2; exit 2; }
+      d=$(cd "$2" && pwd)
+      case "$d/" in "$root"/*) echo "-w: $d is inside the project" >&2; exit 2;; esac
+      dirs+=("$d"); shift 2;;
+    *) echo "$usage" >&2; exit 2;;
+  esac
 done
 [ -z "$gap" ] || [ $mode = execute ] || { echo "-g is for an execution, not a review" >&2; exit 2; }
 
@@ -68,6 +77,7 @@ case "$cli" in
   agy) cmd=(agy -p "$prompt" --model "$model" --dangerously-skip-permissions --settings '{"agentMode":"","enableTerminalSandbox":false}' --add-dir "$roles");;
   *) echo "cli '$cli' is not claude or agy" >&2; exit 2;;
 esac
+for d in ${dirs[@]+"${dirs[@]}"}; do cmd+=(--add-dir "$d"); done
 command -v "$cli" >/dev/null || { echo "$cli not found in PATH" >&2; exit 2; }
 
 lock="${TMPDIR:-/tmp}/bot-delegate-$(printf %s "$root" | md5sum | cut -c1-12).lock"
@@ -76,8 +86,9 @@ flock -n 9 || { echo "another delegate is running on $root" >&2; exit 2; }
 
 base=$(mktemp -d -p /tmp) && log="$base/delegate.log"
 if [ "$cli" = agy ]; then
-  # agy runs in bwrap: the filesystem read-only, except the project (not its .git), agy's own
-  # state and $base/tmp as /tmp; of ~/Code, only the project and the skill's folder; secret
+  # agy runs in bwrap: the filesystem read-only, except the project and each -w directory (not
+  # their .git), agy's own state and $base/tmp as /tmp; of ~/Code, only those and the skill's
+  # folder; secret
   # folders hidden; agy's summaries of past conversations replaced by empty files of this
   # run; the session bus only through a proxy that lets through the keyring, where agy keeps
   # its login; XDG_CACHE_HOME under /tmp, since ~/.cache is read-only there and nix writes its
@@ -97,7 +108,8 @@ if [ "$cli" = agy ]; then
   for f in conversation_summaries.db jetbox_summaries_proto.pb; do
     [ -e "$agy_state/$f" ] && : >"$base/$f" && jail+=(--bind "$base/$f" "$agy_state/$f")
   done
-  for p in "$root/.git" "$root/.bot/.git"; do [ -e "$p" ] && jail+=(--ro-bind "$p" "$p"); done
+  for d in ${dirs[@]+"${dirs[@]}"}; do jail+=(--bind "$d" "$d"); done
+  for p in "$root/.git" "$root/.bot/.git" ${dirs[@]+"${dirs[@]/%//.git}"}; do [ -e "$p" ] && jail+=(--ro-bind "$p" "$p"); done
   for p in ~/.ssh ~/.gnupg ~/.config/rclone ~/.config/gh ~/.local/share/keyrings ~/.claude; do
     [ -d "$p" ] && jail+=(--tmpfs "$p")
   done
