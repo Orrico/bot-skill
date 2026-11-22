@@ -123,19 +123,18 @@ which files of the TASK already held changes.
   BASE §5 and the mechanism of `<bot>/models.md`. Do not read the executor's
   role files for this.
   - **Via `delegate.sh`:**
-    `<bot>/scripts/delegate.sh <root> TASK-nnn <claude|agy> <model>
-    [-e <effort>] [-g <gap>] [-w <dir>]…` runs from the project's root (`-e`
-    for tiers whose effort is not in the model ID, `-g` for a send-back,
-    `-w` for each directory outside the project the TASK writes in or its
-    review reads); run it in the background, since it ends when the executor
-    does. It exits 1 when no result was written. For `agy`, it prints the
-    folder that is the executor's `/tmp`: a path under `/tmp` cited in the
-    result is under that folder.
+    `<bot>/scripts/delegate.sh <root> TASK-nnn <claude|agy> <model|tier|auto>
+    [-e <effort>] [-g <gap>] [-w <dir>]…` runs from the project's root (`auto`
+    resolves model and effort from `<bot>/models.md`, `-e` overrides effort,
+    `-g` sends back, `-w` adds a directory outside the project); run it in the
+    background, since it ends when the executor does. It exits 1 when no
+    result was written. For `agy`, it prints the folder that is the executor's
+    `/tmp`: a path under `/tmp` cited in the result is under that folder.
 - **A review by delegation** uses the review tier of `<bot>/models.md`
   (derived from the TASK's `tier` and `critical_zone` unless overridden),
   with the same approval and mechanism; with `delegate.sh`: `delegate.sh
-  <root> review TASK-nnn <claude|agy> <model> [-e <effort>]` (only for a
-  TASK in state `delivered`), or `review --<kind> "<subject>"`. A TASK
+  <root> review TASK-nnn <claude|agy> <model|tier|auto> [-e <effort>]` (only
+  for a TASK in state `delivered`), or `review --<kind> "<subject>"`. A TASK
   delegate reads `<bot>/roles/REVIEWER.md` alone; a review by kind reads
   `BASE.md` too. The delegate does not commit: the review enters your
   validation commit, or its own commit for a review by kind.

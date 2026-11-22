@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
-# usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model>
-# [-e <effort>] [-g <gap>] [-t <minutes>] [-w <dir>]... — runs a TASK's executor, or a REVIEWER,
-# in another CLI, headless, from the project's root. Without `review`: executes the TASK (-g sends
-# it back with that gap, refused once its result holds a `## Send-back 5`). With `review`: reviews
-# the delivery of a TASK in state delivered, or reviews by a kind of roles/reviews/ on a subject.
-# -e sets reasoning effort (low|medium|high|xhigh|max). Prints the delegate's status line, what it
-# wrote, the log paths, and the session's tokens and turns; exits 1 when it wrote nothing. claude
-# runs with the tools of a role's work alone (no web, MCP, skills or background tasks); agy runs
-# with slash commands disabled and JSON output. -w gives the delegate a directory outside the
-# project to work in, its .git read-only under agy
+# usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model|tier|auto>
+# [-e <effort>] [-g <gap>] [-t <minutes>] [-w <dir>]... [-n] — runs a TASK's executor, or a
+# REVIEWER, in another CLI, headless, from the project's root. Without `review`: executes the TASK
+# (-g sends it back with that gap, refused once its result holds a `## Send-back 5`). With
+# `review`: reviews the delivery of a TASK in state delivered, or reviews by a kind of
+# roles/reviews/ on a subject. <model|tier|auto> accepts a literal model ID, a tier name of
+# models.md, or `auto` (reads `tier:` / `critical_zone:` from the TASK, or derives from --<kind>).
+# -e sets or overrides reasoning effort (low|medium|high|xhigh|max). -n resolves and validates
+# without running. Prints the delegate's status line, what it wrote, the log paths, and the
+# session's tokens and turns; exits 1 when it wrote nothing. claude runs with the tools of a role's
+# work alone (no web, MCP, skills or background tasks); agy runs with slash commands disabled and
+# JSON output. -w gives the delegate a directory outside the project to work in, its .git read-only
+# under agy
 set -eu
-usage="usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model> [-e <effort>] [-g <gap>] [-t <minutes>] [-w <dir>]..."
+usage="usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model|tier|auto> [-e <effort>] [-g <gap>] [-t <minutes>] [-w <dir>]... [-n]"
 root=$(cd "${1:?$usage}" && pwd); shift
 bot=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 roles="$bot/roles"
@@ -21,7 +24,7 @@ case "${1:?$usage}" in
   *) id=$1; shift;;
 esac
 cli=${1:?$usage} model=${2:?$usage}; shift 2
-effort="" gap="" minutes=60 dirs=()
+effort="" gap="" minutes=60 dry_run=0 dirs=()
 while [ $# -gt 0 ]; do
   case "$1" in
     -e) case "${2:-}" in
@@ -29,6 +32,7 @@ while [ $# -gt 0 ]; do
           *) echo "-e: effort must be low, medium, high, xhigh or max" >&2; exit 2;;
         esac;;
     -g) gap=$2; shift 2;;
+    -n) dry_run=1; shift;;
     -t) minutes=$2; shift 2;;
     -w) [ -d "${2:-}" ] || { echo "-w: no directory ${2:-}" >&2; exit 2; }
       d=$(cd "$2" && pwd)
@@ -38,12 +42,73 @@ while [ $# -gt 0 ]; do
   esac
 done
 [ -z "$gap" ] || [ $mode = execute ] || { echo "-g is for an execution, not a review" >&2; exit 2; }
+case "$cli" in claude|agy) ;; *) echo "cli '$cli' is not claude or agy" >&2; exit 2;; esac
 
 if [ -n "$id" ]; then
   task="$root/.bot/tasks/$id.md"
   [ -f "$task" ] || { echo "no $task" >&2; exit 2; }
   field() { sed -n -E "s/^$1:[[:space:]]*//p" "$task" | head -1; }
   state="$(field state)$(field estado)"
+fi
+
+resolve_tier() { # <tier> <cli> -> prints "model|effort|review_tier" from models.md
+  awk -F'|' -v t="$1" -v c="$2" '
+    /^\|/ {
+      k = $2; gsub(/^[[:space:]`]+|[[:space:]`]+$/, "", k)
+      if (k != t) next
+      cell = (c == "claude" ? $3 : $4)
+      n = 0
+      while (match(cell, /`[^`]+`/)) {
+        tok[++n] = substr(cell, RSTART + 1, RLENGTH - 2)
+        cell = substr(cell, RSTART + RLENGTH)
+      }
+      rev = ""
+      if (NF >= 8) {
+        r = $7; gsub(/^[[:space:]`]+|[[:space:]`]+$/, "", r)
+        if (r ~ /^review-/) rev = r
+      }
+      eff = (c == "claude" && n >= 2 ? tok[2] : "")
+      printf "%s|%s|%s\n", tok[1], eff, rev
+      exit 0
+    }' "$bot/models.md"
+}
+
+tier=""
+case "$model" in
+  auto)
+    if [ "$mode" = execute ]; then
+      tier=$(field tier)
+      case "$tier" in
+        trivial|standard|complex|deep) ;;
+        *) echo "$id: tier '$tier' is not trivial, standard, complex or deep" >&2; exit 2;;
+      esac
+    elif [ -n "$id" ]; then
+      task_tier=$(field tier)
+      case "$task_tier" in
+        trivial|standard|complex|deep) ;;
+        *) echo "$id: tier '$task_tier' is not trivial, standard, complex or deep" >&2; exit 2;;
+      esac
+      IFS='|' read -r _ _ tier <<<"$(resolve_tier "$task_tier" "$cli")"
+      case "$(field critical_zone)" in
+        yes*) [ "$tier" = review-check ] && tier=review-validate;;
+      esac
+    else
+      if [ "$kind" = design ]; then tier=review-deep; else tier=review-validate; fi
+    fi;;
+  trivial|standard|complex|deep)
+    [ "$mode" = execute ] || { echo "execution tier '$model' is for execute, not review" >&2; exit 2; }
+    tier=$model;;
+  review-check|review-validate|review-deep)
+    [ "$mode" = review ] || { echo "review tier '$model' is for review, not execute" >&2; exit 2; }
+    tier=$model;;
+esac
+if [ -n "$tier" ]; then
+  row=$(resolve_tier "$tier" "$cli")
+  [ -n "$row" ] || { echo "tier '$tier' not found in $bot/models.md" >&2; exit 2; }
+  IFS='|' read -r resolved_model resolved_effort _ <<<"$row"
+  [ -n "$resolved_model" ] || { echo "no $cli model for tier '$tier' in $bot/models.md" >&2; exit 2; }
+  model=$resolved_model
+  [ -z "$effort" ] && effort=$resolved_effort
 fi
 reviewer="$roles/BASE.md and $roles/REVIEWER.md"
 case "$mode" in
@@ -86,6 +151,10 @@ case "$cli" in
 esac
 [ -n "$effort" ] && cmd+=(--effort "$effort")
 for d in ${dirs[@]+"${dirs[@]}"}; do cmd+=(--add-dir "$d"); done
+if [ "$dry_run" -eq 1 ]; then
+  echo "dry-run: $cli $model${effort:+ ($effort)}${tier:+ [$tier]}"
+  exit 0
+fi
 command -v "$cli" >/dev/null || { echo "$cli not found in PATH" >&2; exit 2; }
 
 lock="${TMPDIR:-/tmp}/bot-delegate-$(printf %s "$root" | md5sum | cut -c1-12).lock"
@@ -131,7 +200,7 @@ out="$base/delegate.json"
 (cd "$root" && timeout "${minutes}m" "${cmd[@]}" </dev/null >"$out" 2>"$log") || rc=$?
 after=$(stat -c %Y "$result" 2>/dev/null || echo none)
 
-echo "delegate: $cli $model${effort:+ ($effort)}, exit $rc, $(( $(date +%s) - start )) s"
+echo "delegate: $cli $model${effort:+ ($effort)}${tier:+ [$tier]}, exit $rc, $(( $(date +%s) - start )) s"
 if [ "$cli" = claude ] && jq -e .modelUsage "$out" >/dev/null 2>&1; then
   echo "status line: $(jq -r '.result // ""' "$out" | grep -v '^[[:space:]]*$' | tail -1)"
   jq -r '[.modelUsage[]] as $m

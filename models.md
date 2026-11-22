@@ -73,6 +73,8 @@ delegations (BASE §5).
   parent session already runs on the tier's model, `flash` for `READER`
   (3.8 Flash), and `delegate.sh` with the literal ID otherwise. In a `swarm`,
   `add` accepts literal `agy` model IDs.
-- **Delegation via `delegate.sh`:** pass the literal CLI model ID and, when the
-  tier sets an effort level not encoded in the model ID (e.g. `claude`
-  `haiku`/`sonnet`/`opus`), pass `-e <low|medium|high|xhigh|max>`.
+- **Delegation via `delegate.sh`:** pass `auto` (resolves the model and effort
+  from this file using the TASK's `tier:` and `critical_zone:`, or the review
+  kind), a tier name from the tables above (to override or escalate), or a
+  literal CLI model ID with `-e <low|medium|high|xhigh|max>` when needed. `-n`
+  prints the resolved model without running.

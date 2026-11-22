@@ -101,8 +101,9 @@ asking, inside a window of authorization, and logs each decision.
    tools alone — no MCP, no skills — cutting fixed context from 27.7k to
    15.9k tokens (`--bare` reads only an API key, never the subscription's
    login). `agy` runs with `--disable-slash-commands` and `--output-format
-   json`, and `delegate.sh` supports `-e <effort>` (`--effort`) and prints
-   token and turn usage for both CLIs.
+   json`, and `delegate.sh` resolves tiers and `auto` directly from
+   `models.md`, supports `-e <effort>` (`--effort`), and prints token and
+   turn usage for both CLIs.
 9. **Send-backs and anti-loop:** 2 per TASK; 3 to 5 only on the user's word,
    never under AUTO; `delegate.sh` refuses the 6th. Executors and reviewers
    stop and report `blocked` (or mark not run) after two failed attempts

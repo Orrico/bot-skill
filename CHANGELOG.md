@@ -17,10 +17,12 @@ What changed in the skill, by date, and why. The commits hold the diffs.
   or `executor`-caused re-issue, capped at `complex` under AUTO). Updated
   `roles/templates/TASK.md` (`tier:`) and `roles/templates/ROUND.md`
   (`Model` shows `<exec> / <review>`).
-- **`delegate.sh -e <effort>` and `agy` lean/JSON output.** Added `-e
-  <low|medium|high|xhigh|max>` passed as `--effort` to both `claude` and
-  `agy`. `agy` delegates now run with `--disable-slash-commands` and
-  `--output-format json`, printing status line and token/turn usage just
+- **`delegate.sh` tier resolution, `-e <effort>` and `agy` lean/JSON output.**
+  Added `<model|tier|auto>` resolution straight from `models.md` (deriving
+  review tiers from `tier:` + `critical_zone:` or `--<kind>`, with `-n`
+  dry-run) and `-e <low|medium|high|xhigh|max>` passed as `--effort` to both
+  `claude` and `agy`. `agy` delegates now run with `--disable-slash-commands`
+  and `--output-format json`, printing status line and token/turn usage just
   like `claude`.
 - **TASK-writing rules read on demand (`roles/manager/task.md`) and
   instruction deduplication.** Moved MANAGER §4's writing rules and 21
