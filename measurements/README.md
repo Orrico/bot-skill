@@ -9,6 +9,7 @@ numbers and can run the same method again. Nothing here is read by `/bot`.
 | [`2026-11-19-manager-checks.md`](2026-11-19-manager-checks.md) | MANAGER §4 as 21 numbered checks: the prose before and after, and the send-back causes to compare |
 | [`2026-11-19-roles-review.md`](2026-11-19-roles-review.md) | the other roles by who reads what: a delegated review reading REVIEWER alone, before and after; the prose of each file changed |
 | [`2026-11-22-models-and-prose.md`](2026-11-22-models-and-prose.md) | calibrated execution/review tiers, `claude --effort` and `agy` JSON probes, `roles/manager/task.md` on demand and instruction deduplication: prose before and after |
+| [`2026-11-22-agy-lean.md`](2026-11-22-agy-lean.md) | fixed context of an `agy` delegate: plain vs `--disable-slash-commands` vs `bwrap` masking skills, plugins and `mcp_config.json` |
 
 ## Tools
 
@@ -20,6 +21,7 @@ Each reads only, unless its line says otherwise.
 | [`tools/sendback-causes.sh`](tools/sendback-causes.sh) `<root>...` | the causes of send-backs, by the closed set |
 | [`tools/delegate-usage.sh`](tools/delegate-usage.sh) `<transcripts dir>...` | each delegate session: requests, fixed context, input, output, fixed share |
 | [`tools/fixed-context.sh`](tools/fixed-context.sh) `<root> [model]` | the input of a one-word `claude -p`, full and lean — **spends two short calls of the user's quota** |
+| [`tools/fixed-context-agy.sh`](tools/fixed-context-agy.sh) `<root> [model]` | the input of a one-word `agy -p`, full and masked in `bwrap` — **spends two short calls of the user's quota** |
 | [`tools/prose.sh`](tools/prose.sh) `<bot>` | per file a model reads: tokens, formatting share, long sentences |
 
 ## A new record

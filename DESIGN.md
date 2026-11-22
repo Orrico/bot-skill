@@ -100,10 +100,12 @@ asking, inside a window of authorization, and logs each decision.
 8. **Lean delegates with usage telemetry:** `claude` runs with its role's
    tools alone — no MCP, no skills — cutting fixed context from 27.7k to
    15.9k tokens (`--bare` reads only an API key, never the subscription's
-   login). `agy` runs with `--disable-slash-commands` and `--output-format
-   json`, and `delegate.sh` resolves tiers and `auto` directly from
-   `models.md`, supports `-e <effort>` (`--effort`), and prints token and
-   turn usage for both CLIs.
+   login). `agy` runs with `--disable-slash-commands`, `--output-format
+   json`, and `bwrap` masks over skills, plugins and `mcp_config.json`
+   (cutting 787 tokens/request with 0 MCPs and isolating delegates from
+   ambient plugins/MCPs). `delegate.sh` resolves tiers and `auto` directly
+   from `models.md`, supports `-e <effort>` (`--effort`), and prints token
+   and turn usage for both CLIs.
 9. **Send-backs and anti-loop:** 2 per TASK; 3 to 5 only on the user's word,
    never under AUTO; `delegate.sh` refuses the 6th. Executors and reviewers
    stop and report `blocked` (or mark not run) after two failed attempts

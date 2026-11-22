@@ -165,14 +165,14 @@ base=$(mktemp -d -p /tmp) && log="$base/delegate.log"
 if [ "$cli" = agy ]; then
   # agy runs in bwrap: the filesystem read-only, except the project and each -w directory (not
   # their .git), agy's own state and $base/tmp as /tmp; of ~/Code, only those and the skill's
-  # folder; secret
-  # folders hidden; agy's summaries of past conversations replaced by empty files of this
-  # run; the session bus only through a proxy that lets through the keyring, where agy keeps
-  # its login; XDG_CACHE_HOME under /tmp, since ~/.cache is read-only there and nix writes its
-  # caches in it
+  # folder; secret folders hidden; agy's summaries of past conversations replaced by empty files of
+  # this run; skills, plugins and mcp_config.json masked read-only empty so delegates carry no
+  # ambient skills/MCPs; the session bus only through a proxy that lets through the keyring, where
+  # agy keeps its login; XDG_CACHE_HOME under /tmp, since ~/.cache is read-only there and nix
+  # writes its caches in it
   for t in bwrap xdg-dbus-proxy; do command -v $t >/dev/null || { echo "$t not found in PATH" >&2; exit 2; }; done
   for v in XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS; do [ -n "${!v:-}" ] || { echo "$v not set" >&2; exit 2; }; done
-  mkdir "$base/tmp"
+  mkdir "$base/tmp" "$base/empty"
   agy_state=~/.gemini/antigravity-cli
   xdg-dbus-proxy "$DBUS_SESSION_BUS_ADDRESS" "$base/bus" --filter --talk=org.freedesktop.secrets & proxy=$!
   trap 'kill $proxy 2>/dev/null' EXIT
@@ -185,6 +185,13 @@ if [ "$cli" = agy ]; then
   for f in conversation_summaries.db jetbox_summaries_proto.pb; do
     [ -e "$agy_state/$f" ] && : >"$base/$f" && jail+=(--bind "$base/$f" "$agy_state/$f")
   done
+  for d in ~/.gemini/config/skills ~/.gemini/config/plugins "$agy_state/builtin/skills" "$agy_state/builtin/plugins"; do
+    [ -d "$d" ] && jail+=(--ro-bind "$base/empty" "$d")
+  done
+  if [ -e ~/.gemini/config/mcp_config.json ]; then
+    printf '{}' >"$base/mcp_config.json"
+    jail+=(--ro-bind "$base/mcp_config.json" ~/.gemini/config/mcp_config.json)
+  fi
   for d in ${dirs[@]+"${dirs[@]}"}; do jail+=(--bind "$d" "$d"); done
   for p in "$root/.git" "$root/.bot/.git" ${dirs[@]+"${dirs[@]/%//.git}"}; do [ -e "$p" ] && jail+=(--ro-bind "$p" "$p"); done
   for p in ~/.ssh ~/.gnupg ~/.config/rclone ~/.config/gh ~/.local/share/keyrings ~/.claude; do

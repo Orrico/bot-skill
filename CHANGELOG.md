@@ -17,6 +17,13 @@ What changed in the skill, by date, and why. The commits hold the diffs.
   or `executor`-caused re-issue, capped at `complex` under AUTO). Updated
   `roles/templates/TASK.md` (`tier:`) and `roles/templates/ROUND.md`
   (`Model` shows `<exec> / <review>`).
+- **`agy` delegate isolation in `delegate.sh` (`bwrap`).** Masked
+  `~/.gemini/config/{skills,plugins,mcp_config.json}` and
+  `~/.gemini/antigravity-cli/builtin/{skills,plugins}` read-only empty inside
+  the jail: measured −787 input tokens/request (−6.6%) even with 0 MCPs and 0
+  plugins installed, and isolates delegates from any ambient MCPs/plugins.
+  Added `measurements/tools/fixed-context-agy.sh` and
+  `measurements/2026-11-22-agy-lean.md`.
 - **`delegate.sh` tier resolution, `-e <effort>` and `agy` lean/JSON output.**
   Added `<model|tier|auto>` resolution straight from `models.md` (deriving
   review tiers from `tier:` + `critical_zone:` or `--<kind>`, with `-n`
