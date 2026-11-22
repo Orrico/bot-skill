@@ -4,6 +4,15 @@ What changed in the skill, by date, and why. The commits hold the diffs.
 
 ## 2026-11-22
 
+- **`delegate.sh`: agy's `bin` writable in the jail, and one `usage:`
+  line for both CLIs.** The jail mounted agy's state on a tmpfs and bound
+  `bin` back read-only, but agy rewrites `bin/agentapi` on each command,
+  so every `run_command` failed with `read-only file system` and a
+  delegate came back blocked in seconds; `bin` is now bound writable, the
+  other three entries still read-only. The `usage:` line printed
+  Claude's input with its cache and agy's without it, so the two did not
+  compare; both now print the total, then the new and the cached parts:
+  `usage: <total> tokens in (<new> new, <cached> from cache); …`.
 - **Pre-handover checks, self-contained send-backs and `mutate.sh` build
   detection.** `scripts/mutate.sh` now detects Rust/TypeScript compilation
   errors (`could not compile`, `error[E…]`, `error TS…`) and exits `2`

@@ -165,8 +165,9 @@ flock -n 9 || { echo "another delegate is running on $root" >&2; exit 2; }
 base=$(mktemp -d -p /tmp) && log="$base/delegate.log"
 if [ "$cli" = agy ]; then
   # agy runs in bwrap: the filesystem read-only, except the project and each -w directory (not
-  # their .git), an ephemeral tmpfs for agy's state (only bin, builtin, installation_id and
-  # settings.json bound read-only — no past summaries, no host WAL sidecar corruption) and
+  # their .git), an ephemeral tmpfs for agy's state (only builtin, installation_id and settings.json
+  # bound read-only, and bin writable, where agy rewrites its agentapi script on each command —
+  # no past summaries, no host WAL sidecar corruption) and
   # $base/tmp as /tmp; of ~/Code, only those and the skill's folder; secret folders hidden;
   # skills, plugins and mcp_config.json masked read-only empty so delegates carry no ambient
   # skills/MCPs; the session bus only through a proxy that lets through the keyring, where agy
@@ -184,9 +185,10 @@ if [ "$cli" = agy ]; then
     --tmpfs "$agy_state"
     --tmpfs "$XDG_RUNTIME_DIR" --ro-bind "$base/bus" "$XDG_RUNTIME_DIR/bus"
     --setenv XDG_CACHE_HOME /tmp/cache)
-  for p in bin builtin installation_id settings.json; do
+  for p in builtin installation_id settings.json; do
     [ -e "$agy_state/$p" ] && jail+=(--ro-bind "$agy_state/$p" "$agy_state/$p")
   done
+  [ -e "$agy_state/bin" ] && jail+=(--bind "$agy_state/bin" "$agy_state/bin")
   for d in ~/.gemini/config/skills ~/.gemini/config/plugins "$agy_state/builtin/skills" "$agy_state/builtin/plugins"; do
     [ -d "$d" ] && jail+=(--ro-bind "$base/empty" "$d")
   done
@@ -213,14 +215,15 @@ echo "delegate: $cli $model${effort:+ ($effort)}${tier:+ [$tier]}, exit $rc, $((
 if [ "$cli" = claude ] && jq -e .modelUsage "$out" >/dev/null 2>&1; then
   echo "status line: $(jq -r '.result // ""' "$out" | grep -v '^[[:space:]]*$' | tail -1)"
   jq -r '[.modelUsage[]] as $m
-    | ($m | map(.inputTokens + .cacheCreationInputTokens + .cacheReadInputTokens) | add) as $in
+    | ($m | map(.inputTokens + .cacheCreationInputTokens) | add) as $new
     | ($m | map(.cacheReadInputTokens) | add) as $cached | ($m | map(.outputTokens) | add) as $o
     | (.total_cost_usd * 1000 | round / 1000) as $usd
-    | "usage: \($in) tokens in, \($cached) from cache; \($o) out; \(.num_turns) turns; ~$\($usd) at API prices"' "$out"
+    | "usage: \($new + $cached) tokens in (\($new) new, \($cached) from cache); \($o) out; \(.num_turns) turns; ~$\($usd) at API prices"' "$out"
   echo "log: $log, $out"
 elif [ "$cli" = agy ] && jq -e .usage "$out" >/dev/null 2>&1; then
   echo "status line: $(jq -r '.response // ""' "$out" | grep -v '^[[:space:]]*$' | tail -1)"
-  jq -r '"usage: \(.usage.input_tokens) tokens in, \(.usage.cache_read_tokens) from cache; \(.usage.output_tokens) out (\(.usage.thinking_tokens) thinking); \(.num_turns) turns"' "$out"
+  jq -r '(.usage.input_tokens // 0) as $new | (.usage.cache_read_tokens // 0) as $cached
+    | "usage: \($new + $cached) tokens in (\($new) new, \($cached) from cache); \(.usage.output_tokens) out (\(.usage.thinking_tokens) thinking); \(.num_turns) turns"' "$out"
   echo "log: $log, $out"
 else
   echo "status line: $(cat "$out" "$log" 2>/dev/null | grep -v '^[[:space:]]*$' | tail -1)"
