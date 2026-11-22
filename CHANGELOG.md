@@ -17,6 +17,11 @@ What changed in the skill, by date, and why. The commits hold the diffs.
   or `executor`-caused re-issue, capped at `complex` under AUTO). Updated
   `roles/templates/TASK.md` (`tier:`) and `roles/templates/ROUND.md`
   (`Model` shows `<exec> / <review>`).
+- **Concision pass on `roles/BASE.md`.** Tightened prose across §1–§6 and
+  turned §4's five standard files into a table without dropping rules or
+  renumbering sections: `BASE.md` fell from 3,439 to 2,285 tokens (−33.6%,
+  sentences > 40 words 7 → 2), recorded in
+  `measurements/2026-11-22-base-and-writer.md`.
 - **Generalized `roles/WRITER.md` and wired `writer` into the scripts.**
   Replaced project-specific Portuguese Astro rules in `WRITER.md` with
   project-agnostic editorial rules in English (wrapped at 80 columns,
