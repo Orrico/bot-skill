@@ -105,137 +105,12 @@ confirms it.
   risk does not pay for delegating, tell the user.
 
 ## 4. Writing a TASK
-Create it with `<bot>/scripts/new.sh <root> task <executor>
-[CAMPAIGN-nnn#N] [-r TASK-nnn]`: it takes the next number and fills the
-frontmatter and the "Role" section from `<bot>/roles/templates/TASK.md`.
-Fill each `<…>` it leaves, and keep one value where the frontmatter gives
-a choice (`no | yes`). Before it goes out, it passes the checks at the end
-of this section.
-
-- **Self-contained for its executor,** who has no access to this
-  conversation. The rules of conduct are in the executor's role files; the
-  TASK names them and carries only the rules of its own.
-- **The executor is one delegate, with one or two role files** (`executor`):
-  - `dev` — the change, with no new tests, or with tests the TASK gives;
-  - `dev+tester` — the change and its new tests, in one call: the delegate
-    writes the tests first, proves they fail before the change, and after
-    it breaks each condition the change added, adding the test a surviving
-    one lacks;
-  - `tester` — tests only, for behaviour that already exists: they pass on
-    the current code and fail when the rule is broken.
-
-  Two calls for one TASK — a tester, then a developer — only when the user
-  asks for it.
-- **Check the real state before writing:** code, the project's
-  documentation, recent commits. The executor does not cross sources; if the
-  TASK starts from an old premise, it is executed as is.
-- **Decisions resolved in the TASK:** the executor decides nothing. Exact
-  files, what not to touch, verification commands.
-- **The data read from the code:** the "Data" section gives each datum the
-  TASK reads or writes — a type, a field, a table, a file, a message, what
-  a call its tests assert on gives back — as the code has it now, copied
-  from its `file:line` and not from memory or from a type's name: its
-  shape, the one writer, the valid range with what happens outside it, and
-  what the TASK changes in it. Where the project's design keeps a data
-  inventory, each row agrees with it; a difference is a design change
-  (§1), settled before the TASK.
-- **Context by reference:** paths, `file:line`, commits. Short excerpts only
-  when indispensable; never whole files.
-- **Acceptance criteria verifiable by command:** "it works" is not a
-  criterion; "`cargo test -p x --test y z` passes" is.
-- **Every command in the foreground:** the TASK tells its executor to run
-  each command, tests and builds included, in the foreground and to wait
-  for it. An executor that starts work in the background waits for it and
-  ends its turn with no result.
-- **Tests named in the TASK:** with a tester, the "Tests" section gives each
-  test by file and name, the behaviour it shows, and whether it must fail or
-  pass on the current code.
-- **Tier fitted to the work,** by the TASK's `tier`; the model is picked
-  when the TASK is handed over, from the tier's row in
-  `<bot>/models.md` (read as material, BASE §1). From
-  the weakest to the strongest:
-
-  | Tier | Use |
-  |---|---|
-  | `execution` | a closed, mechanical TASK — defined files, a localized change, decisions already made, criteria verifiable by command |
-  | `complex` | a TASK of several parts or of reasoning over the existing code; a decision inside a scope already given |
-
-  Design and a pending decision never go to the execution tier; a critical
-  zone goes there only with exact steps, validated line by line. Design,
-  decision and validation stay with you. A TASK larger than the limit of
-  its model is a sequence of TASKs, each on the validated code of the one
-  before. `plan: yes` makes the executor plan before editing.
-- **After the user has it,** a `TASK-nnn.md` does not change, except the
-  `state` field. A send-back (§6) does not change it either; a rejection
-  does not reopen it: write the next TASK with `reference: TASK-nnn` and,
-  in its context, what was missing.
-
-**Checks before the TASK goes out.** Each check whose trigger the TASK
-meets is done; the others are skipped. A send-back caused by the TASK
-names the check that would have caught it, or proposes a new one.
-
-Files
-1. Each file of "Files" → `<bot>/scripts/co-edit.sh <root> <file>…`; each
-   file it lists goes in "Files" or in "Do not touch". They are candidates
-   to inspect, not to edit: a file nobody named stops the executor.
-2. The TASK removes or changes a text — a message, an error code, a type,
-   a field → `git grep -n` it; each file that writes it and each test that
-   pins it goes in "Files", with what changes there. The history does not
-   show these, and a test pinning the old behaviour stops the executor.
-3. The TASK changes what a call returns → grep each assertion on it — the
-   rows or the vector it gives back, the store's reads; each one that
-   changes goes in "Files".
-4. The TASK hands the executor a command — a git call, its flags, an
-   output the code parses → run it on the real tool first: a step never
-   tried is a guess the executor stops on.
-
-Tests, each in "Tests" by file and name
-5. Each `if`, filter and field the change adds → the test that fails
-   without it.
-6. A derived list → tested with two parents; with one, its filter goes
-   unseen.
-7. Each bound → tested at its value and one past, also after a conversion
-   that can grow the input.
-8. An arm that forwards another function's error → its own test.
-9. A rule that limits what an action touches ("only", "alone") → a test
-   with something beside it that must stay untouched.
-10. A rule over every X → a test with an X the setup does not already
-    reach: a setup that triggers the behaviour hides the mutation that
-    removes it.
-11. A filter of two conditions → for each, an entry that passes it and
-    fails the other.
-12. A value the code passes through → a test with a value other than the
-    common one.
-13. A fake in the tests → it honours every argument it is given, and the
-    TASK says what it checks.
-14. A test or a mutation asserts a text — an output line, a message, a
-    pattern → the literal as the code writes it, found with `git grep` in
-    the code and in the test helpers that read it; one taken from a type's
-    form makes a check that can never fail.
-15. Each mutation the TASK lists → writable against the signatures the
-    TASK gives (one its types forbid stops the executor), and not
-    equivalent under the code it dictates: a guard another rule covers, a
-    bound whose two sides give the same value, a fallback that reproduces
-    the fixture's value turns no test red.
-
-Criteria
-16. Each criterion → its command exactly as it runs from the project's
-    root.
-17. A criterion that searches or lists files the TASK creates →
-    `git grep --untracked`, or it reads nothing of them.
-18. A UI or template change with `Tests: none` → assertions on the
-    compiled output: subsections, item counts, modifier classes.
-19. A count in a criterion → read from `-- --list` or a run, never from a
-    search of attributes, which misses the ones that take arguments.
-20. The TASK adds to a function under a length bound → count its lines
-    and name the helper that keeps it under.
-
-Last
-21. `<bot>/scripts/task-preflight.sh <root> TASK-nnn <name>…`, with each
-    name the TASK changes or removes → settle each placeholder left that
-    is not the TASK's own text, each path at odds with its action, each
-    criterion that fails for a reason other than the missing change, and
-    each file not cited.
+Read `<bot>/roles/manager/task.md` on demand when writing a TASK: it holds
+the creation command (`new.sh`), the executor choices (`dev`, `dev+tester`,
+`tester`), the content rules and the 21 pre-handover checks. Pick `tier`
+(`trivial`, `standard`, `complex`, `deep`), default `plan` and default
+review tier from `<bot>/models.md` (read as material, BASE §1). After
+handover, `TASK-nnn.md` never changes except `state`.
 
 ## 5. Handing over
 Before either way, `git status --short`: it tells, at the commit (§7),
@@ -244,40 +119,37 @@ which files of the TASK already held changes.
 - **By the user:** they take the TASK to the executor's session and bring
   the result back. Until the result file exists, nothing was executed.
 - **By delegation** (BASE §5, with the user's approval, which a confirmed
-  round gives for its items): one call per TASK.
-  The prompt is only: read the role files of the `executor` field and
-  `<root>/.bot/tasks/TASK-nnn.md`, do it, and answer with one status line.
-  You do not read the executor's role files for this. The mechanism — a
-  CLI's own subagent tool or `delegate.sh` — is picked by `<bot>/models.md`.
+  round gives for its items): one call per TASK, using the prompt rule of
+  BASE §5 and the mechanism of `<bot>/models.md`. Do not read the executor's
+  role files for this.
   - **Via `delegate.sh`:**
-    `<bot>/scripts/delegate.sh <root> TASK-nnn <claude|agy> <model>`
-    writes this prompt and runs it from the project's root (`-g <gap>` for a
-    send-back, `-w <dir>` for each directory outside the project the TASK
-    writes in or its review reads); run it in the background, since it ends
-    when the executor does. It exits 1 when the result was not written. For
-    `agy`, it prints the folder that is the executor's `/tmp`: a path under
-    `/tmp` cited in the result is under that folder.
-- **A review by delegation** uses the `review` row of `<bot>/models.md`, with
-  the same approval. The prompt is only: read `<bot>/roles/REVIEWER.md`,
-  review `<root>/.bot/tasks/TASK-nnn.md`, and answer with one status line;
-  for a review by kind, read `<bot>/roles/BASE.md` too, with the kind and
-  the subject in place of the TASK. The mechanism is picked by
-  `models.md`; with `delegate.sh`: `delegate.sh <root> review TASK-nnn
-  <claude|agy> <model>`, or `review --<kind> "<subject>"`. It reviews only
-  a TASK in state `delivered`. The delegate does not commit: the review
-  enters the commit of your validation, or a commit of its own for a
-  review by kind.
+    `<bot>/scripts/delegate.sh <root> TASK-nnn <claude|agy> <model>
+    [-e <effort>] [-g <gap>] [-w <dir>]…` runs from the project's root (`-e`
+    for tiers whose effort is not in the model ID, `-g` for a send-back,
+    `-w` for each directory outside the project the TASK writes in or its
+    review reads); run it in the background, since it ends when the executor
+    does. It exits 1 when no result was written. For `agy`, it prints the
+    folder that is the executor's `/tmp`: a path under `/tmp` cited in the
+    result is under that folder.
+- **A review by delegation** uses the review tier of `<bot>/models.md`
+  (derived from the TASK's `tier` and `critical_zone` unless overridden),
+  with the same approval and mechanism; with `delegate.sh`: `delegate.sh
+  <root> review TASK-nnn <claude|agy> <model> [-e <effort>]` (only for a
+  TASK in state `delivered`), or `review --<kind> "<subject>"`. A TASK
+  delegate reads `<bot>/roles/REVIEWER.md` alone; a review by kind reads
+  `BASE.md` too. The delegate does not commit: the review enters your
+  validation commit, or its own commit for a review by kind.
 
 ## 6. Validation
 **Every delivered TASK is reviewed before it is validated:** by the
-REVIEWER, delegated to the `review` tier (§5) or in a session of the user's.
-The review runs the checks — the diff against the TASK, the acceptance
-criteria, the mutation of each condition the change adds — and you validate
-from it, without running them again. You do not write the review, nor take
-the REVIEWER in this session: who reviews is not who wrote the TASK. With
-no review (the user declines the delegation, or there is no mechanism to
-delegate), run those checks yourself, reading REVIEWER §3, steps 2, 3 and
-6, as material (BASE §1).
+REVIEWER, delegated to its review tier (`<bot>/models.md`, §5) or in a
+session of the user's. The review runs the checks — the diff against the
+TASK, the acceptance criteria, the mutation of each condition the change
+adds — and you validate from it, without running them again. You do not
+write the review, nor take the REVIEWER in this session: who reviews is not
+who wrote the TASK. With no review (the user declines the delegation, or
+there is no mechanism to delegate), run those checks yourself, reading
+REVIEWER §3, steps 2, 3 and 6, as material (BASE §1).
 
 When the result comes back:
 
@@ -286,30 +158,28 @@ When the result comes back:
    project's `AGENTS.md`, in the next TASK or in these role files, or a tool
    to provide — never the same gap in the next TASK. Then get the review
    and read `TASK-nnn-review.md`.
-2. The review's "Files" table sets the real diff against the TASK's "Files"
-   table and the result's "Changed files". A file out of the list or an
-   undeclared change is a failure.
+2. Check the review's "Files" table against the TASK and the result: a file
+   out of the list or an undeclared change is a failure.
 3. **With a tester,** the result shows each new test failing before the
-   change (or failing under mutation, for `tester` alone), with the real
-   output. Without that output, the tests prove nothing: the delivery fails.
+   change (or failing under mutation, for `tester` alone), with real output.
+   Without real output ("tested" alone), the delivery fails.
 4. Accept the review only if each acceptance criterion carries its command
    and real output, and each mutation names the test that failed; for what
    is missing, ask the reviewer again. What the executor reports does not
-   replace the review's output. A mutation that leaves every test green is
-   a gap: the test goes back to the executor before the verdict. A
-   condition that cannot be broken by mutation — concurrency, a peer's
-   timing, a path no test reaches — the review says so, and you judge it
-   from the code.
-   **Send back, not reject,** a gap inside the TASK's own scope — a test
-   of a condition it adds, a file its objective needs, a criterion not met:
-   the same executor gets the TASK again with the gap, adds a section to
-   its result, the `state` stays `delivered` and the review is redone on
-   the new delivery. At most two send-backs per TASK; a third gap, or one
-   outside the TASK's scope, is a rejection. Only the user's word allows a
-   third, up to the fifth, and never under AUTO; `delegate.sh` refuses the
-   sixth. In a campaign, each send-back
-   is one line in the round's log, with the gap and its cause, one word of
-   the round template's set.
+   replace the review's output. A mutation that leaves every test green is a
+   gap: send the test back before the verdict. A condition that cannot be
+   broken by mutation — concurrency, a peer's timing, a path no test reaches
+   — the review says so, and you judge it from the code.
+   **Send back, not reject,** a gap inside the TASK's own scope — a test of
+   a condition it adds, a file its objective needs, a criterion not met: the
+   same executor gets the TASK again with the gap (escalation rules in
+   `<bot>/models.md`), adds a section to its result, `state` stays
+   `delivered` and the review is redone on the new delivery. At most two
+   send-backs per TASK; a third gap, or one outside the TASK's scope, is a
+   rejection. Only the user's word allows a third, up to the fifth, and
+   never under AUTO; `delegate.sh` refuses the sixth. In a campaign, each
+   send-back is one line in the round's log, with the gap and its cause, one
+   word of the round template's set.
 5. Append to the end of the result:
 
    ```markdown
@@ -320,39 +190,31 @@ When the result comes back:
    ```
 
 6. Update the TASK's `state`, and its row in the round, with the commit
-   when there is one. If it was rejected, propose the next TASK to the
-   user.
-7. Remove the temporary folders of the validation, yours and each one
-   the result cites: the executor keeps its folder while the result cites
-   it, and nobody else removes it. Look at each before removing it.
-
-Run each command with its output cut down to the summary and the lines
-that fail (`| tail -n 30`, or `grep` the failures); the whole output goes
-to a file in the temporary folder and is cited by its path. Extra attention
-to "tested" without real output.
+   when there is one. If it was rejected, propose the next TASK to the user.
+7. Remove the temporary folders of the validation, yours and each one the
+   result cites: the executor keeps its folder while the result cites it,
+   and nobody else removes it. Look at each before removing it.
 
 ## 7. Consolidation
 When a TASK is validated:
 
-- Update the project's standard files: take the item out of `BACKLOG.md`,
-  record it in `CHANGELOG.md`, and reflect in `DESIGN.md` (or the project's
-  equivalent) what the delivery made true — where it keeps a data
-  inventory, the rows of each datum the TASK's "Data" section says it
-  changed. A decision is recorded by the
-  ARCHITECT when it is made; you record what the code now does.
-- `.bot/knowledge/` is not touched: lessons wait for the harvest (§8).
-- Commit the validated TASK in the project: locally, on the current
-  branch, one commit per TASK, after the standard files are updated.
-  `git status` first, then `git add` by path — the TASK's files and the
-  standard files you updated —, never `-A` nor `.`; a file changed outside
-  the TASK stays out. A file of the TASK that already had uncommitted
-  changes before the handover makes the commit the user's: say so and
-  leave it. The message follows Conventional Commits, in the project's
-  language, without citing `TASK-nnn` or `CAMPAIGN-nnn` and without AI
-  trailers. A failing commit hook is fixed inside the TASK's scope or told
-  to the user; never `--no-verify`. The hash goes in the TASK's row of the
-  round. Push, `amend`, `rebase` and `reset` stay on the user's express
-  request, and so does the commit of a direct fix.
+- Update the project's standard files (BASE §4): remove the item from
+  `BACKLOG.md`, record it in `CHANGELOG.md`, and reflect in `DESIGN.md` what
+  the code now does (including any data inventory rows changed by the TASK's
+  "Data" section; decisions belong to the ARCHITECT). `.bot/knowledge/` is
+  not touched: lessons wait for the harvest (§8).
+- Commit the validated TASK in the project: locally, on the current branch,
+  one commit per TASK, after the standard files are updated. `git status`
+  first, then `git add` by path — the TASK's files and the standard files
+  you updated —, never `-A` nor `.`; a file changed outside the TASK stays
+  out. A file of the TASK that already had uncommitted changes before the
+  handover makes the commit the user's: say so and leave it. The message
+  follows Conventional Commits, in the project's language, without citing
+  `TASK-nnn` or `CAMPAIGN-nnn` and without AI trailers. A failing commit
+  hook is fixed inside the TASK's scope or told to the user; never
+  `--no-verify`. The hash goes in the TASK's row of the round. Push,
+  `amend`, `rebase` and `reset` stay on the user's express request, and so
+  does the commit of a direct fix.
 - Commit the step's files in `.bot/` (BASE §5).
 
 ## 8. Learning

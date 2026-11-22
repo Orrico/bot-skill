@@ -2,6 +2,37 @@
 
 What changed in the skill, by date, and why. The commits hold the diffs.
 
+## 2026-11-22
+
+- **Calibrated execution and review tiers (`models.md`).** Replaced the two
+  execution tiers and single review tier with four execution tiers
+  (`trivial`, `standard`, `complex`, `deep`) and three review tiers
+  (`review-check`, `review-validate`, `review-deep`), paired across `claude`
+  (model + effort) and `agy`, keeping `READER` on `gemini-3.8-flash-high` /
+  `haiku` (`high`). `models.md` is now the sole owner of tier criteria,
+  `plan:` defaults (`no` for `trivial`/`standard`, `yes` for
+  `complex`/`deep`), derived review tiers (raised for critical zones) and
+  calibrated escalation (same tier on TASK causes and first `executor`
+  send-back; +1 tier only on a second `executor` send-back, anti-loop stop
+  or `executor`-caused re-issue, capped at `complex` under AUTO). Updated
+  `roles/templates/TASK.md` (`tier:`) and `roles/templates/ROUND.md`
+  (`Model` shows `<exec> / <review>`).
+- **`delegate.sh -e <effort>` and `agy` lean/JSON output.** Added `-e
+  <low|medium|high|xhigh|max>` passed as `--effort` to both `claude` and
+  `agy`. `agy` delegates now run with `--disable-slash-commands` and
+  `--output-format json`, printing status line and token/turn usage just
+  like `claude`.
+- **TASK-writing rules read on demand (`roles/manager/task.md`) and
+  instruction deduplication.** Moved MANAGER §4's writing rules and 21
+  checks into `roles/manager/task.md` so planning, design, validation and
+  harvest sessions do not pay for them on every turn. Removed duplicated
+  tier tables, delegation prompt wording (kept in BASE §5 alone), output
+  trimming in MANAGER §6, and `DEV.md` + `TESTER.md` overlap; moved the
+  foreground-command rule once into `DEV.md`, `TESTER.md` and `REVIEWER.md`
+  instead of repeating it in every TASK. Added `GEMINI.md` alongside
+  `CLAUDE.md` in `DEV.md` and `TESTER.md`, plus anti-loop and concise-output
+  rules across `DEV.md`, `TESTER.md` and `REVIEWER.md`.
+
 ## 2026-11-19
 
 - **`delegate.sh -w <dir>`,** a directory outside the project that a

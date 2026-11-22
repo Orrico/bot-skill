@@ -3,9 +3,9 @@
 Self-contained: read only this file, `DEV.md` if the TASK's `executor` is
 `dev+tester`, and the TASK. With `DEV.md`, its rules and its format of the
 result hold, and this file adds the method for the tests. The project's
-`AGENTS.md`, and its `CLAUDE.md` if there is one, hold the project's rules:
-read them at the project's root when they are not already in your
-instructions.
+`AGENTS.md`, and its `CLAUDE.md` or `GEMINI.md` if there is one, hold the
+project's rules: read them at the project's root when they are not already
+in your instructions.
 
 ---
 
@@ -59,40 +59,30 @@ For logic that is not trivial, a minimal reference implementation in a
 temporary folder (`mktemp -d -p /tmp`), never in the tree, shows the test
 passes for the right reason.
 
-## 3. Rules
-When `DEV.md` is not loaded, these hold:
+## 3. Rules (tester alone)
+Skip this section when `DEV.md` is loaded.
 - Read the whole TASK before starting; touch only the files it lists.
 - Undo your edits by editing or by copy, never with `git checkout`,
   `git stash` or `git reset`. Paths are relative to the project's root.
 - Do not commit, push, add a dependency, or edit anything in `.bot/` but
-  your result; the project's standard files are not yours to update. Do
-  not show or copy secrets; one in the wrong place is recorded in the
-  result, without its value. Nothing leaves the machine.
-- Write tests and their comments in the language the project already
-  uses; a comment describes what the test checks, never a design debate.
-- Run the acceptance criteria exactly as written; do not declare done
-  without their real output. An output of more than 50 lines goes to a
-  file in a temporary folder; the result cites its path, the line that
-  decides and the counts. Write the result in the project's language.
+  your result; standard files are not yours. Do not show or copy secrets;
+  record one in the wrong place without its value. Nothing leaves the
+  machine.
+- Run every command in the foreground and wait for it. Stop on loops: if
+  the same command, test or mutation fails twice with no new evidence, stop
+  with `status: blocked`.
+- Write tests and comments in the project's language; a comment describes
+  what the test checks, never a design debate.
+- Run acceptance criteria as written; output over 50 lines goes to a
+  temporary folder cited by path, decision line and counts. Keep the result
+  concise (no echoing the TASK or role rules), in the project's language.
+- On a send-back, fix only the gap and append `## Send-back N` with what
+  changed; update `status` and do not rewrite earlier sections.
 
 ## 4. The result
-Save `.bot/tasks/TASK-nnn-result.md`. With `DEV.md`, its format plus the
-section below; alone, this:
-
-    ---
-    id: TASK-nnn
-    status: done | partial | blocked
-    ---
-    ## Changed files
-    - <path> — <tests added>
-    ## Acceptance criteria
-    - [x] <criterion> — `<command>` → <real output, summarized>
-    ## Pending and deviations
-    <what could not be written as specified, and why; "none" if nothing>
-    ## Environment
-    <what you could not run or had to work around; "none" if nothing>
-
-The section, in both cases:
+Save `.bot/tasks/TASK-nnn-result.md`. With `DEV.md`, add the sections below
+to its format; alone, use the base format (`id`, `status`, `Changed files`,
+`Acceptance criteria`, `Pending and deviations`, `Environment`) plus them:
 
     ## Tests
     | Test (`file::name`) | Behaviour | Before | After |
@@ -104,8 +94,3 @@ The section, in both cases:
     | Condition (`file:line`) | Edit | Test that failed |
     |---|---|---|
     | <the condition> | <old> → <new> | <test name; "survived"; "not run": why> |
-
-**A TASK sent back** comes to you again with one gap: fix only that gap,
-under the same rules, and add to the end of the result a section
-`## Send-back N`, with the parts of the format that changed. Set `status`
-to the one after the send-back; do not rewrite the sections before it.

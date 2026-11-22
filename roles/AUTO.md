@@ -81,9 +81,8 @@ Only these, and only during the run, plus those the role's section lists:
   before any step. Route each answered block first: the answer goes into
   the item's next step (for a TASK, the context of the next TASK, with
   `reference:`), and the line becomes `- [x]`, the answer kept below it.
-- **Delegation:** the prompt names the files to read and asks back for one
-  status line (BASE §5). Without a mechanism to delegate, a role that needs
-  it does not run under AUTO.
+- **Delegation:** without a mechanism to delegate (BASE §5), a role that
+  needs it does not run under AUTO.
 
 ## 5. Commits
 Only a role whose section allows it commits, by the commit rules of its own

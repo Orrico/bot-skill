@@ -28,8 +28,9 @@ AUTO is loaded with this role. A `MANAGER §n` is a section of MANAGER.md.
   for the roles go under "To review", not applied; dropping to "Left out"
   an item that turns out to wait on a decision.
 - **Never:** a design decision (MANAGER §1) — it becomes a block; a
-  critical zone; a review without the REVIEWER loaded in the session or
-  delegated to it — it becomes a block.
+  critical zone; escalating a TASK to `deep` (requires the user); a review
+  without the REVIEWER loaded in the session or delegated to it — it becomes
+  a block.
 - **Suspended:** "the user decides" (BASE §2) inside the window; the
   handover by the user (MANAGER §5): you delegate; the proposal after a
   rejection (MANAGER §6, step 6): you write and delegate the next TASK.

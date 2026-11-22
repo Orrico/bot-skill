@@ -3,8 +3,8 @@
 Self-contained: read only this file, `TESTER.md` if the TASK's `executor`
 is `dev+tester`, and the TASK. With `TESTER.md`, its method for the tests
 applies, and both files' rules hold. The project's `AGENTS.md`, and its
-`CLAUDE.md` if there is one, hold the project's rules: read them at the
-project's root when they are not already in your instructions.
+`CLAUDE.md` or `GEMINI.md` if there is one, hold the project's rules: read
+them at the project's root when they are not already in your instructions.
 
 ---
 
@@ -38,18 +38,21 @@ project's root when they are not already in your instructions.
   the result.
 - Write code, comments and text in the language the file and the project
   already use; never translate on your own.
-- Never weaken, skip or delete a test to make it pass. Write each
-  assertion the TASK gives as it states it — its count, its filter, its
-  text —, never narrowed; if it cannot hold as stated, stop and record it.
+- Never weaken, skip, delete or narrow a test or assertion to make it pass;
+  if it cannot hold as stated, stop and record it.
 - Undo your own edits by editing or by copy, never with `git checkout`,
   `git stash` or `git reset`: the working tree may hold others' work.
 - Paths are relative to the project's root. Temporary files go in a folder
   made by `mktemp -d -p /tmp`, never in the project's tree.
 - Do not commit, push or take any destructive action. Nothing leaves the
   machine: do not publish, upload or send content to any outside service.
-- Start a process in the background as a plain command and keep its `$!`
-  at once; stop only a process you started, by that PID, its arguments
-  checked first — never one read from a listing such as `ps`.
+- Run every command — tests and builds included — in the foreground and wait
+  for it. Only background a daemon or server when the TASK asks: start it as
+  a plain command, keep its `$!` at once, and stop only a process you
+  started by that PID after checking its arguments (never from `ps`).
+- Stop on loops: if the same command, test or fix fails twice with no new
+  evidence or progress, stop and record the blocker with `status: blocked`
+  instead of retrying variations.
 - Do not edit `README.md`, `AGENTS.md`, `DESIGN.md`, `BACKLOG.md`,
   `CHANGELOG.md`, nor anything in `.bot/` but your result: they belong to
   others, even where the project's `AGENTS.md` says a change is complete
@@ -64,7 +67,9 @@ project's root when they are not already in your instructions.
 - An output of more than 50 lines goes to a file in your temporary folder:
   the result cites its path, the line that decides (the summary, the
   failure) and the counts, not the output itself.
-- If something did not work or was left out, say so explicitly.
+- Keep the result concise: do not echo the TASK's text, role rules or full
+  files into it. If something did not work or was left out, say so
+  explicitly.
 - Write the result in the project's language.
 
 ## 3. Format of `TASK-nnn-result.md`

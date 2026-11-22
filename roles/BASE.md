@@ -180,7 +180,7 @@ others.
 - **Delegation** to another model — only with the user's approval: the
   user weighs it against the subscription's quota. Confirming a round
   approves the delegations its plan shows: each item to its executor and
-  model, the review of each delivery, and the send-backs of its TASKs. A
+  review models, and the send-backs of its TASKs. A
   delegation the plan does not show — another model, a TASK written after
   a rejection, a review by kind — and any delegation outside a round is
   asked for, each time. AUTO changes this for the roles that delegate.

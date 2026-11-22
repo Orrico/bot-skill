@@ -15,8 +15,8 @@ by the role files.
 | Datum | Shape | States | Count | Writer | Read by |
 |---|---|---|---|---|---|
 | campaign | scope, goal, completion commands, a row per round | `draft` → `confirmed` → `done` \| `stopped` | 2–20 | MANAGER | MANAGER, AUTO |
-| round | a plan (one row per item: kind, executor, model, TASK → commit), a log, a report | `draft` → `confirmed` → `closed`; each row `todo` → `done` \| `blocked` \| `dropped` | 8–76 | MANAGER; the log under AUTO | the next round's plan, `round-close.sh` |
-| TASK | the order: files, data, tests, acceptance commands; frozen once handed over, but for `state` | `open` → `delivered` → `validated` \| `rejected` | 28–320 | MANAGER | the executor, REVIEWER, `task-preflight.sh` |
+| round | a plan (one row per item: kind, executor, exec/review models, TASK → commit), a log, a report | `draft` → `confirmed` → `closed`; each row `todo` → `done` \| `blocked` \| `dropped` | 8–76 | MANAGER; the log under AUTO | the next round's plan, `round-close.sh` |
+| TASK | the order: files, data, tests, acceptance commands, tier (`trivial` \| `standard` \| `complex` \| `deep`); frozen once handed over, but for `state` | `open` → `delivered` → `validated` \| `rejected` | 28–320 | MANAGER | the executor, REVIEWER, `task-preflight.sh` |
 | result | changed files, each command with its real output, what was missing in the environment | `done` \| `partial` \| `blocked`; up to 5 send-backs | one per TASK | the executor; the MANAGER appends the validation | MANAGER, REVIEWER |
 | review | the real diff against the TASK, each criterion run, each condition mutated, findings | a suggested verdict | 0–65 (mandatory since 2026-11-09) | REVIEWER | MANAGER |
 | report | a review by kind (`--code`, `--design`, …) | rounds of the same subject | 1–28 | REVIEWER | MANAGER, `/bot learn` |
@@ -34,7 +34,7 @@ in context. What is read, by whom, and when, decides where a rule goes:
 | `roles/MANAGER.md` | the MANAGER | every turn of a campaign |
 | `roles/REVIEWER.md` | the REVIEWER; alone, as a TASK's delegate | every turn of a review |
 | `roles/DEV.md`, `TESTER.md`, `WRITER.md`, `READER.md` | one delegate each, alone | every turn of a TASK |
-| `roles/<role>/auto.md`, `roles/manager/learn.md` | a role under AUTO; a harvest | on demand |
+| `roles/<role>/auto.md`, `roles/manager/task.md`, `roles/manager/learn.md` | a role under AUTO; writing a TASK; a harvest | on demand |
 | `roles/reviews/<kind>.md`, `models.md` | a review by kind; the MANAGER picking a model | on demand |
 | `roles/templates/` | `new.sh` | when a file is created |
 
@@ -88,6 +88,8 @@ asking, inside a window of authorization, and logs each decision.
    tokens in the same turns.
 5. **What a session does not use is read on demand** (`roles/<role>/`):
    every line of a role file is reread on every turn it stays in context.
+   TASK-writing rules and the 21 pre-handover checks live in
+   `roles/manager/task.md`, read only when writing a TASK.
 6. **A check that can be decided by a program is a script** — `new.sh`,
    `task-preflight.sh`, `round-close.sh`, `mutate.sh`. Prose rules leaked: 3
    of 112 closed rounds had a row left open, and one TASK passed the
@@ -95,13 +97,25 @@ asking, inside a window of authorization, and logs each decision.
 7. **The MANAGER's checks before a TASK goes out are a numbered list,** one
    check per line: 37 of 41 classified send-backs were gaps of the TASK,
    most under the two densest paragraphs the list replaced.
-8. **A `claude` delegate runs with its role's tools alone** — no MCP, no
-   skills — which cut its fixed context from 27.7k to 15.9k tokens.
-   `--bare` would cut more, but reads only an API key, never the
-   subscription's login.
-9. **Send-backs:** 2 per TASK; 3 to 5 only on the user's word, never under
-   AUTO; `delegate.sh` refuses the 6th.
-10. **Models by tier,** paired across CLIs by level, in `models.md`, which
-    also says which mechanism reaches each model.
+8. **Lean delegates with usage telemetry:** `claude` runs with its role's
+   tools alone — no MCP, no skills — cutting fixed context from 27.7k to
+   15.9k tokens (`--bare` reads only an API key, never the subscription's
+   login). `agy` runs with `--disable-slash-commands` and `--output-format
+   json`, and `delegate.sh` supports `-e <effort>` (`--effort`) and prints
+   token and turn usage for both CLIs.
+9. **Send-backs and anti-loop:** 2 per TASK; 3 to 5 only on the user's word,
+   never under AUTO; `delegate.sh` refuses the 6th. Executors and reviewers
+   stop and report `blocked` (or mark not run) after two failed attempts
+   without new progress.
+10. **Models by tier in `models.md` alone:** four execution tiers
+    (`trivial`, `standard`, `complex`, `deep`) and three review tiers
+    (`review-check`, `review-validate`, `review-deep`), paired across CLIs
+    with effort levels, plus `READER` on `gemini-3.8-flash-high` / `haiku`
+    (`high`). Review tier and `plan:` derive by default from the TASK's
+    `tier` and `critical_zone`, overridden only when needed; the round's
+    `Model` column names `<exec> / <review>`. Escalation up one tier occurs
+    only on a second `executor`-caused send-back, an anti-loop stop, or an
+    `executor`-caused re-issue (capped at `complex` under AUTO); TASK-caused
+    and first `executor` send-backs stay on the same tier.
 11. **A change meant to make the skill cheaper or more reliable** starts
     from the last record of `measurements/` and ends with a new one.

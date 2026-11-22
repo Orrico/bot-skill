@@ -32,9 +32,3 @@ CHANGELOG.
 7. **The ROUND form's "Lessons"** could name the number of the MANAGER's
    check that would have caught a send-back, as MANAGER §4 now asks.
 8. **`roles/WRITER.md`** has 16 prose lines past 80 columns.
-
-## Maybe
-
-9. **The MANAGER's TASK-writing rules read on demand,** in
-   `roles/manager/task.md`: saves only in sessions that write no TASK,
-   since a file read stays in context.

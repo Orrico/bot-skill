@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
-# usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model> [-g <gap>]
-# [-t <minutes>] [-w <dir>]... — runs a TASK's executor, or a REVIEWER, in another CLI, headless, from the
-# project's root. Without `review`: executes the TASK (-g sends it back with that gap, refused
-# once its result holds a `## Send-back 5`). With
-# `review`: reviews the delivery of a TASK in state delivered, or reviews by a kind of
-# roles/reviews/ on a subject. Prints the delegate's status line, what it wrote and the log's
-# path, and for claude the session's tokens and cost; exits 1 when it wrote nothing. claude
-# runs with the tools of a role's work alone (no web, MCP, skills or background tasks). -w gives
-# the delegate a directory outside the project to work in, its .git read-only under agy
+# usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model>
+# [-e <effort>] [-g <gap>] [-t <minutes>] [-w <dir>]... — runs a TASK's executor, or a REVIEWER,
+# in another CLI, headless, from the project's root. Without `review`: executes the TASK (-g sends
+# it back with that gap, refused once its result holds a `## Send-back 5`). With `review`: reviews
+# the delivery of a TASK in state delivered, or reviews by a kind of roles/reviews/ on a subject.
+# -e sets reasoning effort (low|medium|high|xhigh|max). Prints the delegate's status line, what it
+# wrote, the log paths, and the session's tokens and turns; exits 1 when it wrote nothing. claude
+# runs with the tools of a role's work alone (no web, MCP, skills or background tasks); agy runs
+# with slash commands disabled and JSON output. -w gives the delegate a directory outside the
+# project to work in, its .git read-only under agy
 set -eu
-usage="usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model> [-g <gap>] [-t <minutes>] [-w <dir>]..."
+usage="usage: delegate.sh <root> [review] <TASK-nnn | --<kind> <subject>> <claude|agy> <model> [-e <effort>] [-g <gap>] [-t <minutes>] [-w <dir>]..."
 root=$(cd "${1:?$usage}" && pwd); shift
 bot=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 roles="$bot/roles"
@@ -20,9 +21,13 @@ case "${1:?$usage}" in
   *) id=$1; shift;;
 esac
 cli=${1:?$usage} model=${2:?$usage}; shift 2
-gap="" minutes=60 dirs=()
+effort="" gap="" minutes=60 dirs=()
 while [ $# -gt 0 ]; do
   case "$1" in
+    -e) case "${2:-}" in
+          low|medium|high|xhigh|max) effort=$2; shift 2;;
+          *) echo "-e: effort must be low, medium, high, xhigh or max" >&2; exit 2;;
+        esac;;
     -g) gap=$2; shift 2;;
     -t) minutes=$2; shift 2;;
     -w) [ -d "${2:-}" ] || { echo "-w: no directory ${2:-}" >&2; exit 2; }
@@ -74,9 +79,12 @@ esac
 case "$cli" in
   claude) cmd=(claude -p "$prompt" --model "$model" --permission-mode auto --output-format json
     --tools "Read,Edit,Write,Bash,Grep,Glob" --strict-mcp-config --disable-slash-commands);;
-  agy) cmd=(agy -p "$prompt" --model "$model" --dangerously-skip-permissions --settings '{"agentMode":"","enableTerminalSandbox":false}' --add-dir "$roles");;
+  agy) cmd=(agy -p "$prompt" --model "$model" --dangerously-skip-permissions
+    --disable-slash-commands --output-format json
+    --settings '{"agentMode":"","enableTerminalSandbox":false}' --add-dir "$roles");;
   *) echo "cli '$cli' is not claude or agy" >&2; exit 2;;
 esac
+[ -n "$effort" ] && cmd+=(--effort "$effort")
 for d in ${dirs[@]+"${dirs[@]}"}; do cmd+=(--add-dir "$d"); done
 command -v "$cli" >/dev/null || { echo "$cli not found in PATH" >&2; exit 2; }
 
@@ -120,14 +128,10 @@ touch "$base/start"
 before=$(stat -c %Y "$result" 2>/dev/null || echo none)
 start=$(date +%s) rc=0
 out="$base/delegate.json"
-if [ "$cli" = claude ]; then
-  (cd "$root" && timeout "${minutes}m" "${cmd[@]}" </dev/null >"$out" 2>"$log") || rc=$?
-else
-  (cd "$root" && timeout "${minutes}m" "${cmd[@]}" </dev/null >"$log" 2>&1) || rc=$?
-fi
+(cd "$root" && timeout "${minutes}m" "${cmd[@]}" </dev/null >"$out" 2>"$log") || rc=$?
 after=$(stat -c %Y "$result" 2>/dev/null || echo none)
 
-echo "delegate: $cli $model, exit $rc, $(( $(date +%s) - start )) s"
+echo "delegate: $cli $model${effort:+ ($effort)}, exit $rc, $(( $(date +%s) - start )) s"
 if [ "$cli" = claude ] && jq -e .modelUsage "$out" >/dev/null 2>&1; then
   echo "status line: $(jq -r '.result // ""' "$out" | grep -v '^[[:space:]]*$' | tail -1)"
   jq -r '[.modelUsage[]] as $m
@@ -136,9 +140,13 @@ if [ "$cli" = claude ] && jq -e .modelUsage "$out" >/dev/null 2>&1; then
     | (.total_cost_usd * 1000 | round / 1000) as $usd
     | "usage: \($in) tokens in, \($cached) from cache; \($o) out; \(.num_turns) turns; ~$\($usd) at API prices"' "$out"
   echo "log: $log, $out"
+elif [ "$cli" = agy ] && jq -e .usage "$out" >/dev/null 2>&1; then
+  echo "status line: $(jq -r '.response // ""' "$out" | grep -v '^[[:space:]]*$' | tail -1)"
+  jq -r '"usage: \(.usage.input_tokens) tokens in, \(.usage.cache_read_tokens) from cache; \(.usage.output_tokens) out (\(.usage.thinking_tokens) thinking); \(.num_turns) turns"' "$out"
+  echo "log: $log, $out"
 else
-  echo "status line: $(grep -v '^[[:space:]]*$' "$log" | tail -1)"
-  echo "log: $log"
+  echo "status line: $(cat "$out" "$log" 2>/dev/null | grep -v '^[[:space:]]*$' | tail -1)"
+  echo "log: $log, $out"
 fi
 if [ -n "$kind" ]; then
   reports=$(find "$root/.bot/reports" -mindepth 1 -maxdepth 1 -newer "$base/start" 2>/dev/null | sed "s|^$root/||")

@@ -14,10 +14,10 @@ a result and no review yet, and the last report in `.bot/reports/`.
   ARCHITECT's. Your verdict is a suggestion. In a TASK delivery the MANAGER
   validates from your review without running its checks again, so each
   criterion and each mutation carries the real output you got.
-- **As a delegate** (the MANAGER may hand a review to the `review` tier),
-  skip the boot line: do the review, save it, and answer with one status
-  line. Do not commit in `.bot/`: the MANAGER commits the review. A
-  delegate reviewing a TASK has read this file alone; what it needs beyond
+- **As a delegate** (the MANAGER may hand a review to a review tier of
+  `models.md`), skip the boot line: do the review, save it, and answer with
+  one status line. Do not commit in `.bot/`: the MANAGER commits the review.
+  A delegate reviewing a TASK has read this file alone; what it needs beyond
   it:
   - paths in `.bot/` are relative to the project's root; list `.bot/` with
     `ls`, since search tools that honour git's ignore do not see it;
@@ -27,6 +27,11 @@ a result and no review yet, and the last report in `.bot/reports/`.
     the tree;
   - a command's output is cut to its summary and the lines that fail; a
     large one goes to a file in the temporary folder, cited by its path;
+  - run every command in the foreground and wait for it; if a check or
+    mutation fails twice for the same environment or tooling error, stop
+    retrying, mark it not run with the real error, and move on;
+  - keep the review concise: do not copy unchanged sections of the TASK or
+    result into it; cite by `file:line`;
   - no secret is shown or copied into the review.
 
 ## 2. Reviews
