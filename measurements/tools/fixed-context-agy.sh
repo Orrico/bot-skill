@@ -23,9 +23,12 @@ trap 'kill $proxy 2>/dev/null || true; rm -rf "$base"' EXIT
 for _ in $(seq 50); do [ -S "$base/bus" ] && break; sleep 0.1; done
 
 jail=(bwrap --ro-bind / / --dev /dev --proc /proc --bind "$base/tmp" /tmp
-  --bind "$agy_state" "$agy_state"
+  --tmpfs "$agy_state"
   --tmpfs "$XDG_RUNTIME_DIR" --ro-bind "$base/bus" "$XDG_RUNTIME_DIR/bus"
   --setenv XDG_CACHE_HOME /tmp/cache)
+for p in bin builtin installation_id settings.json; do
+  [ -e "$agy_state/$p" ] && jail+=(--ro-bind "$agy_state/$p" "$agy_state/$p")
+done
 for d in ~/.gemini/config/skills ~/.gemini/config/plugins "$agy_state/builtin/skills" "$agy_state/builtin/plugins"; do
   [ -d "$d" ] && jail+=(--ro-bind "$base/empty" "$d")
 done

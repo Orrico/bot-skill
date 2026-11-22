@@ -58,13 +58,13 @@ transcripts() {
     local agy_brain="$agy_dir/brain"
     if [ -f "$agy_db" ] && command -v sqlite3 >/dev/null 2>&1; then
       local q=${root//\'/\'\'}
-      sqlite3 "$agy_db" "SELECT conversation_id FROM conversation_summaries WHERE (parent_conversation_id IS NULL OR length(parent_conversation_id) = 0) AND (instr(workspace_uris, 'file://$q\"') > 0 OR instr(workspace_uris, 'file://$q/roles\"') > 0);" \
+      sqlite3 -readonly -cmd ".timeout 5000" "$agy_db" "SELECT conversation_id FROM conversation_summaries WHERE (parent_conversation_id IS NULL OR length(parent_conversation_id) = 0) AND (instr(workspace_uris, 'file://$q\"') > 0 OR instr(workspace_uris, 'file://$q/roles\"') > 0);" \
         | while IFS= read -r cid; do
             [ -n "$cid" ] || continue
             local f="$agy_brain/$cid/.system_generated/logs/transcript_full.jsonl"
             [ -f "$f" ] || f="$agy_brain/$cid/.system_generated/logs/transcript.jsonl"
             [ -f "$f" ] && echo "$f" || true
-          done || true
+          done || echo "warn: failed to read $agy_db" >&2
     fi
   done
   true

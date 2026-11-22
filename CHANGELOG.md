@@ -17,6 +17,15 @@ What changed in the skill, by date, and why. The commits hold the diffs.
   or `executor`-caused re-issue, capped at `complex` under AUTO). Updated
   `roles/templates/TASK.md` (`tier:`) and `roles/templates/ROUND.md`
   (`Model` shows `<exec> / <review>`).
+- **SQLite WAL isolation for `agy` delegates and read-only harvest queries.**
+  `conversation_summaries.db` runs in WAL mode: `delegate.sh` previously
+  bound `~/.gemini/antigravity-cli` writable while replacing only the `.db`
+  file, letting jailed delegates write mismatched `-wal`/`-shm` sidecars on
+  the host (causing `database disk image is malformed (11)`). Replaced that
+  with an ephemeral `--tmpfs` over `$agy_state` (binding only `bin`,
+  `builtin`, `installation_id` and `settings.json` read-only), and switched
+  `learn-sources.sh` to `sqlite3 -readonly -cmd ".timeout 5000"` with an
+  explicit warning on query failure.
 - **`task-preflight.sh` frontmatter field checks and `ROUND.md` check #N.**
   Added a `fields:` section to `task-preflight.sh` validating `executor`,
   `tier`, `plan` and `critical_zone` against their allowed sets (catching

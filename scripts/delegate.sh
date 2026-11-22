@@ -164,12 +164,13 @@ flock -n 9 || { echo "another delegate is running on $root" >&2; exit 2; }
 base=$(mktemp -d -p /tmp) && log="$base/delegate.log"
 if [ "$cli" = agy ]; then
   # agy runs in bwrap: the filesystem read-only, except the project and each -w directory (not
-  # their .git), agy's own state and $base/tmp as /tmp; of ~/Code, only those and the skill's
-  # folder; secret folders hidden; agy's summaries of past conversations replaced by empty files of
-  # this run; skills, plugins and mcp_config.json masked read-only empty so delegates carry no
-  # ambient skills/MCPs; the session bus only through a proxy that lets through the keyring, where
-  # agy keeps its login; XDG_CACHE_HOME under /tmp, since ~/.cache is read-only there and nix
-  # writes its caches in it
+  # their .git), an ephemeral tmpfs for agy's state (only bin, builtin, installation_id and
+  # settings.json bound read-only — no past summaries, no host WAL sidecar corruption) and
+  # $base/tmp as /tmp; of ~/Code, only those and the skill's folder; secret folders hidden;
+  # skills, plugins and mcp_config.json masked read-only empty so delegates carry no ambient
+  # skills/MCPs; the session bus only through a proxy that lets through the keyring, where agy
+  # keeps its login; XDG_CACHE_HOME under /tmp, since ~/.cache is read-only there and nix writes
+  # its caches in it
   for t in bwrap xdg-dbus-proxy; do command -v $t >/dev/null || { echo "$t not found in PATH" >&2; exit 2; }; done
   for v in XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS; do [ -n "${!v:-}" ] || { echo "$v not set" >&2; exit 2; }; done
   mkdir "$base/tmp" "$base/empty"
@@ -179,11 +180,11 @@ if [ "$cli" = agy ]; then
   for _ in $(seq 50); do [ -S "$base/bus" ] && break; sleep 0.1; done
   jail=(bwrap --ro-bind / / --dev /dev --proc /proc --bind "$base/tmp" /tmp
     --tmpfs ~/Code --ro-bind "$bot" "$bot" --bind "$root" "$root"
-    --bind "$agy_state" "$agy_state"
+    --tmpfs "$agy_state"
     --tmpfs "$XDG_RUNTIME_DIR" --ro-bind "$base/bus" "$XDG_RUNTIME_DIR/bus"
     --setenv XDG_CACHE_HOME /tmp/cache)
-  for f in conversation_summaries.db jetbox_summaries_proto.pb; do
-    [ -e "$agy_state/$f" ] && : >"$base/$f" && jail+=(--bind "$base/$f" "$agy_state/$f")
+  for p in bin builtin installation_id settings.json; do
+    [ -e "$agy_state/$p" ] && jail+=(--ro-bind "$agy_state/$p" "$agy_state/$p")
   done
   for d in ~/.gemini/config/skills ~/.gemini/config/plugins "$agy_state/builtin/skills" "$agy_state/builtin/plugins"; do
     [ -d "$d" ] && jail+=(--ro-bind "$base/empty" "$d")

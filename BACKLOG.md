@@ -26,7 +26,4 @@ CHANGELOG.
 
 ## Fix
 
-6. **`learn-sources.sh` on a project with Antigravity conversations**
-   printed `Error: stepping, database disk image is malformed (11)` and
-   went on. Find whether the database or the script is at fault.
-7. **`roles/WRITER.md`** has 16 prose lines past 80 columns.
+6. **`roles/WRITER.md`** has 16 prose lines past 80 columns.
