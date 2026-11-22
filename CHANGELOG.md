@@ -17,6 +17,11 @@ What changed in the skill, by date, and why. The commits hold the diffs.
   or `executor`-caused re-issue, capped at `complex` under AUTO). Updated
   `roles/templates/TASK.md` (`tier:`) and `roles/templates/ROUND.md`
   (`Model` shows `<exec> / <review>`).
+- **`task-preflight.sh` frontmatter field checks and `ROUND.md` check #N.**
+  Added a `fields:` section to `task-preflight.sh` validating `executor`,
+  `tier`, `plan` and `critical_zone` against their allowed sets (catching
+  legacy values such as `tier: execution`). Updated `roles/templates/ROUND.md`
+  "Lessons" to cite `check #N` of `roles/manager/task.md`.
 - **`agy` delegate isolation in `delegate.sh` (`bwrap`).** Masked
   `~/.gemini/config/{skills,plugins,mcp_config.json}` and
   `~/.gemini/antigravity-cli/builtin/{skills,plugins}` read-only empty inside

@@ -35,7 +35,7 @@ state: draft
 - TASK-nnn — <cause> — <the gap>
 
 ### Lessons
-- <for each send-back caused by the TASK: the check the next TASKs make before they are handed over>
+- <for each send-back caused by the TASK: check #N of roles/manager/task.md that would have caught it, or a new check proposed>
 
 ### Next
 <the proposals for the next round — items to add, from answered blocks and "To review"; items to drop; a change of scope — or "the campaign can close">

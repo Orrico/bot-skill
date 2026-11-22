@@ -29,6 +29,4 @@ CHANGELOG.
 6. **`learn-sources.sh` on a project with Antigravity conversations**
    printed `Error: stepping, database disk image is malformed (11)` and
    went on. Find whether the database or the script is at fault.
-7. **The ROUND form's "Lessons"** could name the number of the MANAGER's
-   check that would have caught a send-back, as MANAGER §4 now asks.
-8. **`roles/WRITER.md`** has 16 prose lines past 80 columns.
+7. **`roles/WRITER.md`** has 16 prose lines past 80 columns.

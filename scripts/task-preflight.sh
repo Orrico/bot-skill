@@ -3,6 +3,8 @@
 # against the current tree, before it is handed over:
 #   unfilled  each <…> of the form in roles/templates/TASK.md still in the TASK, and each line of
 #             its frontmatter left with its choices (`no | yes`)
+#   fields    validates frontmatter values (executor, tier, plan, critical_zone) against the
+#             allowed sets, catching legacy values such as `tier: execution`
 #   files     each backticked path in the first cell of a table row whose second cell has no
 #             backtick (the "Files" table, not "Data"): there or absent
 #   refs      each backticked `path:line`: the file there and that long
@@ -38,6 +40,16 @@ left=$( {
   done
 } | sort -n | uniq)
 if [ -n "$left" ]; then sed 's/^/  line /' <<<"$left"; else echo "  none"; fi
+
+echo "fields:"
+field() { sed -n -E "s/^$1:[[:space:]]*//p" "$task" | head -1; }
+ex=$(field executor); ti=$(field tier); pl=$(field plan); cz=$(field critical_zone)
+bad_fields=0
+case "$ex" in dev|tester|dev+tester) ;; *) echo "  invalid executor: '$ex' (expected dev, tester or dev+tester)"; bad_fields=$((bad_fields + 1));; esac
+case "$ti" in trivial|standard|complex|deep) ;; *) echo "  invalid tier: '$ti' (expected trivial, standard, complex or deep)"; bad_fields=$((bad_fields + 1));; esac
+case "$pl" in no|yes) ;; *) echo "  invalid plan: '$pl' (expected no or yes)"; bad_fields=$((bad_fields + 1));; esac
+case "$cz" in no|yes*) ;; *) echo "  invalid critical_zone: '$cz' (expected no or yes — <which>)"; bad_fields=$((bad_fields + 1));; esac
+[ "$bad_fields" -eq 0 ] && echo "  ok"
 
 echo "files:"
 sed -n -E 's/^\| *`([^`<>]+)` *\| *([^|`]*[^|` ]) *\|.*/\1\t\2/p' "$task" | while IFS=$'\t' read -r path action; do
