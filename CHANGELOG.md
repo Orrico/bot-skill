@@ -4,6 +4,16 @@ What changed in the skill, by date, and why. The commits hold the diffs.
 
 ## 2026-11-22
 
+- **Pre-handover checks, self-contained send-backs and `mutate.sh` build
+  detection.** `scripts/mutate.sh` now detects Rust/TypeScript compilation
+  errors (`could not compile`, `error[E…]`, `error TS…`) and exits `2`
+  (`INVALID`) instead of counting uncompilable mutations as killed.
+  `roles/manager/task.md` sharpens checks #4, #5 and #15 (manifest/tool
+  range checks, every branch/fallback/`serde` attribute tested or marked
+  judged, mutations run against TASK cases before handover) and adds a
+  pre-handover review rule for code dictated whole; `roles/MANAGER.md` §6
+  requires send-back gaps to be written whole without citing earlier
+  prompts; `BACKLOG.md` tracks session resume on `delegate.sh -g`.
 - **Calibrated execution and review tiers (`models.md`).** Replaced the two
   execution tiers and single review tier with four execution tiers
   (`trivial`, `standard`, `complex`, `deep`) and three review tiers

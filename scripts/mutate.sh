@@ -2,8 +2,9 @@
 # usage: mutate.sh <root> <file> <old> <new> -- <test command>... — breaks one condition and
 # tells whether the tests see it: replaces <old>, found exactly once in <file>, by <new>, runs
 # the command from <root>, restores the file by copy and runs the command twice more.
-# Exit: 0 killed (the mutated run failed), 1 survived (it passed), 2 not run (usage, <old> not
-# found once, the edit did not take), 3 the tests fail on the restored file.
+# Exit: 0 killed (the mutated run failed in a test), 1 survived (it passed), 2 not run or invalid
+# (usage, <old> not found once, the edit did not take, or the mutated code failed to compile),
+# 3 the tests fail on the restored file.
 # MUTATE_TIMEOUT: seconds allowed to each run (default 600). The runs' output is kept, in the
 # folder printed as "output:", unless the mutation was killed by a failing test.
 set -u
@@ -46,10 +47,18 @@ touch "$file"
 out="$tmp/restored-1.log"; run "$@"; first=$?
 out="$tmp/restored-2.log"; run "$@"; second=$?
 
+compile_err=0
+if [ "$mutated" -ne 0 ] && [ "$mutated" -ne 124 ] \
+  && grep -qE '^error: could not compile |^error\[E[0-9]+\]:|error TS[0-9]+:' "$tmp/mutated.log"; then
+  compile_err=1
+fi
 echo "mutation: $file: $(printf '%s' "$old" | head -1) -> $(printf '%s' "$new" | head -1)"
 echo "command: $*"
 if [ "$mutated" -eq 0 ]; then
   echo "mutated run: pass — SURVIVED: no test sees this condition"
+elif [ "$compile_err" -eq 1 ]; then
+  echo "mutated run: compile error — INVALID: a mutation that does not build proves nothing"
+  grep -m 5 -iE 'error|could not compile' "$tmp/mutated.log" | cut -c1-200 | sed 's/^/  /'
 else
   case "$mutated" in
     124) echo "mutated run: $(word 124) — killed, if the log shows the mutation and not a slow run";;
@@ -62,6 +71,10 @@ if [ "$second" -ne 0 ]; then
   echo "INVALID: the tests fail on the restored file; the verdict above proves nothing"
   echo "output: $tmp"
   exit 3
+fi
+if [ "$compile_err" -eq 1 ]; then
+  echo "output: $tmp"
+  exit 2
 fi
 case "$mutated" in
   0) echo "output: $tmp"; exit 1;;

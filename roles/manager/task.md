@@ -52,6 +52,11 @@ run the checks (§2) before handover.
   pass on the current code.
 - **Tier and `plan`:** pick `tier` (`trivial`, `standard`, `complex` or
   `deep`) and `plan` from `<bot>/models.md`.
+- **Code dictated whole gets the reviewer's eye before handover:** bound
+  every peer `.await` (write, flush, shutdown), release locks and child
+  processes before awaiting, check tool settings across their full range
+  (`0` and the type's maximum), and write files another process reads whole
+  beside and rename.
 - **Frozen after handover:** once the user has `TASK-nnn.md`, only `state`
   changes. A send-back does not edit it; a rejection does not reopen it —
   write the next TASK with `reference: TASK-nnn` and, in its context, what
@@ -74,13 +79,16 @@ Files
 3. The TASK changes what a call returns → grep each assertion on it — the
    rows or the vector it gives back, the store's reads; each one that
    changes goes in "Files".
-4. The TASK hands the executor a command — a git call, its flags, an output
-   the code parses → run it on the real tool first: a step never tried is a
-   guess the executor stops on.
+4. The TASK hands the executor a command, a tool setting or a type, trait,
+   macro or feature — a git call, a flag, a crate feature → run the command
+   on the real tool first (testing settings at `0` and the type's maximum)
+   and check every named type, trait, macro and feature against the crate's
+   manifest.
 
 Tests, each in "Tests" by file and name
-5. Each `if`, filter and field the change adds → the test that fails without
-   it.
+5. Each `if`, branch, fallback, filter, `serde` attribute and field the
+   change adds → the test that fails without it, or an explicit note that
+   it is judged from the code and why no test sees it.
 6. A derived list → tested with two parents; with one, its filter goes
    unseen.
 7. Each bound → tested at its value and one past, also after a conversion
@@ -100,11 +108,13 @@ Tests, each in "Tests" by file and name
     pattern → the literal as the code writes it, found with `git grep` in
     the code and in the test helpers that read it; one taken from a type's
     form makes a check that can never fail.
-15. Each mutation the TASK lists → writable against the signatures the TASK
-    gives (one its types forbid stops the executor), and not equivalent
-    under the code it dictates: a guard another rule covers, a bound whose
-    two sides give the same value, a fallback that reproduces the fixture's
-    value turns no test red.
+15. Each mutation the TASK lists → run against the TASK's own cases before
+    handover (never only reasoned), verified to fail in a test and not in
+    the build, writable against the signatures the TASK gives (one its
+    types forbid stops the executor), and not equivalent under the code it
+    dictates: a guard another rule covers, a bound whose two sides give the
+    same value, a fallback that reproduces the fixture's value turns no
+    test red.
 
 Criteria
 16. Each criterion → its command exactly as it runs from the project's root.

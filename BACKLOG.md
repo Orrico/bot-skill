@@ -23,3 +23,9 @@ CHANGELOG.
    Waits on a design decision; `agy` has no equivalent.
 5. **A spend cap per TASK.** `--max-budget-usd` caps a `claude -p` run;
    untested on a subscription. If it holds, `delegate.sh` could take one.
+6. **Session resume on send-backs (`delegate.sh -g`).** Persist the session
+   ID per TASK (and for `agy`, bind a per-TASK state directory under `/tmp`
+   instead of `--tmpfs`, keeping host WAL isolation) and pass `--resume`
+   (`claude`) or `--conversation` (`agy`) on `-g` when CLI and model match,
+   falling back to a fresh session on escalation, CLI change or missing
+   state.

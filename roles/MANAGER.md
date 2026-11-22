@@ -173,7 +173,9 @@ When the result comes back:
    a condition it adds, a file its objective needs, a criterion not met: the
    same executor gets the TASK again with the gap (escalation rules in
    `<bot>/models.md`), adds a section to its result, `state` stays
-   `delivered` and the review is redone on the new delivery. At most two
+   `delivered` and the review is redone on the new delivery. Write every
+   send-back gap whole without referencing earlier prompts or item letters,
+   so it still stands when a send-back runs in a fresh session. At most two
    send-backs per TASK; a third gap, or one outside the TASK's scope, is a
    rejection. Only the user's word allows a third, up to the fifth, and
    never under AUTO; `delegate.sh` refuses the sixth. In a campaign, each
