@@ -83,8 +83,8 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
 3. Run each acceptance criterion yourself and record the real output. Point
    out where it differs from the one reported.
 4. Check each item of "Constraints" and the rules of the executor's role
-   files (`DEV.md`, `TESTER.md`), one by one. You consult them as the
-   material checked: their rules bind the delivery, not you.
+   files (`DEV.md`, `TESTER.md`, `WRITER.md`), one by one. You consult them
+   as the material checked: their rules bind the delivery, not you.
 5. Read the code looking for what the tests do not cover: the order of
    writes and of `fsync`, the error handling, the exception path, what the
    TASK forbids.

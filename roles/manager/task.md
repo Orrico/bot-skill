@@ -25,7 +25,8 @@ run the checks (§2) before handover.
     breaks each condition the change added, adding the test a surviving one
     lacks;
   - `tester` — tests only, for behaviour that already exists: they pass on
-    the current code and fail when the rule is broken.
+    the current code and fail when the rule is broken;
+  - `writer` — editorial content, following the project's `EDITORIAL.md`.
 
   Two calls for one TASK — a tester, then a developer — only when the user
   asks for it.

@@ -24,8 +24,8 @@ A sentence — in project X, as roles Y, do Z, with these parameters:
    not pick a project by a similar name.
 2. **Roles,** optional: one token of role names joined by `+`, matched
    case-insensitively: `manager`, `architect`, `reviewer`, `tester`, `dev`,
-   `auto`, `worker` (`dev+tester`, `reviewer+auto`). It is roles only if
-   every part is a role name; otherwise it begins the request.
+   `writer`, `auto`, `worker` (`dev+tester`, `reviewer+auto`). It is roles
+   only if every part is a role name; otherwise it begins the request.
 3. **Request:** the rest, literal. Its first word picks the mode:
 
 | Request | Roles read | Parameters | After the boot |
@@ -33,7 +33,7 @@ A sentence — in project X, as roles Y, do Z, with these parameters:
 | `learn` | BASE, MANAGER | `[--merge \| CAMPAIGN-nnn \| nnn]` | `<bot>/roles/manager/learn.md` (`--merge`: its last paragraph) |
 | `review` | BASE, REVIEWER | `TASK-nnn`, or `[--<kind>] [subject…]` | a TASK: REVIEWER §3; a kind (below): its file, then REVIEWER §4 |
 | `status` | none | none | no boot: `status.sh`'s output, then the roles loaded in this conversation |
-| anything else, with only `dev`, `tester` | each role named, no BASE | the request | no boot: the executor (below) |
+| anything else, with only `dev`, `tester`, `writer` | each role named, no BASE | the request | no boot: the executor (below) |
 | anything else | BASE, then each role named | the request | the request, or wait |
 
 - **Roles and the request:** with no roles, `learn` takes MANAGER, `review`
@@ -41,9 +41,9 @@ A sentence — in project X, as roles Y, do Z, with these parameters:
   must include its owner: if not, say so and stop. AUTO alone: MANAGER and
   AUTO. WORKER only alone, with BASE, for a request outside the flow. Read
   in this order whatever the order given: BASE, MANAGER, ARCHITECT,
-  REVIEWER, TESTER, DEV, AUTO, WORKER. With AUTO, read after it
+  REVIEWER, TESTER, DEV, WRITER, AUTO, WORKER. With AUTO, read after it
   `<bot>/roles/<role>/auto.md` for each of MANAGER, ARCHITECT and REVIEWER
-  taken. DEV and TESTER taken with a
+  taken. DEV, TESTER and WRITER taken with a
   coordinator run as executors of the TASK in the request.
 - **Status:** takes no roles; if roles are given, say so and stop. Run
   `<bot>/scripts/status.sh <root>` once and answer with its
@@ -51,7 +51,8 @@ A sentence — in project X, as roles Y, do Z, with these parameters:
   after the output, a line `roles loaded:` naming each role file read in
   this conversation (BASE, MANAGER, AUTO…), from your own context and not
   from disk; `none` if there is none. Do not reread files to check it.
-- **Executor:** with only `dev`, `tester` or `dev+tester` named, the request names a TASK
+- **Executor:** with only `dev`, `tester`, `dev+tester` or `writer` named,
+  the request names a TASK
   (`TASK-nnn` or `nnn`): read `<root>/.bot/tasks/TASK-nnn.md` and follow
   the role files, not this skill's boot. No TASK named, or a TASK whose
   `executor` field is not the roles named: say so and stop.

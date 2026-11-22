@@ -120,7 +120,8 @@ case "$mode" in
       dev) files="$roles/DEV.md";;
       tester) files="$roles/TESTER.md";;
       dev+tester) files="$roles/DEV.md and $roles/TESTER.md";;
-      *) echo "$id: executor '$(field executor)' is not dev, tester or dev+tester" >&2; exit 2;;
+      writer) files="$roles/WRITER.md";;
+      *) echo "$id: executor '$(field executor)' is not dev, tester, dev+tester or writer" >&2; exit 2;;
     esac
     result="$root/.bot/tasks/$id-result.md"
     prompt="Read $files, then $task, and execute it. Answer with one status line."

@@ -45,7 +45,7 @@ echo "fields:"
 field() { sed -n -E "s/^$1:[[:space:]]*//p" "$task" | head -1; }
 ex=$(field executor); ti=$(field tier); pl=$(field plan); cz=$(field critical_zone)
 bad_fields=0
-case "$ex" in dev|tester|dev+tester) ;; *) echo "  invalid executor: '$ex' (expected dev, tester or dev+tester)"; bad_fields=$((bad_fields + 1));; esac
+case "$ex" in dev|tester|dev+tester|writer) ;; *) echo "  invalid executor: '$ex' (expected dev, tester, dev+tester or writer)"; bad_fields=$((bad_fields + 1));; esac
 case "$ti" in trivial|standard|complex|deep) ;; *) echo "  invalid tier: '$ti' (expected trivial, standard, complex or deep)"; bad_fields=$((bad_fields + 1));; esac
 case "$pl" in no|yes) ;; *) echo "  invalid plan: '$pl' (expected no or yes)"; bad_fields=$((bad_fields + 1));; esac
 case "$cz" in no|yes*) ;; *) echo "  invalid critical_zone: '$cz' (expected no or yes — <which>)"; bad_fields=$((bad_fields + 1));; esac

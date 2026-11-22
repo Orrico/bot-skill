@@ -17,6 +17,15 @@ What changed in the skill, by date, and why. The commits hold the diffs.
   or `executor`-caused re-issue, capped at `complex` under AUTO). Updated
   `roles/templates/TASK.md` (`tier:`) and `roles/templates/ROUND.md`
   (`Model` shows `<exec> / <review>`).
+- **Generalized `roles/WRITER.md` and wired `writer` into the scripts.**
+  Replaced project-specific Portuguese Astro rules in `WRITER.md` with
+  project-agnostic editorial rules in English (wrapped at 80 columns,
+  deferring style/schema rules to each project's `EDITORIAL.md`, with
+  `GEMINI.md`, foreground, anti-loop and concise-output rules). Added
+  `executor: writer` support to `new.sh`, `delegate.sh`,
+  `task-preflight.sh`, `SKILL.md`, `roles/templates/TASK.md`,
+  `roles/templates/ROUND.md`, `MANAGER.md`, `roles/manager/task.md` and
+  `REVIEWER.md`.
 - **SQLite WAL isolation for `agy` delegates and read-only harvest queries.**
   `conversation_summaries.db` runs in WAL mode: `delegate.sh` previously
   bound `~/.gemini/antigravity-cli` writable while replacing only the `.db`

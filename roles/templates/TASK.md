@@ -1,5 +1,5 @@
-The `Role` section names the executor's files: `DEV.md`, `TESTER.md`, or
-both, as the `executor` field says.
+The `Role` section names the executor's files: `DEV.md`, `TESTER.md`,
+`WRITER.md`, or `DEV.md` and `TESTER.md`, as the `executor` field says.
 
 ````markdown
 ---
@@ -9,7 +9,7 @@ created: YYYY-MM-DD
 state: open
 campaign: <CAMPAIGN-nnn, if any>
 round: <N, if in a campaign>
-executor: dev | tester | dev+tester
+executor: dev | tester | dev+tester | writer
 tier: trivial | standard | complex | deep
 plan: no | yes
 critical_zone: no | yes — <which>

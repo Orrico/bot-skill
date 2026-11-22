@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # usage: new.sh <root> campaign
 #        new.sh <root> round CAMPAIGN-nnn
-#        new.sh <root> task <dev|tester|dev+tester> [CAMPAIGN-nnn#N] [-r TASK-nnn]
+#        new.sh <root> task <dev|tester|dev+tester|writer> [CAMPAIGN-nnn#N] [-r TASK-nnn]
 #        new.sh <root> review TASK-nnn
 # — creates in <root>/.bot/ the file a form of roles/templates/ shapes, at the next free number,
 # with what is known filled: the number, the date, the project, the campaign and the round, the
@@ -10,7 +10,7 @@
 # campaign and round lines, and one with no -r no reference line. Never overwrites a file.
 # Prints the path of each file created, relative to <root>.
 set -eu
-usage='usage: new.sh <root> campaign | round CAMPAIGN-nnn | task <dev|tester|dev+tester> [CAMPAIGN-nnn#N] [-r TASK-nnn] | review TASK-nnn'
+usage='usage: new.sh <root> campaign | round CAMPAIGN-nnn | task <dev|tester|dev+tester|writer> [CAMPAIGN-nnn#N] [-r TASK-nnn] | review TASK-nnn'
 [ $# -ge 2 ] || { echo "$usage" >&2; exit 2; }
 root=$(cd "$1" && pwd); what=$2; shift 2
 bot=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
@@ -62,6 +62,7 @@ case "$what" in
       dev) read_line="Read \`$bot/roles/DEV.md\`";;
       tester) read_line="Read \`$bot/roles/TESTER.md\`";;
       dev+tester) read_line="Read \`$bot/roles/DEV.md\` and \`$bot/roles/TESTER.md\`";;
+      writer) read_line="Read \`$bot/roles/WRITER.md\`";;
       *) echo "$usage" >&2; exit 2;;
     esac
     c="" n="" ref=""

@@ -23,7 +23,3 @@ CHANGELOG.
    Waits on a design decision; `agy` has no equivalent.
 5. **A spend cap per TASK.** `--max-budget-usd` caps a `claude -p` run;
    untested on a subscription. If it holds, `delegate.sh` could take one.
-
-## Fix
-
-6. **`roles/WRITER.md`** has 16 prose lines past 80 columns.

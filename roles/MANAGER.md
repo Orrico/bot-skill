@@ -107,10 +107,10 @@ confirms it.
 ## 4. Writing a TASK
 Read `<bot>/roles/manager/task.md` on demand when writing a TASK: it holds
 the creation command (`new.sh`), the executor choices (`dev`, `dev+tester`,
-`tester`), the content rules and the 21 pre-handover checks. Pick `tier`
-(`trivial`, `standard`, `complex`, `deep`), default `plan` and default
-review tier from `<bot>/models.md` (read as material, BASE §1). After
-handover, `TASK-nnn.md` never changes except `state`.
+`tester`, `writer`), the content rules and the 21 pre-handover checks.
+Pick `tier` (`trivial`, `standard`, `complex`, `deep`), default `plan` and
+default review tier from `<bot>/models.md` (read as material, BASE §1).
+After handover, `TASK-nnn.md` never changes except `state`.
 
 ## 5. Handing over
 Before either way, `git status --short`: it tells, at the commit (§7),
