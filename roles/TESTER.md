@@ -59,6 +59,11 @@ For logic that is not trivial, a minimal reference implementation in a
 temporary folder (`mktemp -d -p /tmp`), never in the tree, shows the test
 passes for the right reason.
 
+Test code meets the project's code bar, as the code it tests: a fixture
+or a helper the test files already have is used, and one two files need
+goes where both reach it, never copied; names are whole words; an
+assertion states the value it expects, not that something happened.
+
 ## 3. Rules (tester alone)
 Skip this section when `DEV.md` is loaded.
 - Read the whole TASK before starting; touch only the files it lists.

@@ -19,6 +19,16 @@ What changed in the skill, by date, and why. The commits hold the diffs.
   quota, its measured weights ratios only. `delegate.sh`,
   `task-preflight.sh`, `roles/templates/TASK.md`, `roles/MANAGER.md`,
   `roles/manager/task.md` and DESIGN.md name the three tiers.
+- **The code bar reaches the executor and the review.** `roles/DEV.md`
+  reads the bar the project's `AGENTS.md` names before the first edit,
+  and carries the checkable rules itself — one place for each rule, data
+  in the shape of its access, no function that names one step of its
+  caller, no option for a case that does not exist, no redundant check,
+  whole names, errors that keep their cause — and doc comments of
+  contract, never paraphrase; `roles/TESTER.md` holds test code to the
+  same bar. `roles/REVIEWER.md` §3 step 5 reads the diff against it: a
+  rule missed is a finding, a preference no rule states a note, since a
+  reviewer asked for problems always finds one.
 - **Two pre-handover checks from CAMPAIGN-020 round 19 of ARC.** Check 4
   of `roles/manager/task.md`: a setting, a hook or a service a test turns
   on for the first time in its file is run there on the real tool before

@@ -88,6 +88,12 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
 5. Read the code looking for what the tests do not cover: the order of
    writes and of `fsync`, the error handling, the exception path, what the
    TASK forbids.
+   Read the diff against the code bar too: the document the project's
+   `AGENTS.md` names for how its code is written, and `DEV.md`'s rules of
+   the bar and of comments. A rule of either that the diff misses is a
+   finding, with `file:line` and the rule; a preference no rule states is
+   a note, not a finding, since a reviewer asked for problems always finds
+   one, and each fixed adds a layer.
 6. For each condition the change adds — an `if`, a filter, a bound, an arm
    of a match, a field —, break it once with
    `<bot>/scripts/mutate.sh <root> <file> <old> <new> -- <test command>`:

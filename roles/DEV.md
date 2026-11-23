@@ -33,9 +33,21 @@ them at the project's root when they are not already in your instructions.
   hand: before a loop over bytes or a state machine of your own, look for
   the function that does it. If you still write it by hand, say why in the
   result.
-- A code comment describes only what the code does now and its immediate
-  constraints; never a design reason, a debate or a history — that goes in
-  the result.
+- Meet the project's code bar: where its `AGENTS.md` names a document of
+  how its code is written, read it before the first edit. Beyond it, each
+  rule, table or conversion in one place, which the others call; data in
+  the shape its access asks for; no function or type that only names one
+  step of its single caller (`_inner`, `do_x`); no abstraction, parameter
+  or branch for a case that does not exist; no check of what a type or an
+  earlier step already guarantees; whole words of the domain for names,
+  never abbreviations or the type in the name (`name_str`); an error that
+  keeps its cause. Where the TASK and the bar differ, the TASK holds, and
+  the result says so.
+- A doc comment states a contract — what the item gives, its bounds, its
+  errors and side effects — in the project's convention, in one line where
+  one suffices; a comment in a body states only a non-obvious constraint.
+  Neither repeats what the code says, nor tells a design reason, a debate
+  or a history — that goes in the result.
 - Write code, comments and text in the language the file and the project
   already use; never translate on your own.
 - Never weaken, skip, delete or narrow a test or assertion to make it pass;
