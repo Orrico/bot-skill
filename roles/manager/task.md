@@ -83,7 +83,9 @@ Files
    macro or feature — a git call, a flag, a crate feature → run the command
    on the real tool first (testing settings at `0` and the type's maximum)
    and check every named type, trait, macro and feature against the crate's
-   manifest.
+   manifest. A setting, a hook or a service that a test of the TASK turns
+   on for the first time in its file is run there on the real tool too,
+   prototype or not.
 
 Tests, each in "Tests" by file and name
 5. Each `if`, branch, fallback, filter, `serde` attribute and field the
@@ -118,7 +120,8 @@ Tests, each in "Tests" by file and name
     A TASK written with no prototype, its mutations not run before the
     handover, carries instead a table in "Tests" from each condition of
     its rule — every `if`, `else`, match arm, `and` and "only" — to the
-    test that fails without it.
+    test that fails without it: one row for each branch, and two rows
+    share a test only where it drives both.
 
 Criteria
 16. Each criterion → its command exactly as it runs from the project's root.

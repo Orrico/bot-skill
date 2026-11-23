@@ -19,6 +19,14 @@ What changed in the skill, by date, and why. The commits hold the diffs.
   quota, its measured weights ratios only. `delegate.sh`,
   `task-preflight.sh`, `roles/templates/TASK.md`, `roles/MANAGER.md`,
   `roles/manager/task.md` and DESIGN.md name the three tiers.
+- **Two pre-handover checks from CAMPAIGN-020 round 19 of ARC.** Check 4
+  of `roles/manager/task.md`: a setting, a hook or a service a test turns
+  on for the first time in its file is run there on the real tool before
+  the handover — a test that first set a bound ran a hook no test had run,
+  and it refused every push. Check 15: the table of conditions of a TASK
+  with no prototype has one row for each branch, two rows sharing a test
+  only where it drives both — a row "steps 5 and 7" had one test, which
+  drove step 7 alone.
 
 ## 2026-11-22
 
