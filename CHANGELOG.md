@@ -2,6 +2,24 @@
 
 What changed in the skill, by date, and why. The commits hold the diffs.
 
+## 2026-11-23
+
+- **The tiers chosen by the user, and `trivial` gone.** Three execution
+  tiers: `standard` on Haiku High and Hydrogen Medium (the old `trivial`
+  folded into it), `complex` on Sonnet High and Hydrogen High, `deep` on
+  Opus High and Neon High; the review tiers pair the same way
+  (`review-check`, `review-validate`, `review-deep`), and the
+  coordinating roles stay on Opus High and Neon High. No effort past
+  `high`, since `max` spends a Claude quota fast; Argon leaves the
+  tables, the Gemini model that spent the most tokens for the least.
+  Hydrogen High moves up a tier: arena.ai's Agent Arena of 2026-11-22
+  ranks it beside Opus High (1,272 and 1,275), above Sonnet High
+  (1,202), and Neon High above both (1,331). `models.md`'s quota
+  section says agy's models now share one week's and one five hours'
+  quota, its measured weights ratios only. `delegate.sh`,
+  `task-preflight.sh`, `roles/templates/TASK.md`, `roles/MANAGER.md`,
+  `roles/manager/task.md` and DESIGN.md name the three tiers.
+
 ## 2026-11-22
 
 - **`delegate.sh`: agy's `bin` writable in the jail, and one `usage:`

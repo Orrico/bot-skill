@@ -79,14 +79,14 @@ case "$model" in
     if [ "$mode" = execute ]; then
       tier=$(field tier)
       case "$tier" in
-        trivial|standard|complex|deep) ;;
-        *) echo "$id: tier '$tier' is not trivial, standard, complex or deep" >&2; exit 2;;
+        standard|complex|deep) ;;
+        *) echo "$id: tier '$tier' is not standard, complex or deep" >&2; exit 2;;
       esac
     elif [ -n "$id" ]; then
       task_tier=$(field tier)
       case "$task_tier" in
-        trivial|standard|complex|deep) ;;
-        *) echo "$id: tier '$task_tier' is not trivial, standard, complex or deep" >&2; exit 2;;
+        standard|complex|deep) ;;
+        *) echo "$id: tier '$task_tier' is not standard, complex or deep" >&2; exit 2;;
       esac
       IFS='|' read -r _ _ tier <<<"$(resolve_tier "$task_tier" "$cli")"
       case "$(field critical_zone)" in
@@ -95,7 +95,7 @@ case "$model" in
     else
       if [ "$kind" = design ]; then tier=review-deep; else tier=review-validate; fi
     fi;;
-  trivial|standard|complex|deep)
+  standard|complex|deep)
     [ "$mode" = execute ] || { echo "execution tier '$model' is for execute, not review" >&2; exit 2; }
     tier=$model;;
   review-check|review-validate|review-deep)
