@@ -39,12 +39,13 @@ A sentence — in project X, as roles Y, do Z, with these parameters:
 - **Roles and the request:** with no roles, `learn` takes MANAGER, `review`
   REVIEWER, any other request MANAGER. Roles given to `learn` or `review`
   must include its owner: if not, say so and stop. AUTO alone: MANAGER and
-  AUTO. WORKER only alone, with BASE, for a request outside the flow. Read
-  in this order whatever the order given: BASE, MANAGER, ARCHITECT,
-  REVIEWER, TESTER, DEV, WRITER, AUTO, WORKER. With AUTO, read after it
-  `<bot>/roles/<role>/auto.md` for each of MANAGER, ARCHITECT and REVIEWER
-  taken. DEV, TESTER and WRITER taken with a
-  coordinator run as executors of the TASK in the request.
+  AUTO. AUTO combines only with MANAGER, ARCHITECT or REVIEWER; with an
+  executor or WORKER, say so and stop. WORKER only alone, with BASE, for a
+  request outside the flow. Read in this order whatever the order given:
+  BASE, MANAGER, ARCHITECT, REVIEWER, TESTER, DEV, WRITER, AUTO, WORKER.
+  With AUTO, read after it `<bot>/roles/<role>/auto.md` for each of
+  MANAGER, ARCHITECT and REVIEWER taken. DEV, TESTER and WRITER taken with
+  a coordinator run as executors of the TASK in the request.
 - **Status:** takes no roles; if roles are given, say so and stop. Run
   `<bot>/scripts/status.sh <root>` once and answer with its
   output as it is: no reading of the roles or of AGENTS, no boot. Then,
@@ -63,11 +64,11 @@ A sentence — in project X, as roles Y, do Z, with these parameters:
   rest.
 
 ## 2. The project
-If the project is not the current workspace, read `<root>/AGENTS.md` and,
-depending on the active agent, `<root>/CLAUDE.md` (for Claude) or
-`<root>/GEMINI.md` (for Gemini) as the project's specific instructions, and
-work with absolute paths (`<root>/.bot/`, `git -C <root>`, verification run
-from `<root>`).
+Read `<root>/AGENTS.md` and, depending on the active agent,
+`<root>/CLAUDE.md` (for Claude) or `<root>/GEMINI.md` (for Gemini) when
+they are not already in your instructions. When the project is not the
+current workspace, work with absolute paths (`<root>/.bot/`,
+`git -C <root>`, verification run from `<root>`).
 
 ## 3. Boot
 Not for the executor or for `status`. Run `<bot>/scripts/boot.sh <root>`

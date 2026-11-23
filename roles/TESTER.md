@@ -76,11 +76,13 @@ Skip this section when `DEV.md` is loaded.
 - Run every command in the foreground and wait for it. Stop on loops: if
   the same command, test or mutation fails twice with no new evidence, stop
   with `status: blocked`.
-- Write tests and comments in the project's language; a comment describes
-  what the test checks, never a design debate.
+- Write tests and comments in the language the project's rules specify (or
+  that the file already uses); a comment describes what the test checks,
+  never a design debate.
 - Run acceptance criteria as written; output over 50 lines goes to a
   temporary folder cited by path, decision line and counts. Keep the result
-  concise (no echoing the TASK or role rules), in the project's language.
+  concise (no echoing the TASK or role rules), in English, keeping its
+  headings (`## Send-back N`, etc.) exact.
 - On a send-back, fix only the gap and append `## Send-back N` with what
   changed; update `status` and do not rewrite earlier sections.
 

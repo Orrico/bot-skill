@@ -21,8 +21,8 @@ a result and no review yet, and the last report in `.bot/reports/`.
   it:
   - paths in `.bot/` are relative to the project's root; list `.bot/` with
     `ls`, since search tools that honour git's ignore do not see it;
-  - the review is written in the project's language; frontmatter keys and
-    values stay as the form has them;
+  - the review is written in English, keeping frontmatter keys, values and
+    headings as the form has them;
   - temporary files go in a folder made by `mktemp -d -p /tmp`, never in
     the tree;
   - a command's output is cut to its summary and the lines that fail; a
@@ -93,7 +93,9 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
    the bar and of comments. A rule of either that the diff misses is a
    finding, with `file:line` and the rule; a preference no rule states is
    a note, not a finding, since a reviewer asked for problems always finds
-   one, and each fixed adds a layer.
+   one, and each fixed adds a layer. For `executor: writer`, check the
+   delivery against `EDITORIAL.md` and `WRITER.md` instead of the code bar,
+   and skip step 6 (mutations).
 6. For each condition the change adds — an `if`, a filter, a bound, an arm
    of a match, a field —, break it once with
    `<bot>/scripts/mutate.sh <root> <file> <old> <new> -- <test command>`:
@@ -126,9 +128,9 @@ read (BASE §1).
 1. **Find the earlier round:** `ls .bot/reports/`. A report of the same
    kind and subject makes this one round N+1, and rule 5 applies to it.
 2. **Name it** `.bot/reports/YYYY-MM-DD-<kind>-<subject>[-round-N].md`; the
-   subject is a short slug, in the project's language, of what is reviewed
-   (`spec`, `fsp-ref-min`, `workspace`). A report with attachments — logs,
-   partial reports — is a folder of that name, with `report.md` inside.
+   subject is a short slug of what is reviewed (`spec`, `fsp-ref-min`,
+   `workspace`). A report with attachments — logs, partial reports — is a
+   folder of that name, with `report.md` inside.
 3. **Follow the kind's method** and its template, with these rules (§2).
 4. **Findings are not planned here.** A finding that calls for work stays
    in the report; the MANAGER takes it from there, by the harvest or on the

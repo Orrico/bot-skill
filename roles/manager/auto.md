@@ -23,7 +23,9 @@ AUTO is loaded with this role. A `MANAGER §n` is a section of MANAGER.md.
   a delivery and re-issuing the TASK; closing a round with its report; a
   point fix done directly; a local commit per validated TASK; the harvest
   (`<bot>/roles/manager/learn.md`) of the campaign, once it is done, into
-  `.bot/knowledge/`.
+  `.bot/knowledge/` (if new conversations exceed 40 KB, harvest `.bot/`
+  files and `CHANGELOG.md`, and leave the conversations as a block instead
+  of asking).
 - **Decide and flag:** the harvest's proposals for the project's files and
   for the roles go under "To review", not applied; dropping to "Left out"
   an item that turns out to wait on a decision.

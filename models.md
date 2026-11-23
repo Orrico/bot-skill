@@ -57,24 +57,13 @@ delegations (BASE §5).
 
 ## Quota and mechanisms
 
-- **The tiers, chosen by the user (2026-11-23):** across both CLIs, Opus
-  High and Neon High coordinate and take `deep` and `review-deep`; Sonnet
-  High and Hydrogen High take `complex` and `review-validate`; Haiku High
-  and Hydrogen Medium take `standard` and `review-check`. On arena.ai's
-  Agent Arena of 2026-11-22, for agents on real tasks: Neon High 1,331,
-  Opus High 1,275, Hydrogen High 1,272 — near Opus, above its pair —,
-  Sonnet High 1,202; Neon and Hydrogen marked preliminary, their Medium
-  efforts unranked. No effort past `high`: `max` and `xhigh` spend a
-  Claude quota fast. Argon is not used: of the Gemini models it spent
-  the most tokens for the least (Agent Arena 1,229, #14).
-- **Quota in `agy`:** Neon, Hydrogen and 3.8 Flash share one week's and
-  one five hours' quota, Argon too since 2026-11-23, when both were
-  reset. Measured before that, on the five hours' window: Neon Medium
-  about 11.6 points per million tokens not cached (new input and output
-  alike) and 0.86 per million cached, Hydrogen about half of Neon's for
-  the same tokens; as percents of a bucket since changed, these hold as
-  ratios only. What costs is new context and output, not the cache.
-  Both windows roll.
+- **Tier policy:** across both CLIs, Opus High and Neon High coordinate and
+  take `deep` and `review-deep`; Sonnet High and Hydrogen High take `complex`
+  and `review-validate`; Haiku High and Hydrogen Medium take `standard` and
+  `review-check`. No effort past `high` (`max` and `xhigh` spend Claude quota
+  fast), and Argon is not used. In `agy`, Neon, Hydrogen, 3.8 Flash and Argon
+  share one rolling five-hour and one rolling weekly quota; new context and
+  output dominate cost, not cached input.
 - **`deep`** is for genuinely high-risk work or escalation after failure,
   not routine multi-file TASKs with exact steps.
 - **Which mechanism:** within one CLI, its own subagent tool when its model

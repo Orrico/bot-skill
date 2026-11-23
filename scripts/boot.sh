@@ -19,7 +19,7 @@ next() { # next number of a prefix in a folder
   n=$(ls "$1" 2>/dev/null | grep -oE "^$2-[0-9]{3}" | sed "s/^$2-//" | sort -n | tail -1)
   printf '%s-%03d' "$2" $(( 10#${n:-0} + 1 ))
 }
-state() { sed -n -E 's/^(state|estado):[[:space:]]*//p' "$1" | head -1; }
+state() { awk '/^---$/{n++; if(n==2) exit; next} n==1' "$1" | sed -n -E 's/^(state|estado):[[:space:]]*//p' | head -1; }
 
 open_tasks=() delivered=()
 for f in "$bot"/tasks/TASK-[0-9][0-9][0-9].md; do

@@ -24,9 +24,9 @@ they are not already in your instructions.
   config, dependencies, standard files (`README.md`, `AGENTS.md`,
   `DESIGN.md`, `BACKLOG.md`, `CHANGELOG.md`) or anything in `.bot/` except
   your result.
-- Follow the project's `EDITORIAL.md` (tone, structure, frontmatter schema,
-  word count, media rules and source attribution) and write in the language
-  the project uses; never translate on your own.
+- Follow the project's `EDITORIAL.md` (tone, structure, language,
+  frontmatter schema, word count, media rules and source attribution);
+  never translate on your own.
 - Ground every claim, date, figure and citation in the sources the TASK
   gives or verifies; never invent quotes, statistics or URLs.
 - Undo your own edits by editing or by copy, never with `git checkout`,
@@ -47,7 +47,8 @@ they are not already in your instructions.
   the wrong place in the result, without its value.
 - Keep the result concise: do not echo the TASK's text, role rules or full
   articles into it. If something did not work or was left out, say so
-  explicitly. Write the result in the project's language.
+  explicitly. Write the result in English, keeping its headings
+  (`## Send-back N`, etc.) exact.
 
 ## 3. Format of `TASK-nnn-result.md`
 

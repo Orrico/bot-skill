@@ -40,33 +40,48 @@ conv_name() {
   esac
 }
 
+re_escape() { printf '%s' "$1" | sed -E 's/[][\\.^$*+?(){}|]/\\&/g'; }
+
 # transcripts of the project:
 # 1. Claude Code: its own folder, plus /bot sessions on it opened from other workspaces;
-# 2. agy: conversation_summaries.db matching the workspace, plus its transcript.jsonl
+# 2. agy: conversation_summaries.db matching the workspace, plus /bot sessions on it from other workspaces
 transcripts() {
-  if [ -d "$projects" ]; then
-    [ -d "$projects/$slug" ] && ls "$projects/$slug"/*.jsonl 2>/dev/null || true
-    grep -l -m1 '<command-name>/bot</command-name>' "$projects"/*/*.jsonl 2>/dev/null \
-      | grep -v "^$projects/$slug/" \
-      | while IFS= read -r f; do
-          grep -q -m1 -E "<command-args>[^<]*(\b$name\b|$root)" "$f" && echo "$f" || true
-        done || true
-  fi
-
-  for agy_dir in "$HOME/.gemini/antigravity-cli" "$HOME/.gemini/antigravity"; do
-    local agy_db="$agy_dir/conversation_summaries.db"
-    local agy_brain="$agy_dir/brain"
-    if [ -f "$agy_db" ] && command -v sqlite3 >/dev/null 2>&1; then
-      local q=${root//\'/\'\'}
-      sqlite3 -readonly -cmd ".timeout 5000" "$agy_db" "SELECT conversation_id FROM conversation_summaries WHERE (parent_conversation_id IS NULL OR length(parent_conversation_id) = 0) AND (instr(workspace_uris, 'file://$q\"') > 0 OR instr(workspace_uris, 'file://$q/roles\"') > 0);" \
-        | while IFS= read -r cid; do
-            [ -n "$cid" ] || continue
-            local f="$agy_brain/$cid/.system_generated/logs/transcript_full.jsonl"
-            [ -f "$f" ] || f="$agy_brain/$cid/.system_generated/logs/transcript.jsonl"
-            [ -f "$f" ] && echo "$f" || true
-          done || echo "warn: failed to read $agy_db" >&2
+  local name_re root_re
+  name_re=$(re_escape "$name")
+  root_re=$(re_escape "$root")
+  {
+    if [ -d "$projects" ]; then
+      [ -d "$projects/$slug" ] && ls "$projects/$slug"/*.jsonl 2>/dev/null || true
+      grep -l -m1 '<command-name>/bot</command-name>' "$projects"/*/*.jsonl 2>/dev/null \
+        | grep -v "^$projects/$slug/" \
+        | while IFS= read -r f; do
+            grep -q -m1 -E "<command-args>[[:space:]]*($name_re|$root_re)([[:space:]<]|$)" "$f" && echo "$f" || true
+          done || true
     fi
-  done
+
+    for agy_dir in "$HOME/.gemini/antigravity-cli" "$HOME/.gemini/antigravity"; do
+      local agy_db="$agy_dir/conversation_summaries.db"
+      local agy_brain="$agy_dir/brain"
+      if [ -f "$agy_db" ] && command -v sqlite3 >/dev/null 2>&1; then
+        local q=${root//\'/\'\'}
+        sqlite3 -readonly -cmd ".timeout 5000" "$agy_db" "SELECT conversation_id FROM conversation_summaries WHERE (parent_conversation_id IS NULL OR length(parent_conversation_id) = 0) AND (instr(workspace_uris, 'file://$q\"') > 0 OR instr(workspace_uris, 'file://$q/roles\"') > 0);" \
+          | while IFS= read -r cid; do
+              [ -n "$cid" ] || continue
+              local f="$agy_brain/$cid/.system_generated/logs/transcript_full.jsonl"
+              [ -f "$f" ] || f="$agy_brain/$cid/.system_generated/logs/transcript.jsonl"
+              [ -f "$f" ] && echo "$f" || true
+            done || echo "warn: failed to read $agy_db" >&2
+      fi
+      if [ -d "$agy_brain" ]; then
+        grep -l -m1 -E "<USER_REQUEST>[[:space:]]*/bot[[:space:]]+($name_re|$root_re)([[:space:]]|<|$)" \
+          "$agy_brain"/*/.system_generated/logs/transcript.jsonl 2>/dev/null \
+          | while IFS= read -r f; do
+              local full="${f%transcript.jsonl}transcript_full.jsonl"
+              [ -f "$full" ] && echo "$full" || echo "$f"
+            done || true
+      fi
+    done
+  } | sort -u
   true
 }
 digested() { # lines of a transcript already digested
@@ -109,8 +124,8 @@ for s in "${sources[@]}"; do
     continue
   fi
   while IFS=$'\t' read -r st f; do
-    case "$st" in A) new+=("$f");; M|R*) changed+=("$f");; esac
-  done < <(git -C "$bot" diff --name-status "$since" -- "$s")
+    case "$st" in A) new+=("$f");; M) changed+=("$f");; esac
+  done < <(git -C "$bot" diff --no-renames --name-status "$since" -- "$s")
   while IFS= read -r f; do new+=("$f"); done < <(git -C "$bot" ls-files -o --exclude-standard -- "$s")
 done
 

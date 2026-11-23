@@ -45,9 +45,10 @@ done
 case "$cli" in claude|agy) ;; *) echo "cli '$cli' is not claude or agy" >&2; exit 2;; esac
 
 if [ -n "$id" ]; then
+  id=TASK-${id#TASK-}
   task="$root/.bot/tasks/$id.md"
   [ -f "$task" ] || { echo "no $task" >&2; exit 2; }
-  field() { sed -n -E "s/^$1:[[:space:]]*//p" "$task" | head -1; }
+  field() { awk '/^---$/{n++; if(n==2) exit; next} n==1' "$task" | sed -n -E "s/^$1:[[:space:]]*//p" | head -1; }
   state="$(field state)$(field estado)"
 fi
 
@@ -168,7 +169,9 @@ if [ "$cli" = agy ]; then
   # their .git), an ephemeral tmpfs for agy's state (only builtin, installation_id and settings.json
   # bound read-only, and bin writable, where agy rewrites its agentapi script on each command —
   # no past summaries, no host WAL sidecar corruption) and
-  # $base/tmp as /tmp; of ~/Code, only those and the skill's folder; secret folders hidden;
+  # $base/tmp as /tmp; of ~/Code (when present), only those, the skill's folder, and the real
+  # directory of GEMINI.md (read-only, so a symlinked global rule and its includes stay readable);
+  # secret folders hidden;
   # skills, plugins and mcp_config.json masked read-only empty so delegates carry no ambient
   # skills/MCPs; the session bus only through a proxy that lets through the keyring, where agy
   # keeps its login; XDG_CACHE_HOME under /tmp, since ~/.cache is read-only there and nix writes
@@ -177,11 +180,17 @@ if [ "$cli" = agy ]; then
   for v in XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS; do [ -n "${!v:-}" ] || { echo "$v not set" >&2; exit 2; }; done
   mkdir "$base/tmp" "$base/empty"
   agy_state=~/.gemini/antigravity-cli
+  rules_file=$(readlink -f ~/.gemini/config/GEMINI.md 2>/dev/null || true)
+  rules_dir=""; [ -f "$rules_file" ] && rules_dir=$(dirname "$rules_file")
   xdg-dbus-proxy "$DBUS_SESSION_BUS_ADDRESS" "$base/bus" --filter --talk=org.freedesktop.secrets & proxy=$!
   trap 'kill $proxy 2>/dev/null' EXIT
   for _ in $(seq 50); do [ -S "$base/bus" ] && break; sleep 0.1; done
-  jail=(bwrap --ro-bind / / --dev /dev --proc /proc --bind "$base/tmp" /tmp
-    --tmpfs ~/Code --ro-bind "$bot" "$bot" --bind "$root" "$root"
+  jail=(bwrap --ro-bind / / --dev /dev --proc /proc --bind "$base/tmp" /tmp)
+  [ -d ~/Code ] && jail+=(--tmpfs ~/Code)
+  if [ -n "$rules_dir" ]; then
+    case "$rules_dir/" in "$root"/*) ;; *) jail+=(--ro-bind "$rules_dir" "$rules_dir");; esac
+  fi
+  jail+=(--ro-bind "$bot" "$bot" --bind "$root" "$root"
     --tmpfs "$agy_state"
     --tmpfs "$XDG_RUNTIME_DIR" --ro-bind "$base/bus" "$XDG_RUNTIME_DIR/bus"
     --setenv XDG_CACHE_HOME /tmp/cache)
@@ -205,11 +214,11 @@ if [ "$cli" = agy ]; then
   echo "the executor's /tmp: $base/tmp"
 fi
 touch "$base/start"
-before=$(stat -c %Y "$result" 2>/dev/null || echo none)
+before=$(stat -c '%Y %s' "$result" 2>/dev/null || echo none)
 start=$(date +%s) rc=0
 out="$base/delegate.json"
 (cd "$root" && timeout "${minutes}m" "${cmd[@]}" </dev/null >"$out" 2>"$log") || rc=$?
-after=$(stat -c %Y "$result" 2>/dev/null || echo none)
+after=$(stat -c '%Y %s' "$result" 2>/dev/null || echo none)
 
 echo "delegate: $cli $model${effort:+ ($effort)}${tier:+ [$tier]}, exit $rc, $(( $(date +%s) - start )) s"
 if [ "$cli" = claude ] && jq -e .modelUsage "$out" >/dev/null 2>&1; then

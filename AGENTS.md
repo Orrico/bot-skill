@@ -53,10 +53,11 @@ is in `measurements/README.md`.
 
 ## Pitfalls
 
-- **`delegate.sh` to `agy` needs `bwrap` and `xdg-dbus-proxy` in the PATH,**
-  and `"enableTerminalSandbox": false` in
-  `~/.gemini/antigravity-cli/settings.json`: agy's own sandbox does not start
-  on NixOS, and with it on every command fails at the handshake.
+- **`delegate.sh` to `agy` needs `bwrap` and `xdg-dbus-proxy` in the PATH.**
+  `delegate.sh` passes `--settings '{"agentMode":"","enableTerminalSandbox":false}'`
+  inline because agy's own sandbox does not start on NixOS (for interactive
+  `agy` sessions on NixOS, keep `"enableTerminalSandbox": false` in
+  `~/.gemini/antigravity-cli/settings.json` when using its sandbox).
 - **`.bot/` does not show in searches that honour git's ignore:** list it
   with `ls`; `boot.sh` prints facts about it alone.
 

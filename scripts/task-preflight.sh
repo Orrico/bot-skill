@@ -42,7 +42,7 @@ left=$( {
 if [ -n "$left" ]; then sed 's/^/  line /' <<<"$left"; else echo "  none"; fi
 
 echo "fields:"
-field() { sed -n -E "s/^$1:[[:space:]]*//p" "$task" | head -1; }
+field() { awk '/^---$/{n++; if(n==2) exit; next} n==1' "$task" | sed -n -E "s/^$1:[[:space:]]*//p" | head -1; }
 ex=$(field executor); ti=$(field tier); pl=$(field plan); cz=$(field critical_zone)
 bad_fields=0
 case "$ex" in dev|tester|dev+tester|writer) ;; *) echo "  invalid executor: '$ex' (expected dev, tester, dev+tester or writer)"; bad_fields=$((bad_fields + 1));; esac
@@ -60,6 +60,9 @@ done
 echo "refs:"
 checked=0 bad=0
 while IFS=: read -r path line; do
+  [[ $line =~ ^[0-9]+$ ]] || continue
+  [[ $path == *//* || $path =~ ^[0-9.]+$ ]] && continue
+  [[ $path == */* || $path == *.* ]] || continue
   checked=$((checked + 1))
   if [ ! -f "$path" ]; then
     echo "  absent  $path:$line"; bad=$((bad + 1))

@@ -163,12 +163,13 @@ When the result comes back:
    change (or failing under mutation, for `tester` alone), with real output.
    Without real output ("tested" alone), the delivery fails.
 4. Accept the review only if each acceptance criterion carries its command
-   and real output, and each mutation names the test that failed; for what
-   is missing, ask the reviewer again. What the executor reports does not
-   replace the review's output. A mutation that leaves every test green is a
-   gap: send the test back before the verdict. A condition that cannot be
-   broken by mutation — concurrency, a peer's timing, a path no test reaches
-   — the review says so, and you judge it from the code.
+   and real output, and each mutation names the test that failed (not
+   applicable to `executor: writer`); for what is missing, ask the reviewer
+   again. What the executor reports does not replace the review's output.
+   A mutation that leaves every test green is a gap: send the test back
+   before the verdict. A condition that cannot be broken by mutation —
+   concurrency, a peer's timing, a path no test reaches — the review says
+   so, and you judge it from the code.
    **Send back, not reject,** a gap inside the TASK's own scope — a test of
    a condition it adds, a file its objective needs, a criterion not met: the
    same executor gets the TASK again with the gap (escalation rules in
@@ -210,12 +211,13 @@ When a TASK is validated:
   you updated —, never `-A` nor `.`; a file changed outside the TASK stays
   out. A file of the TASK that already had uncommitted changes before the
   handover makes the commit the user's: say so and leave it. The message
-  follows Conventional Commits, in the project's language, without citing
-  `TASK-nnn` or `CAMPAIGN-nnn` and without AI trailers. A failing commit
-  hook is fixed inside the TASK's scope or told to the user; never
-  `--no-verify`. The hash goes in the TASK's row of the round. Push,
-  `amend`, `rebase` and `reset` stay on the user's express request, and so
-  does the commit of a direct fix.
+  follows Conventional Commits, in the language the project's rules
+  specify (or its commit history uses), without citing `TASK-nnn` or
+  `CAMPAIGN-nnn` and without AI trailers. A failing commit hook is fixed
+  inside the TASK's scope or told to the user; never `--no-verify`. The
+  hash goes in the TASK's row of the round. Push, `amend`, `rebase` and
+  `reset` stay on the user's express request, and so does the commit of a
+  direct fix.
 - Commit the step's files in `.bot/` (BASE §5).
 
 ## 8. Learning

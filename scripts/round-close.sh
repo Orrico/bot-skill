@@ -28,7 +28,7 @@ causes=$(sed -n -E 's/^\| `([a-z]+)` \|.*/\1/p' "$here/../roles/templates/ROUND.
 problems=0
 problem() { echo "problem: $*"; problems=$((problems + 1)); }
 note() { echo "note: $*"; }
-field() { sed -n -E "s/^($2):[[:space:]]*//p" "$1" | head -1; }
+field() { awk '/^---$/{n++; if(n==2) exit; next} n==1' "$1" | sed -n -E "s/^($2):[[:space:]]*//p" | head -1; }
 section() { awk -v h="### $1" '$0 == h {on = 1; next} /^##/ {on = 0} on' "$round"; }
 sendbacks() { grep -oE '^## Send-back [0-9]+' "$1" 2>/dev/null | grep -oE '[0-9]+$' | sort -n | tail -1; }
 
@@ -36,11 +36,17 @@ sendbacks() { grep -oE '^## Send-back [0-9]+' "$1" 2>/dev/null | grep -oE '[0-9]
 rows=$(awk -F'|' '
   /^\| *# *\|/ { for (i = 2; i < NF; i++) { c = $i; gsub(/^ +| +$/, "", c); col[c] = i }; on = 1; next }
   on && /^\| *[0-9]+ *\|/ {
+    if (!("TASK" in col) || !("State" in col)) { print "MISSING_COLS"; exit }
     t = $col["TASK"]; s = $col["State"]; k = $2
     gsub(/^ +| +$/, "", t); gsub(/^ +| +$/, "", s); gsub(/ /, "", k)
     print k "\t" t "\t" s; next }
   on && !/^\|/ { on = 0 }' "$round")
-[ -n "$rows" ] || problem "no row in the plan"
+if [ "$rows" = MISSING_COLS ]; then
+  problem "plan table header must have 'TASK' and 'State' columns"
+  rows=""
+elif [ -z "$rows" ]; then
+  problem "no row in the plan"
+fi
 
 closed=0
 while IFS=$'\t' read -r item cell state; do

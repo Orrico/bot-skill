@@ -48,8 +48,8 @@ them at the project's root when they are not already in your instructions.
   one suffices; a comment in a body states only a non-obvious constraint.
   Neither repeats what the code says, nor tells a design reason, a debate
   or a history — that goes in the result.
-- Write code, comments and text in the language the file and the project
-  already use; never translate on your own.
+- Write code, comments and text in the language the project's rules specify
+  (or that the file already uses); never translate on your own.
 - Never weaken, skip, delete or narrow a test or assertion to make it pass;
   if it cannot hold as stated, stop and record it.
 - Undo your own edits by editing or by copy, never with `git checkout`,
@@ -82,7 +82,8 @@ them at the project's root when they are not already in your instructions.
 - Keep the result concise: do not echo the TASK's text, role rules or full
   files into it. If something did not work or was left out, say so
   explicitly.
-- Write the result in the project's language.
+- Write the result in English, keeping its headings (`## Send-back N`,
+  etc.) exact.
 
 ## 3. Format of `TASK-nnn-result.md`
 

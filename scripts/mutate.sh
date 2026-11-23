@@ -49,7 +49,7 @@ out="$tmp/restored-2.log"; run "$@"; second=$?
 
 compile_err=0
 if [ "$mutated" -ne 0 ] && [ "$mutated" -ne 124 ] \
-  && grep -qE '^error: could not compile |^error\[E[0-9]+\]:|error TS[0-9]+:' "$tmp/mutated.log"; then
+  && grep -qE '^error: could not compile |^error\[E[0-9]+\]:|error TS[0-9]+:|SyntaxError:|IndentationError:|ParseError|\[build failed\]|syntax error near unexpected token' "$tmp/mutated.log"; then
   compile_err=1
 fi
 echo "mutation: $file: $(printf '%s' "$old" | head -1) -> $(printf '%s' "$new" | head -1)"
@@ -67,7 +67,7 @@ else
   grep -m 5 -iE 'fail|panicked|error|assert' "$tmp/mutated.log" | cut -c1-200 | sed 's/^/  /'
 fi
 echo "restored: identical to the original; runs after it: $(word "$first"), $(word "$second")"
-if [ "$second" -ne 0 ]; then
+if [ "$first" -ne 0 ] || [ "$second" -ne 0 ]; then
   echo "INVALID: the tests fail on the restored file; the verdict above proves nothing"
   echo "output: $tmp"
   exit 3

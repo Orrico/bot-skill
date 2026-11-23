@@ -90,9 +90,12 @@ Roles add up in one session; AUTO is a layer over the others.
   `open` → `delivered` → `validated` | `rejected`; CAMPAIGN `draft` →
   `confirmed` → `done` | `stopped`; Round `draft` → `confirmed` → `closed`.
   Older TASKs may use `-resultado.md` / `-revisao.md`; read them the same.
-- **Language & paths:** write `.bot/` files in the project's language
-  (keeping frontmatter keys and state values as in templates). Paths are
-  relative to the project's root, or absolute outside it.
+- **Language & paths:** write `.bot/` files in English, keeping frontmatter
+  keys, state values, table columns (`State`), headings (`### Checks`,
+  `### Not done`, `### Send-backs and re-issues`, `## Send-back N`,
+  `### Blocks`) and `Answer:` exact so scripts parse them. Project files
+  follow the project's or user's language rules. Paths are relative to the
+  project's root, or absolute outside it.
 
 ## 4. The project's memory and standard files
 Project memory lives in the five root standard files plus `.bot/knowledge/`
