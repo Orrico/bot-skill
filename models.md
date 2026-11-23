@@ -61,6 +61,14 @@ delegations (BASE §5).
 - **Quota in `agy`:** Neon, Hydrogen and 3.8 Flash share one bucket; Argon has
   its own small bucket. Keep Argon for `review-deep` (falling back to
   `gemini-4-neon-high` when tight or exhausted) and for being stuck.
+  Measured on the shared bucket's five hours' window (2026-11-23): Neon
+  Medium about 11.6 points per million tokens not cached (new input and
+  output alike) and 0.86 per million cached; Hydrogen about half of
+  Neon's for the same tokens. What costs is new context and output, not
+  the cache. Both windows, the week's and the five hours', roll.
+  So a `standard` TASK outside a critical zone, closed and simple, may
+  take `gemini-4-hydrogen-medium` by its literal ID; the table's Hydrogen
+  High, which `auto` resolves, stays for the rest.
 - **Opus `max` and Neon `xhigh`:** reserve `deep` for genuinely high-risk work
   or escalation after failure, not routine multi-file TASKs with exact steps.
 - **Which mechanism:** within one CLI, its own subagent tool when its model

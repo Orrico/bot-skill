@@ -115,6 +115,10 @@ Tests, each in "Tests" by file and name
     dictates: a guard another rule covers, a bound whose two sides give the
     same value, a fallback that reproduces the fixture's value turns no
     test red.
+    A TASK written with no prototype, its mutations not run before the
+    handover, carries instead a table in "Tests" from each condition of
+    its rule — every `if`, `else`, match arm, `and` and "only" — to the
+    test that fails without it.
 
 Criteria
 16. Each criterion → its command exactly as it runs from the project's root.
