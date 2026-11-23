@@ -66,9 +66,9 @@ What each file holds, and how the work flows between the roles, is in
 |---|---|---|
 | `boot.sh`, `status.sh` | `.bot/`, git | the open campaigns and TASKs, the next free numbers |
 | `new.sh` | a form of `roles/templates/` | a campaign, round, TASK or review at the next number, with what is known filled |
-| `task-preflight.sh` | a TASK, the tree | what is left unfilled; each path, `file:line` and criterion checked; each name the TASK changes, found |
+| `task-preflight.sh` | a TASK, the tree | unfilled placeholders, frontmatter fields, each path, `file:line` and criterion checked; each name the TASK changes, found |
 | `co-edit.sh` | git history | the files that usually change with the given ones |
-| `delegate.sh` | a TASK | the executor or the reviewer run in `claude` or `agy`; its status, tokens and cost |
+| `delegate.sh` | a TASK | the executor or the reviewer run in `claude` or `agy`; its status, tokens, turns and cost |
 | `mutate.sh` | a file, a test command | whether the tests see one condition broken; the file restored |
 | `round-close.sh` | a round, its TASKs, git | each row not closed, TASK not validated, commit missing or cause outside the set |
 | `learn-sources.sh` | `.bot/`, the CHANGELOG, transcripts | what the next harvest reads, new or changed since the last |
@@ -89,7 +89,9 @@ What each file holds, and how the work flows between the roles, is in
 | [`measurements/`](measurements/) | what was measured about the skill, and the tools to measure it again |
 
 The roles name this folder `<bot>`; the scripts find it from where they lie,
-so the skill works from wherever it is cloned.
+so the skill works from wherever it is cloned. Bare project names like
+`myapp` resolve under `~/Code/<name>`; projects elsewhere take `.` or a path
+(with `/` or `~`).
 
 ## Install
 
