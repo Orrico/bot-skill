@@ -80,6 +80,10 @@ Rules for both; rules 1 and 2 apply where the target is a repository, rule
    undeclared change is a finding. So is, where the TASK has a "Data"
    section, a datum the diff reads or writes that the section lacks, or one
    whose shape, writer or range in the diff is not the one it gives.
+   A delivery sent back has a `## Send-back N` section in the result for
+   each send-back, beginning with `Gap: <the gap received>`: a departure
+   from the TASK is accepted only where a `Gap:` line asks for it, and a
+   section without that line is a finding.
 3. Run each acceptance criterion yourself and record the real output. Point
    out where it differs from the one reported.
 4. Check each item of "Constraints" and the rules of the executor's role

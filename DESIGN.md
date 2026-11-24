@@ -119,11 +119,10 @@ asking, inside a window of authorization, and logs each decision.
    `blocked` (or mark not run) after two failed attempts without new
    progress.
 10. **Models by tier in `models.md` alone:** three execution tiers
-    (`standard` on Sonnet Medium / Hydrogen Medium, `complex` on Sonnet High
-    / Hydrogen High, `deep` on Opus High / Neon High) and three review tiers
+    (`standard`, `complex`, `deep`) and three review tiers
     (`review-check`, `review-validate`, `review-deep`), paired across CLIs
-    with effort levels, plus `READER` on `haiku` (`high`) /
-    `gemini-3.8-flash-high`. Review tier and `plan:` derive by default from
+    with effort levels, plus `READER`; no other file names their models.
+    Review tier and `plan:` derive by default from
     the TASK's `tier` and `critical_zone`, overridden only when needed; the
     round's `Model` column names `<exec> / <review>`. Escalation up one tier
     occurs only on a second `executor`-caused send-back, an anti-loop stop,

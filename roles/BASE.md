@@ -139,8 +139,9 @@ owner and others link rather than repeat it:
   push).
 - **`.bot/` commits** belong to MANAGER and REVIEWER: one per step (TASK
   written/validated, round confirmed/closed, review/report saved, harvest) via
-  `git -C .bot add <paths>` with a one-line message; corrections join the
-  step's commit. Executors never commit. `.bot/` has no remote.
+  `git -C .bot add <paths>` with a one-line message; corrections and the
+  rows `delegations.jsonl` gained join the step's commit. Executors never
+  commit. `.bot/` has no remote.
 - **No secrets** in `.bot/`.
 - **Save context:** work by diff, `grep` and excerpts, pointing at bare paths
   (never `@file`). Trim command output to 20–30 relevant lines (full output

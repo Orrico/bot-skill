@@ -12,7 +12,7 @@ zone raises `review-check` to `review-validate`).
 
 | Tier | `claude` (`--model`, `--effort`) | `agy` (`--model`) | Plan | Review | Use |
 |---|---|---|---|---|---|
-| `standard` | `sonnet`, `medium` | `gemini-4-hydrogen-medium` | `no` | `review-check` | A closed TASK (one crate, one code path), or a critical zone with exact steps: decisions already made, criteria verifiable by command |
+| `standard` | `sonnet`, `medium` | `gemini-4-hydrogen-medium` | `no` | `review-check` | A closed TASK (one code path, in one file or several), or a critical zone with exact steps: decisions already made, criteria verifiable by command |
 | `complex` | `sonnet`, `high` | `gemini-4-hydrogen-high` | `yes` | `review-validate` | Several parts or reasoning over existing code; concurrent logic; a decision inside a scope already given |
 | `deep` | `opus`, `high` | `gemini-4-neon-high` | `yes` | `review-deep` | High-risk refactor, open critical zone, or escalation when stuck |
 

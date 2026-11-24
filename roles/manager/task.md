@@ -72,7 +72,7 @@ Files
    each listed file in "Files" or "Do not touch" (candidates to inspect,
    not to edit: an unnamed file stops the executor). When a TASK creates
    two or more integration test files sharing fixtures, list their shared
-   helper module (e.g. `tests/common/mod.rs`) in "Files".
+   helper module (e.g. Rust's `tests/common/mod.rs`) in "Files".
 2. The TASK removes or changes a text (message, error code, type, field) →
    `git grep -n` it; add every writer and pinning test to "Files" with its
    change. History misses these, and a pinning test stops the executor.
@@ -103,7 +103,7 @@ Tests, each in "Tests" by file and name
 13. A test fake → honours every argument it receives; the TASK states what
     it checks.
 14. A test or mutation asserts a text, refusal code or query/stream result
-    → read the producer in `src/` and copy the literal, error code or
+    → read the code that produces it and copy the literal, error code or
     filter rule found with `git grep`; one inferred from a type's form or
     memory can never fail or blocks the executor.
 15. Each listed mutation → run against the TASK's cases before handover

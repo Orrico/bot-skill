@@ -5,7 +5,8 @@
 # executes the TASK (-g sends it back with that gap, refused once its result holds `## Send-back 5`).
 # With `review`: reviews the delivery of a TASK in state delivered, or reviews by a kind of
 # roles/reviews/ on a subject. With `reader`: extracts conversation lessons from <folder> into
-# <folder>/candidates.json. <model|tier|auto> accepts a literal model ID, a tier name of models.md
+# <folder>/candidates.json (-g redoes it with lessons.jq's errors). <model|tier|auto> accepts a
+# literal model ID, a tier name of models.md
 # (or READER), or `auto` (reads `tier:` / `critical_zone:` from the TASK, derives from --<kind>, or
 # resolves READER). -e sets or overrides reasoning effort (low|medium|high|xhigh|max). -n resolves
 # and validates without running. Prints the delegate's status line, what it wrote, the log paths,
@@ -51,7 +52,7 @@ while [ $# -gt 0 ]; do
     *) echo "$usage" >&2; exit 2;;
   esac
 done
-[ -z "$gap" ] || [ $mode = execute ] || { echo "-g is for an execution, not a $mode" >&2; exit 2; }
+[ -z "$gap" ] || [ $mode != review ] || { echo "-g is for an execution or a reader, not a review" >&2; exit 2; }
 case "$cli" in claude|agy) ;; *) echo "cli '$cli' is not claude or agy" >&2; exit 2;; esac
 
 if [ -n "$id" ]; then
@@ -167,7 +168,8 @@ case "$mode" in
   reader)
     target="$folder"
     result="$folder/candidates.json"
-    prompt="Read $roles/READER.md, $root/.bot/knowledge/INDEX.md and all .txt extracts in $folder, and write the answer to $folder/candidates.json. Follow READER.md strictly and answer with one status line.";;
+    prompt="Read $roles/READER.md, $root/.bot/knowledge/INDEX.md and all .txt extracts in $folder, and write the answer to $folder/candidates.json. Follow READER.md strictly and answer with one status line."
+    [ -z "$gap" ] || prompt="$prompt Your previous candidates.json failed lessons.jq with these errors; rewrite it to fix them: $gap";;
 esac
 
 case "$cli" in

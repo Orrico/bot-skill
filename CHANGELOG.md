@@ -34,6 +34,17 @@ What changed in the skill, by date, and why. The commits hold the diffs.
   codes and query/stream filters in `src/` to Check 14.
   `roles/manager/learn.md` uses `delegate.sh reader` and forbids recording
   unmeasured inferences or undecided choices as guidance in `.bot/knowledge/`.
+- **Gaps of the same day's changes closed.** `delegate.sh reader` takes
+  `-g` with `lessons.jq`'s errors, since `learn.md` sends a failed
+  `candidates.json` back to the reader with them and the fixed prompt
+  could not carry them. `REVIEWER.md` checks each `## Send-back N` against
+  its `Gap:` line, which the executors wrote and no reviewer read. The
+  wording tied to one language goes: `standard` is one code path in one
+  file or several (not "one crate"), Check 14 reads the code that produces
+  the text (not `src/`), and Check 1's helper module is Rust's example.
+  The models leave DESIGN.md and `learn.md`, which repeated `models.md`.
+  `BASE.md` commits the rows `delegations.jsonl` gains with each `.bot/`
+  step, which no step committed.
 
 ## 2026-11-23
 
