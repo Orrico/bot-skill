@@ -110,5 +110,7 @@ With `TESTER.md`, add its section to this format.
 
 **A TASK sent back** comes to you again with one gap: fix only that gap,
 under the same rules, and add to the end of the result a section
-`## Send-back N`, with the parts of this format that changed. Set `status`
-to the one after the send-back; do not rewrite the sections before it.
+`## Send-back N`, beginning with `Gap: <verbatim gap received>` (so the
+reviewer sees what the send-back authorized) followed by the parts of this
+format that changed. Set `status` to the one after the send-back; do not
+rewrite the sections before it.

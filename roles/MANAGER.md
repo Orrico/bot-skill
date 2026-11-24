@@ -127,9 +127,11 @@ which files of the TASK already held changes.
     [-e <effort>] [-g <gap>] [-w <dir>]…` runs from the project's root (`auto`
     resolves model and effort from `<bot>/models.md`, `-e` overrides effort,
     `-g` sends back, `-w` adds a directory outside the project); run it in the
-    background, since it ends when the executor does. It exits 1 when no
-    result was written. For `agy`, it prints the folder that is the executor's
-    `/tmp`: a path under `/tmp` cited in the result is under that folder.
+    background, since it ends when the executor does. It appends one telemetry
+    row to `.bot/delegations.jsonl` and exits 1 when no result was written.
+    For `agy`, it prints the folder that is the executor's `/tmp`: a path
+    under `/tmp` cited in the result is under that folder. Use `delegate.sh
+    <root> reader <folder> <claude|agy> auto` for the `/bot learn` reader.
 - **A review by delegation** uses the review tier of `<bot>/models.md`
   (derived from the TASK's `tier` and `critical_zone` unless overridden),
   with the same approval and mechanism; with `delegate.sh`: `delegate.sh

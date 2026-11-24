@@ -83,6 +83,7 @@ Roles add up in one session; AUTO is a layer over the others.
   | `tasks/TASK-nnn-review.md` | REVIEWER, optional |
   | `reports/YYYY-MM-DD-<kind>-<subject>[-round-N].md` | REVIEWER (`/bot review`) |
   | `knowledge/` | `/bot learn` only |
+  | `delegations.jsonl` | `delegate.sh` (append-only telemetry) |
   | `drafts/<name>.sh.draft` | `/bot learn`; non-executable, user installs |
   | `archive/` | read-only legacy records |
 

@@ -2,6 +2,39 @@
 
 What changed in the skill, by date, and why. The commits hold the diffs.
 
+## 2026-11-24
+
+- **Claude `standard` and `review-check` moved to Sonnet Medium; all
+  delegations standardized on `delegate.sh`.** Across calibration rounds,
+  Sonnet Medium ran `standard` TASKs 5–10× faster and 2.5–4.7× cheaper than
+  Haiku High, caught specification contradictions cleanly, and reviewed in
+  under 90 s; `READER` stays on `haiku` (`high`) / `gemini-3.8-flash-high`.
+  Removed the `Native Gemini (Model)` column from `models.md` because
+  Gemini's `flash` subagent alias drifted to Hydrogen; all execution, review
+  and `READER` calls now run through `scripts/delegate.sh`.
+- **`delegate.sh`: `reader` mode and structured JSONL telemetry.** Added
+  `delegate.sh <root> reader <folder> <claude|agy> auto` (resolving `READER`
+  from `models.md`, mounting `<root>` read-only and `<folder>` writable
+  under `agy`'s `bwrap` jail, and checking `<folder>/candidates.json`). Every
+  non-dry-run call now appends a structured JSONL record (timestamp, mode,
+  target, send-back count, CLI, tier, model, effort, exit code, duration,
+  tokens, API cost, result status) to `<root>/.bot/delegations.jsonl`
+  (overridable via `BOT_TELEMETRY_LOG`).
+- **Send-back authorization visible to reviewers.** `roles/DEV.md`,
+  `roles/TESTER.md`, `roles/WRITER.md` and `delegate.sh -g` now require each
+  `## Send-back N` section to begin with `Gap: <verbatim gap received>` so a
+  reviewer evaluating a post-send-back delivery can verify authorized
+  departures from the frozen TASK.
+- **`mutate.sh` fast-fail on unsplit commands.** Added a `command -v "$1"`
+  pre-check before mutating the target file, exiting 2 with a hint when the
+  test command is passed as one quoted string or an unsplit zsh `$VAR`.
+- **Pre-handover and harvest checks tightened.** `roles/manager/task.md`
+  adds shared test helper modules (`tests/common/mod.rs`) to Check 1, exact
+  proving calls for hidden fields to Check 5, and producer checks for refusal
+  codes and query/stream filters in `src/` to Check 14.
+  `roles/manager/learn.md` uses `delegate.sh reader` and forbids recording
+  unmeasured inferences or undecided choices as guidance in `.bot/knowledge/`.
+
 ## 2026-11-23
 
 - **The tiers chosen by the user, and `trivial` gone.** Three execution

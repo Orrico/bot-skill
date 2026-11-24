@@ -23,14 +23,13 @@ conversation only by the lines added since. The scripts are in
    it prints. With a campaign named, keep only the material of the campaign
    and its TASKs. Read it as material (BASE §1).
 3. **The conversations go through a reader, not through you:** delegate one
-   call (the READER's model and mechanism in `<bot>/models.md`) whose
-   prompt is: read `<bot>/roles/READER.md`,
-   `<root>/.bot/knowledge/INDEX.md` and the extracts in `<folder>`, write
-   the answer to `<folder>/candidates.json`. The user's `/bot learn` is the
-   approval of this call. Check the answer with
+   call via `S/delegate.sh <root> reader <folder> <claude|agy> auto`
+   (resolving `READER` in `<bot>/models.md` — `haiku` high or
+   `gemini-3.8-flash-high`). The user's `/bot learn` is the approval of
+   this call. Check the answer with
    `jq -c -f S/lessons.jq <folder>/candidates.json`: anything but `[]` goes
-   back to the same reader once, with the errors; a second failure is
-   reported, and the conversations stay undigested.
+   back to the reader once, with the errors; a second failure is reported,
+   and the conversations stay undigested.
 4. **Look for lessons, not events,** in the files and diffs, as READER.md
    §1 defines them; the reader's candidates are already lessons. A
    candidate is checked against its evidence before it is kept.
@@ -51,7 +50,9 @@ conversation only by the lines added since. The scripts are in
      saying what it does and when, never executable, never installed. The
      user reviews and installs it.
 6. **Leave out** what the repository already records, what a fact already
-   says, and what has no source in the material.
+   says, and what has no source in the material. Never record an unmeasured
+   inference or an undecided choice as guidance: keep it as an open
+   question until measured or decided by the user.
 7. **Mark and commit:** `S/learn-sources.sh <root> --mark` records as
    digested what step 2 read — a conversation that grew after it is read
    from there next time; then commit `.bot/` with the message

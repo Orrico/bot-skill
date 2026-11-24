@@ -21,6 +21,7 @@ by the role files.
 | review | the real diff against the TASK, each criterion run, each condition mutated, findings | a suggested verdict | 0–65 (mandatory since 2026-11-09) | REVIEWER | MANAGER |
 | report | a review by kind (`--code`, `--design`, …) | rounds of the same subject | 1–28 | REVIEWER | MANAGER, `/bot learn` |
 | knowledge | one lesson per file, an index line each | — | 0–17 | `/bot learn` only | every boot reads `INDEX.md` alone |
+| delegations | append-only JSONL telemetry (`delegations.jsonl`) | — | one row per `delegate.sh` call | `delegate.sh` | calibration, `/bot learn` |
 | standard files | the project's `README`, `AGENTS`, `DESIGN`, `BACKLOG`, `CHANGELOG` | — | 5 | MANAGER (what a TASK made true), ARCHITECT (decisions) | everyone |
 | the code | the project's tree, and one local commit per validated TASK | — | — | the executor; the MANAGER commits | REVIEWER, read only |
 
@@ -97,28 +98,36 @@ asking, inside a window of authorization, and logs each decision.
 7. **The MANAGER's checks before a TASK goes out are a numbered list,** one
    check per line: 37 of 41 classified send-backs were gaps of the TASK,
    most under the two densest paragraphs the list replaced.
-8. **Lean delegates with usage telemetry:** `claude` runs with its role's
-   tools alone — no MCP, no skills — cutting fixed context from 27.7k to
-   15.9k tokens (`--bare` reads only an API key, never the subscription's
-   login). `agy` runs with `--disable-slash-commands`, `--output-format
-   json`, and `bwrap` masks over skills, plugins and `mcp_config.json`
-   (cutting 787 tokens/request with 0 MCPs and isolating delegates from
-   ambient plugins/MCPs). `delegate.sh` resolves tiers and `auto` directly
-   from `models.md`, supports `-e <effort>` (`--effort`), and prints token
-   and turn usage for both CLIs.
+8. **Lean delegates with structured telemetry (`delegate.sh` alone):** all
+   delegations (TASK execution, TASK review, review by kind, and `READER`)
+   run through `delegate.sh` rather than native subagent tools, avoiding
+   silent alias drift and capturing uniform metrics. `claude` runs with its
+   role's tools alone — no MCP, no skills — cutting fixed context from
+   27.7k to 15.9k tokens (`--bare` reads only an API key, never the
+   subscription's login). `agy` runs with `--disable-slash-commands`,
+   `--output-format json`, and `bwrap` masks over skills, plugins and
+   `mcp_config.json` (cutting 787 tokens/request with 0 MCPs and isolating
+   delegates from ambient plugins/MCPs; `reader` mode mounts the project
+   read-only and the extracts folder writable). `delegate.sh` resolves
+   tiers, `READER`, and `auto` directly from `models.md`, supports
+   `-e <effort>` (`--effort`), prints token and turn usage for both CLIs,
+   and appends one JSONL record to `<root>/.bot/delegations.jsonl`.
 9. **Send-backs and anti-loop:** 2 per TASK; 3 to 5 only on the user's word,
-   never under AUTO; `delegate.sh` refuses the 6th. Executors and reviewers
-   stop and report `blocked` (or mark not run) after two failed attempts
-   without new progress.
+   never under AUTO; `delegate.sh` refuses the 6th. Each `## Send-back N`
+   section begins with `Gap: <verbatim gap received>` so the reviewer sees
+   what the send-back authorized. Executors and reviewers stop and report
+   `blocked` (or mark not run) after two failed attempts without new
+   progress.
 10. **Models by tier in `models.md` alone:** three execution tiers
-    (`standard`, `complex`, `deep`) and three review tiers
+    (`standard` on Sonnet Medium / Hydrogen Medium, `complex` on Sonnet High
+    / Hydrogen High, `deep` on Opus High / Neon High) and three review tiers
     (`review-check`, `review-validate`, `review-deep`), paired across CLIs
-    with effort levels, plus `READER` on `gemini-3.8-flash-high` / `haiku`
-    (`high`). Review tier and `plan:` derive by default from the TASK's
-    `tier` and `critical_zone`, overridden only when needed; the round's
-    `Model` column names `<exec> / <review>`. Escalation up one tier occurs
-    only on a second `executor`-caused send-back, an anti-loop stop, or an
-    `executor`-caused re-issue (capped at `complex` under AUTO); TASK-caused
-    and first `executor` send-backs stay on the same tier.
+    with effort levels, plus `READER` on `haiku` (`high`) /
+    `gemini-3.8-flash-high`. Review tier and `plan:` derive by default from
+    the TASK's `tier` and `critical_zone`, overridden only when needed; the
+    round's `Model` column names `<exec> / <review>`. Escalation up one tier
+    occurs only on a second `executor`-caused send-back, an anti-loop stop,
+    or an `executor`-caused re-issue (capped at `complex` under AUTO);
+    TASK-caused and first `executor` send-backs stay on the same tier.
 11. **A change meant to make the skill cheaper or more reliable** starts
     from the last record of `measurements/` and ends with a new one.

@@ -83,8 +83,9 @@ Skip this section when `DEV.md` is loaded.
   temporary folder cited by path, decision line and counts. Keep the result
   concise (no echoing the TASK or role rules), in English, keeping its
   headings (`## Send-back N`, etc.) exact.
-- On a send-back, fix only the gap and append `## Send-back N` with what
-  changed; update `status` and do not rewrite earlier sections.
+- On a send-back, fix only the gap and append `## Send-back N`, beginning
+  with `Gap: <verbatim gap received>` followed by what changed; update
+  `status` and do not rewrite earlier sections.
 
 ## 4. The result
 Save `.bot/tasks/TASK-nnn-result.md`. With `DEV.md`, add the sections below

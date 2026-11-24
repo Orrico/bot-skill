@@ -70,7 +70,9 @@ proposes a new one.
 Files
 1. Each file of "Files" → `<bot>/scripts/co-edit.sh <root> <file>…`; place
    each listed file in "Files" or "Do not touch" (candidates to inspect,
-   not to edit: an unnamed file stops the executor).
+   not to edit: an unnamed file stops the executor). When a TASK creates
+   two or more integration test files sharing fixtures, list their shared
+   helper module (e.g. `tests/common/mod.rs`) in "Files".
 2. The TASK removes or changes a text (message, error code, type, field) →
    `git grep -n` it; add every writer and pinning test to "Files" with its
    change. History misses these, and a pinning test stops the executor.
@@ -85,7 +87,8 @@ Files
 Tests, each in "Tests" by file and name
 5. Each `if`, branch, fallback, filter, serialization attribute or field
    added → the test that fails without it, or an explicit note that it is
-   judged from the code and why no test reaches it.
+   judged from the code and why no test reaches it. When a test must prove
+   a field hidden by the public API, name the exact call that observes it.
 6. A derived list → tested with two parents; one parent hides its filter.
 7. Each bound → tested at its value and one past, including after any
    conversion that can grow the input.
@@ -99,9 +102,10 @@ Tests, each in "Tests" by file and name
 12. A passed-through value → a test with a value other than the common one.
 13. A test fake → honours every argument it receives; the TASK states what
     it checks.
-14. A test or mutation asserts a text (output line, message, pattern) →
-    copy the literal found with `git grep` in code and test helpers; one
-    inferred from a type's form can never fail.
+14. A test or mutation asserts a text, refusal code or query/stream result
+    → read the producer in `src/` and copy the literal, error code or
+    filter rule found with `git grep`; one inferred from a type's form or
+    memory can never fail or blocks the executor.
 15. Each listed mutation → run against the TASK's cases before handover
     (never reasoned), verified to fail in a test (not the build), valid
     under the TASK's signatures, and non-equivalent (no redundant guard,

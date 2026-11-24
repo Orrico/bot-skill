@@ -16,6 +16,10 @@ limit=${MUTATE_TIMEOUT:-600}
 cd "$root" || exit 2
 [ -f "$file" ] || { echo "not run: no file $file under $root" >&2; exit 2; }
 [ -n "$old" ] || { echo "not run: <old> is empty" >&2; exit 2; }
+command -v "$1" >/dev/null 2>&1 || {
+  echo "not run: command '$1' not found (pass each word separately after --, not as one quoted string or unsplit zsh \$VAR)" >&2
+  exit 2
+}
 
 content=$(cat "$file"; printf x); content=${content%x}
 without=${content//"$old"/}
