@@ -61,8 +61,9 @@ delegations (BASE §5).
   take `deep` and `review-deep`; Sonnet High and Hydrogen High take `complex`
   and `review-validate`; Sonnet Medium and Hydrogen Medium take `standard` and
   `review-check`; Haiku High and 3.8 Flash High take `simple` and `READER`.
-  3.8 Flash is weaker than Haiku, so `simple` goes to `claude` and `READER` to
-  `agy` unless the user or the quota asks otherwise. No effort
+  Both go to `claude` unless the user or the quota asks otherwise: 3.8 Flash
+  is weaker than Haiku, and as `READER` it read 5–14× Haiku's input for the
+  same lessons or fewer (`measurements/2026-11-24-reader-cli.md`). No effort
   past `high` (`max` and `xhigh` spend Claude quota fast), and Argon is not
   used. In `agy`, Neon, Hydrogen, 3.8 Flash and Argon share one rolling
   five-hour and one rolling weekly quota; new context and output dominate cost,

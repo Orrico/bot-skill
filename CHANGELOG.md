@@ -4,6 +4,12 @@ What changed in the skill, by date, and why. The commits hold the diffs.
 
 ## 2026-11-24
 
+- **`READER` runs on `claude` by default, chosen by the user.** Over the
+  same extracts, 3.8 Flash High read 5–14× Haiku High's input and took
+  3–20× its time, and on the larger real harvest found one lesson against
+  Haiku's five; a Haiku harvest spends about 0.1 % of Claude's five-hour
+  window. The record is `measurements/2026-11-24-reader-cli.md`; both
+  models stay in `models.md`'s `READER` row.
 - **Telemetry rows that hold what the CLI reported.** First real runs of
   `delegate.sh` showed four losses in `delegations.jsonl`: Claude's
   thinking tokens were never read (`null` beside 1,425 in the JSON), the

@@ -11,6 +11,7 @@ numbers and can run the same method again. Nothing here is read by `/bot`.
 | [`2026-11-22-models-and-prose.md`](2026-11-22-models-and-prose.md) | calibrated execution/review tiers, `claude --effort` and `agy` JSON probes, `roles/manager/task.md` on demand and instruction deduplication: prose before and after |
 | [`2026-11-22-agy-lean.md`](2026-11-22-agy-lean.md) | fixed context of an `agy` delegate: plain vs `--disable-slash-commands` vs `bwrap` masking skills, plugins and `mcp_config.json` |
 | [`2026-11-22-base-and-writer.md`](2026-11-22-base-and-writer.md) | `BASE.md` concision pass (−33.6%) and `WRITER.md` generalization (−19.6%, zero 80-col violations across `roles/`): prose before and after |
+| [`2026-11-24-reader-cli.md`](2026-11-24-reader-cli.md) | `READER` on Haiku High vs 3.8 Flash High over the same extracts: time, tokens, cost and candidates |
 
 ## Tools
 
