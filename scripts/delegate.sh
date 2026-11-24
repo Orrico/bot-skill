@@ -166,10 +166,10 @@ case "$mode" in
       prompt="Read $reviewer and $roles/reviews/$kind.md, then, as a delegate, review by that kind in the project $root: $subject. Answer with one status line."
     fi;;
   reader)
-    target="$folder"
+    target="$folder" send_back=0
     result="$folder/candidates.json"
     prompt="Read $roles/READER.md, $root/.bot/knowledge/INDEX.md and all .txt extracts in $folder, and write the answer to $folder/candidates.json. Follow READER.md strictly and answer with one status line."
-    [ -z "$gap" ] || prompt="$prompt Your previous candidates.json failed lessons.jq with these errors; rewrite it to fix them: $gap";;
+    [ -z "$gap" ] || send_back=1 prompt="$prompt Your previous candidates.json failed lessons.jq with these errors; rewrite it to fix them: $gap";;
 esac
 
 case "$cli" in
@@ -258,17 +258,17 @@ after=$(stat -c '%Y %s' "$result" 2>/dev/null || echo none)
 duration=$(( $(date +%s) - start ))
 ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-in_new=null in_cached=null out_tok=null think_tok=null turns=null cost_usd=null
+in_new=null in_cached=null out_tok=null think_tok=null turns=null cost_usd=null model_used=""
 echo "delegate: $cli $model${effort:+ ($effort)}${tier:+ [$tier]}, exit $rc, $duration s"
 if [ "$cli" = claude ] && jq -e .modelUsage "$out" >/dev/null 2>&1; then
   echo "status line: $(jq -r '.result // ""' "$out" | grep -v '^[[:space:]]*$' | tail -1)"
-  IFS=' ' read -r in_new in_cached out_tok turns cost_usd <<<"$(jq -r '[.modelUsage[]] as $m
+  IFS=' ' read -r in_new in_cached out_tok think_tok turns cost_usd cost_shown model_used <<<"$(jq -r '[.modelUsage[]] as $m
     | ($m | map((.inputTokens // 0) + (.cacheCreationInputTokens // 0)) | add // 0) as $new
     | ($m | map(.cacheReadInputTokens // 0) | add // 0) as $cached
     | ($m | map(.outputTokens // 0) | add // 0) as $o
-    | ((.total_cost_usd // 0) * 1000 | round / 1000) as $usd
-    | "\($new) \($cached) \($o) \(.num_turns // "null") \($usd)"' "$out")"
-  echo "usage: $((in_new + in_cached)) tokens in ($in_new new, $in_cached from cache); $out_tok out; $turns turns; ~\$$cost_usd at API prices"
+    | ($m | map(.thinkingTokens // 0) | add // 0) as $th
+    | "\($new) \($cached) \($o) \($th) \(.num_turns // "null") \(.total_cost_usd // 0) \((.total_cost_usd // 0) * 1000 | round / 1000) \(.modelUsage | keys | join(","))"' "$out")"
+  echo "usage: $((in_new + in_cached)) tokens in ($in_new new, $in_cached from cache); $out_tok out ($think_tok thinking); $turns turns; ~\$$cost_shown at API prices; $model_used"
   echo "log: $log, $out"
 elif [ "$cli" = agy ] && jq -e .usage "$out" >/dev/null 2>&1; then
   echo "status line: $(jq -r '.response // ""' "$out" | grep -v '^[[:space:]]*$' | tail -1)"
@@ -323,6 +323,7 @@ if [ -n "${BOT_TELEMETRY_LOG:-}" ] || [ -d "$root/.bot" ]; then
     --arg cli "$cli" \
     --arg tier "$tier" \
     --arg model "$model" \
+    --arg model_used "$model_used" \
     --arg effort "$effort" \
     --argjson exit "$rc" \
     --argjson duration_s "$duration" \
@@ -335,6 +336,7 @@ if [ -n "${BOT_TELEMETRY_LOG:-}" ] || [ -d "$root/.bot" ]; then
     --arg result "$res_state" \
     '{ts:$ts, project:$project, mode:$mode, target:$target, send_back:$send_back, cli:$cli,
       tier:(if $tier == "" then null else $tier end), model:$model,
+      model_used:(if $model_used == "" then null else $model_used end),
       effort:(if $effort == "" then null else $effort end), exit:$exit, duration_s:$duration_s,
       turns:$turns, input_new:$input_new, input_cached:$input_cached, output:$output,
       thinking:$thinking, cost_usd:$cost_usd, result:$result}' >>"$telemetry"

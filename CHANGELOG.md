@@ -4,6 +4,17 @@ What changed in the skill, by date, and why. The commits hold the diffs.
 
 ## 2026-11-24
 
+- **Telemetry rows that hold what the CLI reported.** First real runs of
+  `delegate.sh` showed four losses in `delegations.jsonl`: Claude's
+  thinking tokens were never read (`null` beside 1,425 in the JSON), the
+  cost was rounded to three decimals before it was stored (0.0057 kept as
+  0.006, a call under 0.0005 as 0), the model was the alias asked for
+  (`haiku`), which hides the alias drift `delegate.sh` alone was adopted
+  to catch, and a reader sent back with `-g` logged `send_back: null` like
+  its first call. Rows now keep the raw cost, a `model_used` from Claude's
+  `modelUsage` (`null` under `agy`, whose JSON names no model), and
+  `send_back` 0 or 1 for the reader; the screen rounds the cost in `jq`,
+  since `printf` breaks under a locale with a decimal comma.
 - **A `simple` tier below `standard`, chosen by the user.** With
   `standard` on Sonnet Medium, Haiku High keeps the work it does well: a
   mechanical TASK with exact steps and no new rule (a rename, a text or a
