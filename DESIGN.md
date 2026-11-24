@@ -16,7 +16,7 @@ by the role files.
 |---|---|---|---|---|---|
 | campaign | scope, goal, completion commands, a row per round | `draft` → `confirmed` → `done` \| `stopped` | 2–20 | MANAGER | MANAGER, AUTO |
 | round | a plan (one row per item: kind, executor, exec/review models, TASK → commit), a log, a report | `draft` → `confirmed` → `closed`; each row `todo` → `done` \| `blocked` \| `dropped` | 8–76 | MANAGER; the log under AUTO | the next round's plan, `round-close.sh` |
-| TASK | the order: files, data, tests, acceptance commands, tier (`standard` \| `complex` \| `deep`); frozen once handed over, but for `state` | `open` → `delivered` → `validated` \| `rejected` | 28–320 | MANAGER | the executor, REVIEWER, `task-preflight.sh` |
+| TASK | the order: files, data, tests, acceptance commands, tier (`simple` \| `standard` \| `complex` \| `deep`); frozen once handed over, but for `state` | `open` → `delivered` → `validated` \| `rejected` | 28–320 | MANAGER | the executor, REVIEWER, `task-preflight.sh` |
 | result | changed files, each command with its real output, what was missing in the environment | `done` \| `partial` \| `blocked`; up to 5 send-backs | one per TASK | the executor; the MANAGER appends the validation | MANAGER, REVIEWER |
 | review | the real diff against the TASK, each criterion run, each condition mutated, findings | a suggested verdict | 0–65 (mandatory since 2026-11-09) | REVIEWER | MANAGER |
 | report | a review by kind (`--code`, `--design`, …) | rounds of the same subject | 1–28 | REVIEWER | MANAGER, `/bot learn` |
@@ -118,8 +118,8 @@ asking, inside a window of authorization, and logs each decision.
    what the send-back authorized. Executors and reviewers stop and report
    `blocked` (or mark not run) after two failed attempts without new
    progress.
-10. **Models by tier in `models.md` alone:** three execution tiers
-    (`standard`, `complex`, `deep`) and three review tiers
+10. **Models by tier in `models.md` alone:** four execution tiers
+    (`simple`, `standard`, `complex`, `deep`) and three review tiers
     (`review-check`, `review-validate`, `review-deep`), paired across CLIs
     with effort levels, plus `READER`; no other file names their models.
     Review tier and `plan:` derive by default from

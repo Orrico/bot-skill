@@ -10,7 +10,7 @@ state: open
 campaign: <CAMPAIGN-nnn, if any>
 round: <N, if in a campaign>
 executor: dev | tester | dev+tester | writer
-tier: standard | complex | deep
+tier: simple | standard | complex | deep
 plan: no | yes
 critical_zone: no | yes — <which>
 reference: <previous TASK, if any>

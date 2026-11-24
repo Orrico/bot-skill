@@ -46,7 +46,7 @@ field() { awk '/^---$/{n++; if(n==2) exit; next} n==1' "$task" | sed -n -E "s/^$
 ex=$(field executor); ti=$(field tier); pl=$(field plan); cz=$(field critical_zone)
 bad_fields=0
 case "$ex" in dev|tester|dev+tester|writer) ;; *) echo "  invalid executor: '$ex' (expected dev, tester, dev+tester or writer)"; bad_fields=$((bad_fields + 1));; esac
-case "$ti" in standard|complex|deep) ;; *) echo "  invalid tier: '$ti' (expected standard, complex or deep)"; bad_fields=$((bad_fields + 1));; esac
+case "$ti" in simple|standard|complex|deep) ;; *) echo "  invalid tier: '$ti' (expected simple, standard, complex or deep)"; bad_fields=$((bad_fields + 1));; esac
 case "$pl" in no|yes) ;; *) echo "  invalid plan: '$pl' (expected no or yes)"; bad_fields=$((bad_fields + 1));; esac
 case "$cz" in no|yes*) ;; *) echo "  invalid critical_zone: '$cz' (expected no or yes — <which>)"; bad_fields=$((bad_fields + 1));; esac
 [ "$bad_fields" -eq 0 ] && echo "  ok"

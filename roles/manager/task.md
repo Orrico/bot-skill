@@ -50,7 +50,7 @@ run the checks (§2) before handover.
 - **Tests named in the TASK:** with a tester, the "Tests" section gives each
   test by file and name, the behaviour it shows, and whether it must fail or
   pass on the current code.
-- **Tier and `plan`:** pick `tier` (`standard`, `complex` or `deep`)
+- **Tier and `plan`:** pick `tier` (`simple`, `standard`, `complex` or `deep`)
   and `plan` from `<bot>/models.md`.
 - **Code dictated whole gets the reviewer's eye before handover:** bound
   every peer I/O or async call (write, flush, shutdown), release locks and

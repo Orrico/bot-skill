@@ -4,6 +4,18 @@ What changed in the skill, by date, and why. The commits hold the diffs.
 
 ## 2026-11-24
 
+- **A `simple` tier below `standard`, chosen by the user.** With
+  `standard` on Sonnet Medium, Haiku High keeps the work it does well: a
+  mechanical TASK with exact steps and no new rule (a rename, a text or a
+  setting across files, tests that follow a given pattern). A TASK that adds
+  a condition is `standard`, since Haiku High took 10× the time and turns of
+  Sonnet Medium on one. `agy` pairs it with 3.8 Flash High, weaker than
+  Haiku, so `simple` goes to `claude` and `READER` to `agy` by default; its
+  review is `review-check`, and escalation starts from it. Unlike the
+  `trivial` tier folded on 2026-11-23, its bound is the absence of new
+  logic, not a count of files or lines. `delegate.sh`, `task-preflight.sh`,
+  the TASK template, `roles/MANAGER.md`, `roles/manager/task.md` and
+  DESIGN.md accept and name it.
 - **Claude `standard` and `review-check` moved to Sonnet Medium; all
   delegations standardized on `delegate.sh`.** Across calibration rounds,
   Sonnet Medium ran `standard` TASKs 5–10× faster and 2.5–4.7× cheaper than

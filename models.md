@@ -12,6 +12,7 @@ zone raises `review-check` to `review-validate`).
 
 | Tier | `claude` (`--model`, `--effort`) | `agy` (`--model`) | Plan | Review | Use |
 |---|---|---|---|---|---|
+| `simple` | `haiku`, `high` | `gemini-3.8-flash-high` | `no` | `review-check` | A mechanical TASK with exact steps and no new rule: a rename, a text or a setting across files, tests that follow a given pattern |
 | `standard` | `sonnet`, `medium` | `gemini-4-hydrogen-medium` | `no` | `review-check` | A closed TASK (one code path, in one file or several), or a critical zone with exact steps: decisions already made, criteria verifiable by command |
 | `complex` | `sonnet`, `high` | `gemini-4-hydrogen-high` | `yes` | `review-validate` | Several parts or reasoning over existing code; concurrent logic; a decision inside a scope already given |
 | `deep` | `opus`, `high` | `gemini-4-neon-high` | `yes` | `review-deep` | High-risk refactor, open critical zone, or escalation when stuck |
@@ -25,7 +26,7 @@ one before.
 
 | Tier | `claude` (`--model`, `--effort`) | `agy` (`--model`) | Use |
 |---|---|---|---|
-| `review-check` | `sonnet`, `medium` | `gemini-4-hydrogen-medium` | Default for `standard` deliveries outside a critical zone: diff vs Files, criteria, mutations |
+| `review-check` | `sonnet`, `medium` | `gemini-4-hydrogen-medium` | Default for `simple` and `standard` deliveries outside a critical zone: diff vs Files, criteria, mutations |
 | `review-validate` | `sonnet`, `high` | `gemini-4-hydrogen-high` | Default for `complex` deliveries, critical zones, and reviews by kind (`--code`, `--editorial`, `--market`) |
 | `review-deep` | `opus`, `high` | `gemini-4-neon-high` | `deep` deliveries, `--design`, invariant or security audits, or tie-break after a failure |
 
@@ -48,7 +49,7 @@ delegations (BASE §5).
 - **First `executor` send-back** (a missed check or narrow slip): keep the
   **same tier** — the gap is now explicit, which saves quota and keeps the retry
   focused.
-- **Escalate one tier** (`standard` → `complex` → `deep`) only on:
+- **Escalate one tier** (`simple` → `standard` → `complex` → `deep`) only on:
   a second `executor`-caused send-back on the same TASK, an executor stopping
   on the anti-loop rule or complexity limit, or a re-issue after a rejection
   caused by `executor`. Under AUTO, automatic escalation stops at `complex`;
@@ -59,11 +60,16 @@ delegations (BASE §5).
 - **Tier policy:** across both CLIs, Opus High and Neon High coordinate and
   take `deep` and `review-deep`; Sonnet High and Hydrogen High take `complex`
   and `review-validate`; Sonnet Medium and Hydrogen Medium take `standard` and
-  `review-check`; `READER` stays on Haiku High and 3.8 Flash High. No effort
+  `review-check`; Haiku High and 3.8 Flash High take `simple` and `READER`.
+  3.8 Flash is weaker than Haiku, so `simple` goes to `claude` and `READER` to
+  `agy` unless the user or the quota asks otherwise. No effort
   past `high` (`max` and `xhigh` spend Claude quota fast), and Argon is not
   used. In `agy`, Neon, Hydrogen, 3.8 Flash and Argon share one rolling
   five-hour and one rolling weekly quota; new context and output dominate cost,
   not cached input.
+- **`simple`** is for work with no condition to reason about: a TASK that
+  adds an `if`, a filter or a bound is `standard`, since Haiku High took 10×
+  the time and turns of Sonnet Medium on one.
 - **`deep`** is for genuinely high-risk work or escalation after failure,
   not routine multi-file TASKs with exact steps.
 - **Single mechanism — `<bot>/scripts/delegate.sh`:** all delegations (TASK
